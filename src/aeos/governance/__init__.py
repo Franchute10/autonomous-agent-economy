@@ -5,6 +5,14 @@ from aeos.governance.domain import (
     GovernanceDecision,
     GovernanceDecisionResult,
     PolicyVersion,
+    PermissionCapability,
+    PermissionGrant,
+    PermissionScope,
+    PermissionScopeKind,
+    ApprovalDecision,
+    ApprovalDecisionResult,
+    ApprovalRequest,
+    ApprovalRequestState,
 )
 
 __all__ = [
@@ -12,4 +20,12 @@ __all__ = [
     "GovernanceDecision",
     "GovernanceDecisionResult",
     "PolicyVersion",
+    "PermissionCapability",
+    "PermissionGrant",
+    "PermissionScope",
+    "PermissionScopeKind",
+    "ApprovalDecision",
+    "ApprovalDecisionResult",
+    "ApprovalRequest",
+    "ApprovalRequestState",
 ]

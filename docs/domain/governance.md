@@ -88,3 +88,43 @@ enforcement comes later.
 This domain intentionally has no permission evaluation, policy engine,
 approval workflow, authorization engine, persistence, economics,
 workflow/runtime enforcement, model providers, or Tool Gateway.
+
+## Permission grants
+
+`PermissionGrant` is immutable governance state describing one exact
+capability granted to one explicit grantee (`ActorRef`, `RoleId`, or
+`RoleAssignmentId`) for one organization-scoped `PermissionScope`. The
+capability is an exact, non-wildcard `PermissionCapability`; it is not a
+policy expression. Grants preserve exact `VersionRef` values for the policy
+and optional constitution baseline, and have UTC temporal bounds. Its
+`is_effective_at` helper checks only those bounds. A grant is not an
+authorization engine and does not answer whether an arbitrary action is
+authorized.
+
+## Approval state
+
+`ApprovalRequest` is the concrete request created by application/domain logic
+after a `GovernanceDecision` has the normalized result
+`GovernanceDecisionResult.REQUIRE_APPROVAL`. `REQUIRE_APPROVAL` says approval
+is required; it is not itself an approval request. A request starts in
+`PENDING` and can transition only to `DECIDED`, `EXPIRED`, or `CANCELLED`.
+Expiry uses an explicit UTC timestamp and is not scheduled by this domain.
+
+`ApprovalDecision` is an immutable `APPROVE` or `DENY` fact linked to exactly
+one request. `decided_by` records an `ActorRef`; it records who made the fact
+but does not prove that the actor was authorized to approve. A request and
+decision must share both `ApprovalRequestId` and `OrganizationId`, and a
+terminal request cannot receive another normal decision.
+
+The minimal pure-domain lifecycle is:
+
+```text
+GovernanceDecision(REQUIRE_APPROVAL)
+  -> ApprovalRequest(PENDING)
+  -> ApprovalDecision(APPROVE)
+  -> ApprovalRequest(DECIDED)
+```
+
+There is no policy evaluation, authorization or permission evaluation engine,
+approval orchestration, runtime enforcement, persistence, event bus,
+economics, or workflow implementation here.
