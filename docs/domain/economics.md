@@ -34,11 +34,72 @@ OrganizationId
       -> ResourceAccount(AVAILABLE)
 ```
 
-There is no balance or transaction behavior in this domain slice. Balances will
-later be derived from the balanced append-only ledger.
+There is no authoritative balance on a resource account. Balances will later
+be derived from the balanced append-only journal.
+
+## EconomicTransaction and LedgerPosting
+
+`EconomicTransaction` is one immutable journal fact. Its exact transaction
+type is one of `OPENING`, `ALLOCATE`, `RESERVE`, `RELEASE`, `COMMIT`,
+`CONSUME`, `CREDIT`, `REFUND`, or `ADJUST`. `LedgerPosting` is an immutable
+signed `ResourceQuantity` movement on exactly one `ResourceAccountId` and
+`ResourceId`; zero postings are rejected.
+
+Direct construction requires `postings` to be a tuple of `LedgerPosting`
+values; that tuple is preserved unchanged. The `from_definitions()` convenience
+factory accepts a sequence but validates every element before definition lookup.
+
+Trace metadata is carried as the shared-kernel `TraceContext`, preserving the
+actor, correlation, causation, and idempotency values without duplicating that
+contract in Economics.
+
+For every resource represented in a transaction, signed quantities must sum to
+exact zero independently:
+
+```text
+AVAILABLE -5
+RESERVED  +5
+          = 0
+```
+
+Multi-resource transactions balance each resource separately:
+
+```text
+CASH   AVAILABLE -1, CONSUMED +1
+TOKENS AVAILABLE -100, CONSUMED +100
+```
+
+Different resources are never summed together merely because their numeric
+values happen to use compatible Decimal representations. Quantities for one
+resource must use one unit; units are not converted. When supplied, resource
+and account definitions are checked locally for resource identity, unit, and
+organization consistency. A transaction's postings and metadata cannot be
+edited after construction. Corrections are represented as new
+`EconomicTransaction` instances; prior facts are not mutated.
+
+Minimal construction:
+
+```python
+EconomicTransaction(
+    EconomicTransactionId("tx-1"),
+    organization_id,
+    EconomicTransactionType.ALLOCATE,
+    occurred_at,
+    effective_at,
+    trace,
+    (
+        LedgerPosting(resource_id, available_id, ResourceQuantity("-5", unit)),
+        LedgerPosting(resource_id, reserved_id, ResourceQuantity("5", unit)),
+    ),
+)
+```
+
+This task defines no persistent ledger, account balance query, budget,
+reservation, pricing, usage settlement, cost allocation, persistence, or
+runtime accounting. It defines no transaction service or repository.
 
 ## Non-goals
 
-This implementation includes no ledger, transactions, postings, balances,
-budgets, reservations, pricing, settlement, or persistence. It also includes no
+This implementation includes no persistent ledger, balances, budgets,
+reservations, pricing, settlement, or persistence. It also includes no
 repositories, runtime accounting, workflows, experiments, or provider code.
