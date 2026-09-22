@@ -87,3 +87,43 @@ ResourceQuantity("100", "input_tokens") + ResourceQuantity("50", "output_tokens"
 
 These primitives do not implement accounts, budgets, reservations, ledgers,
 pricing, cost allocation, or persistence.
+
+## Version references, content hashes, errors, and domain events
+
+`VersionRef(subject, version)` identifies one exact published version. Its
+canonical string form is `subject:version`, and it can be reconstructed with
+`VersionRef.from_string()`. It is immutable and does not represent `latest`,
+`current`, `active`, mutable aliases, or version resolution.
+
+`ContentHash` currently uses SHA-256 and hashes exact supplied `bytes` through
+`hash_bytes()`. Its canonical form is `sha256:<lowercase-hex-digest>` and it
+can be reconstructed with `ContentHash.from_string()`. It deliberately does
+not canonicalize arbitrary Python objects; callers must supply bytes whose
+canonicalization rules are already defined for their use case.
+
+`DomainError(code, message)` is the provider-independent base exception for
+semantic domain failures. Its code is machine-readable and its message is
+human-readable. Core defines no HTTP, database, or provider error mapping.
+
+`DomainEvent` is an immutable metadata-only fact contract. It contains a
+typed `DomainEventId`, explicit event type, UTC-normalized `occurred_at`,
+`ActorRef`, `CorrelationId`, optional `CausationId`, and optional
+`IdempotencyKey`. Actor identity does not grant authority. A root event may
+omit causation; otherwise causation identifies a prior AEOS cause.
+
+For example:
+
+```python
+from datetime import datetime, timezone
+from aeos.core import ContentHash, VersionRef
+
+reference = VersionRef("workflow:abc123", "7")
+content_hash = ContentHash.from_bytes(b"already-canonical-content")
+occurred_at = datetime.now(timezone.utc)  # pass an explicit time in real code
+```
+
+`DomainEvent` is distinct from `AuditEvent`: a domain event is a typed fact
+emitted by domain behavior for coordination or history, while an audit event
+is a separate immutable control/history record for Knowledge & Audit. This
+task adds no audit trail, event bus, dispatcher, publisher, subscriber,
+persistence, event store, event sourcing, or outbox/inbox behavior.

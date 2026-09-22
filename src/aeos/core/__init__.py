@@ -1,6 +1,9 @@
 """Provider-free Shared Kernel primitives."""
 
 from aeos.core.actors import ActorKind, ActorRef
+from aeos.core.errors import DomainError
+from aeos.core.events import DomainEvent
+from aeos.core.hashing import ContentHash, hash_bytes
 from aeos.core.money import Currency, CurrencyMismatch, Money
 from aeos.core.resources import ResourceQuantity, ResourceUnit, ResourceUnitMismatch
 from aeos.core.ids import (
@@ -10,6 +13,7 @@ from aeos.core.ids import (
     ApprovalRequestId,
     ArtifactId,
     AuditEventId,
+    DomainEventId,
     BudgetId,
     CausationId,
     ConstitutionVersionId,
@@ -54,12 +58,17 @@ from aeos.core.ids import (
 )
 from aeos.core.time import UtcTimestamp, normalize_utc
 from aeos.core.trace import TraceContext
+from aeos.core.versioning import VersionRef
 
 __all__ = [
     "ActorKind",
     "ActorRef",
+    "ContentHash",
     "Currency",
     "CurrencyMismatch",
+    "DomainError",
+    "DomainEvent",
+    "DomainEventId",
     "Money",
     "ResourceQuantity",
     "ResourceUnit",
@@ -67,6 +76,8 @@ __all__ = [
     "TraceContext",
     "UtcTimestamp",
     "normalize_utc",
+    "VersionRef",
+    "hash_bytes",
     "AgentDefinitionId",
     "AgentInvocationId",
     "ApprovalDecisionId",

@@ -191,6 +191,10 @@ class AuditEventId(_AeosId):
     pass
 
 
+class DomainEventId(_AeosId):
+    pass
+
+
 class ReproducibilityManifestId(_AeosId):
     pass
 
