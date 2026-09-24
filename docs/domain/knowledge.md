@@ -1,6 +1,9 @@
-# Knowledge & Audit: Artifact foundation
+# Knowledge & Audit domain
 
-This module currently provides only immutable `Artifact` metadata and an inward-defined `ArtifactPort` for exact payload bytes. It does not implement Evidence, provenance, audit, search, or metadata persistence.
+This bounded context defines immutable content metadata and the smallest
+vocabulary for audit and provenance. It contains domain models only: there is
+no persistence, repository, audit store, graph store, search, or automatic
+audit emission.
 
 ## Artifact semantics
 
@@ -33,4 +36,52 @@ bytes -> ContentHash -> ArtifactPort.put -> storage_ref -> Artifact metadata
       -> ArtifactPort.get -> identical bytes
 ```
 
-Artifact is stored content; it is not Evidence. Artifact is also not an AuditEvent. Evidence, provenance graphs, AuditEvent, search, embeddings, vector/graph databases, agent memory, database metadata persistence, remote storage, and workflow/model/tool integration are explicit non-goals of this foundation.
+Artifact is stored content; it is not Evidence and is not an AuditEvent.
+Evidence and AuditEvent are implemented KNOW-002 vocabulary. Persistence,
+repositories, audit storage, provenance graph traversal, indirect cycle
+detection, graph databases, search, embeddings, semantic retrieval, agent
+memory, workflow/experiment/runtime integration, and automatic audit emission
+remain explicit non-goals.
+
+## Evidence
+
+`Evidence` is an immutable support claim with a non-blank `statement` and at
+least one explicit source: an `ArtifactId` or a typed `FactRef`. `FactRef`
+accepts only the implemented material fact ID set; ArtifactId and EvidenceId
+are not FactRef sources. It never
+contains payload bytes, changes Artifact metadata, calculates a hash, or
+performs storage, ranking, confidence, or retrieval. Artifact content does not
+automatically become Evidence.
+
+## AuditEvent
+
+`AuditEvent` is an immutable append-only material historical fact that an
+action or mutation occurred. It has an `AuditEventId`, stable event type,
+canonical dot-separated symbolic event type, `AuditSubjectRef`, UTC
+`occurred_at`, required shared-kernel `TraceContext`,
+and optional typed Artifact/Evidence references. Existing audit events are
+never edited; corrections are represented by new facts. `DomainEvent` and
+`AuditEvent` are distinct concepts: AuditEvent is neither a subclass nor an
+alias of DomainEvent and only reuses shared primitives.
+
+## ProvenanceLink
+
+`ProvenanceLink` is an immutable directed `source -> target` relation. The
+direction means that the target derives from, or is supported by, the source,
+according to its closed `ProvenanceRelation` (`DERIVED_FROM` or
+`SUPPORTED_BY`). Endpoints are closed `ProvenanceRef` values for Artifact,
+Evidence, AuditEvent, or an explicitly supported material domain fact. Direct self-links are
+rejected. Global graph traversal, indirect cycle detection, duplicate
+detection, and repository lookup are intentionally not implemented.
+
+All model timestamps use the shared UTC normalization rules, and trace metadata
+uses the shared `TraceContext` type. Organization ownership is optional local
+context; cross-organization checks requiring object loading are deferred.
+
+Minimal examples:
+
+```text
+Artifact A -> Evidence E supporting statement S
+Artifact A -> ProvenanceLink(DERIVED_FROM) -> Artifact B
+material action -> AuditEvent with TraceContext and optional references
+```

@@ -22,3 +22,45 @@ class InvalidArtifactStorageRef(InvalidArtifact):
 
     def __init__(self) -> None:
         super().__init__("storage_ref must be a non-blank string")
+
+
+class InvalidAuditEvent(DomainError):
+    """An audit event violates a local domain invariant."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__("knowledge.invalid_audit_event", message)
+
+
+class InvalidAuditSubject(InvalidAuditEvent):
+    """An audit subject reference is invalid."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(f"invalid audit subject: {message}")
+
+
+class InvalidEvidence(DomainError):
+    """An evidence record violates a local domain invariant."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__("knowledge.invalid_evidence", message)
+
+
+class EvidenceWithoutSource(InvalidEvidence):
+    """Evidence must name at least one explicit supporting source."""
+
+    def __init__(self) -> None:
+        super().__init__("evidence must have at least one support source")
+
+
+class InvalidProvenanceLink(DomainError):
+    """A provenance link violates a local domain invariant."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__("knowledge.invalid_provenance_link", message)
+
+
+class ProvenanceSelfReference(InvalidProvenanceLink):
+    """A provenance link cannot point from a reference to itself."""
+
+    def __init__(self) -> None:
+        super().__init__("source and target must be different")
