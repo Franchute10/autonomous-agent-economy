@@ -86,3 +86,71 @@ class MissingResourceAccountDefinition(DomainError):
             "missing_resource_account_definition",
             f"resource account definition is missing for {resource_account_id}",
         )
+
+
+class InvalidBudgetPurpose(DomainError):
+    def __init__(self) -> None:
+        super().__init__("invalid_budget_purpose", "budget purpose must not be blank")
+
+
+class InvalidBudgetLimit(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "invalid_budget_limit", "budget limit must be positive and valid"
+        )
+
+
+class InvalidBudgetPeriod(DomainError):
+    def __init__(self) -> None:
+        super().__init__("invalid_budget_period", "budget period is invalid")
+
+
+class DuplicateBudgetLimit(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "duplicate_budget_limit",
+            "budget limits with the same logical key must not overlap",
+        )
+
+
+class BudgetLimitMismatch(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "budget_limit_mismatch",
+            "reservation is not covered by a matching budget limit",
+        )
+
+
+class InvalidReservationQuantity(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "invalid_reservation_quantity", "reservation quantity must be positive"
+        )
+
+
+class InvalidReservationPeriod(DomainError):
+    def __init__(self) -> None:
+        super().__init__("invalid_reservation_period", "reservation period is invalid")
+
+
+class BudgetOrganizationMismatch(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "budget_organization_mismatch",
+            "reservation and budget organizations differ",
+        )
+
+
+class ReservationBudgetMismatch(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "reservation_budget_mismatch",
+            "reservation references a different budget",
+        )
+
+
+class InvalidReservationState(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "invalid_reservation_state", "reservation lifecycle transition is invalid"
+        )

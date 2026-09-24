@@ -94,12 +94,27 @@ EconomicTransaction(
 )
 ```
 
-This task defines no persistent ledger, account balance query, budget,
-reservation, pricing, usage settlement, cost allocation, persistence, or
-runtime accounting. It defines no transaction service or repository.
+## Budget and reservation
+
+`Budget` is an immutable, purpose-bound authorization containing one or more
+`BudgetLimit` values. Each limit is for one resource, positive, unit-specific,
+and bounded by a UTC period. A budget cannot contain duplicate limits and each
+limit must fit inside the budget period.
+
+`Reservation` is an immutable positive hold created before execution. It must
+reference the same organization and budget, fall within the budget period, and
+be covered by a matching limit. `released(at)`, `committed(at)`, and
+`expired(at)` return new reservation facts with caller-supplied UTC
+`resolved_at` timestamps; they never mutate the original reservation. A
+reservation always starts `ACTIVE`, and terminal state cannot be injected
+through construction. Expiration and state are facts, not balance calculations.
+
+These models provide local invariants only. They do not query current account
+availability, sum concurrent reservations, persist state, or replace an
+atomic application service.
 
 ## Non-goals
 
-This implementation includes no persistent ledger, balances, budgets,
-reservations, pricing, settlement, or persistence. It also includes no
+This implementation includes no persistent ledger, balances, pricing,
+settlement, or persistence. It also includes no
 repositories, runtime accounting, workflows, experiments, or provider code.
