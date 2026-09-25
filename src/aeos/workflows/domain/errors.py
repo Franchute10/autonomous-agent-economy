@@ -76,3 +76,46 @@ class EndNodeHasOutgoingEdge(DomainError):
             "end_node_has_outgoing_edge",
             "an END node must not have outgoing edges",
         )
+
+
+class InvalidWorkflowRunState(DomainError):
+    def __init__(self, message: str = "invalid workflow run status") -> None:
+        super().__init__("invalid_workflow_run_state", message)
+
+
+class InvalidWorkflowRunTransition(DomainError):
+    def __init__(self, message: str = "workflow run transition is not allowed") -> None:
+        super().__init__("invalid_workflow_run_transition", message)
+
+
+class InvalidNodeRunState(DomainError):
+    def __init__(self, message: str = "invalid node run status") -> None:
+        super().__init__("invalid_node_run_state", message)
+
+
+class InvalidNodeRunTransition(DomainError):
+    def __init__(self, message: str = "node run transition is not allowed") -> None:
+        super().__init__("invalid_node_run_transition", message)
+
+
+class InvalidNodeAttemptState(DomainError):
+    def __init__(self, message: str = "invalid node attempt status") -> None:
+        super().__init__("invalid_node_attempt_state", message)
+
+
+class InvalidNodeAttemptTransition(DomainError):
+    def __init__(self, message: str = "node attempt transition is not allowed") -> None:
+        super().__init__("invalid_node_attempt_transition", message)
+
+
+class InvalidLifecycleTimestamp(DomainError):
+    def __init__(self, message: str = "lifecycle timestamps are inconsistent") -> None:
+        super().__init__("invalid_lifecycle_timestamp", message)
+
+
+class InvalidAttemptNumber(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "invalid_attempt_number",
+            "attempt_number must be an int greater than or equal to 1",
+        )
