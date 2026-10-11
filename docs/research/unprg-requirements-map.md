@@ -1,0 +1,58 @@
+# EPG-UNPRG requirements map
+
+This map translates the identified EPG-UNPRG requirements into future evidence
+and academic-work needs. It distinguishes the institutional **PROJECT** of
+research from the **FINAL REPORT** of research. It is not a thesis chapter
+outline and does not claim that AEOS telemetry can replace literature,
+epistemology, methodology, or interpretation.
+
+**UNPRG stage** uses `PROJECT`, `FINAL REPORT`, or `BOTH`. The supplied
+institutional structure places hypothesis in the project as **optional
+according to the research level or nature of the project**; THESIS-000 does not
+decide whether the eventual AEOS study will use a formal academic hypothesis.
+**Current availability** describes what the repository can currently model or
+document. It does not claim that a complete study dataset exists.
+
+| UNPRG stage | UNPRG requirement | Research-layer concept | Required evidence/data | AEOS contribution | External academic contribution | Current availability | Future task / gap |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| PROJECT | Formulación del problema | Provisional `ResearchQuestion`; problem context and scope | A refined problem statement, context, delimitations, motivation, and evidence that the problem is real and relevant | Operational context and bounded facts may inform the problem; the provisional `$50`/30-day anchor is preserved without finalizing it | Problem formulation, context, relevance, and academic delimitation | Provisional anchor documented; final formulation unavailable | Refine during study design; do not freeze in product code |
+| PROJECT | Hipótesis | Future research hypothesis linked to question/objective; optional null/alternative forms if the final design requires them | Explicit academic proposition if applicable; constructs/variables involved; expected relationship or direction where appropriate; evidence needed to test or evaluate it | Product experiment hypotheses and observations may provide operational evidence; `ExperimentPreregistration.hypothesis` remains a product declaration | Academic hypothesis formulation and methodological justification, including inferential treatment when applicable | Product experiment hypothesis is available in EXP-001; final research hypothesis is not | Applicability remains to be decided because UNPRG states hypothesis is optional according to research level or project nature; do not finalize it here |
+| PROJECT | Objetivos | `ResearchObjective` | General/specific objectives and their links to questions, constructs, indicators, and studies | Product facts can constrain measurable operational objectives | Academic objective wording, hierarchy, and alignment with research problem | Traceability semantics documented; final objectives are not frozen | Future study defines final objective set |
+| BOTH | Antecedentes | External literature/evidence record; research context | Prior studies, comparable systems, findings, limitations, and citations | AEOS may provide project history or artifacts as contextual material, not as a substitute for prior scholarship | Literature search, selection, synthesis, and citation | No literature review is generated | External academic work; possible evidence package linkage in AEOS-THESIS-001 |
+| BOTH | Bases teóricas | External theory mapping | Theories, models, and scholarly sources that explain the phenomenon | AEOS terminology and observed operational facts can be described as the object of study | Theoretical framework, source criticism, and synthesis | Not an AEOS product output | External academic work; not product telemetry |
+| BOTH | Bases conceptuales | Construct/variable and term definitions | Definitions, boundaries, dimensions, relationships, and cited conceptual sources | AEOS product vocabulary may clarify operational facts without becoming academic constructs | Conceptual definitions and scholarly grounding | Traceability concepts documented; final construct set is open | Future study freezes appropriate definitions |
+| FINAL REPORT | Estado del Arte | External state-of-knowledge synthesis | Recent research landscape, gaps, approaches, and positioning | AEOS can provide the system being positioned or artifacts describing its design | Postgraduate literature search, synthesis, and gap argument | Not available from product domains | External academic work |
+| FINAL REPORT | Bases epistemológicas | Epistemological position and methodological coherence | Paradigm, assumptions about knowledge, validity, limits, and relation to method | AEOS can expose how operational facts and provenance are produced | Epistemological argument and scholarly sources | Not represented as product telemetry | External academic work |
+| BOTH | Operacionalización / categorización de variables | Construct/Variable → Indicator → future `MetricDefinition` → `DataRequirement` | Dimensions/categories, indicators, units, operational rules, observation window, and missing-data semantics | Product source catalog identifies possible authoritative facts and gaps | Final operationalization/categorization and methodological justification | Chain is specified; no final variables, indicators, or metrics are implemented | **AEOS-METRIC-001** plus future study protocol; final academic choices remain external |
+| BOTH | Diseño de contrastación de hipótesis / procedimiento a seguir | `ExperimentLink`; `AnalysisPlan / Study Mapping`; future protocol | Design, treatments/comparators, sequence, controls, timing, inclusion/exclusion, and reproducible procedure | EXP-001 supplies preregistration/lifecycle facts; Workflows may supply procedure state | Methodological design, validity threats, and procedural justification | Product lifecycle and workflow vocabulary available; no study runner or protocol execution | **AEOS-SIM-002**, **AEOS-STUDY-001**, or **AEOS-STUDY-002** |
+| FINAL REPORT | Diseño metodológico | `AnalysisPlan / Study Mapping`; future protocol and study evidence | Methodological implementation, data handling, and documented deviations | AEOS may preserve operational facts, evidence, provenance, and experiment lifecycle | Methodological explanation, validity, and academic reporting | No final methodology or study execution exists | Future study tasks and external academic guidance |
+| BOTH | Población y muestra | Study scope and sampling mapping | Population definition, unit of analysis, sampling frame, sample rule, eligibility, and exclusions | AEOS may provide bounded operational units or experiment observations if later collected | Population/sample rationale and sampling method | No research population or sample dataset exists; applicability and treatment must be determined by the final research design and academic guidance | Future study task must define the design and source; THESIS-000 does not decide it |
+| BOTH | Técnicas, instrumentos, equipos, materiales según corresponda | `DataRequirement`, `EvidenceRequirement`, future protocol | Collection technique, instrument/version, equipment, materials, calibration or administration procedure, and validity evidence | Artifacts, audit events, provenance, workflow facts, and future runtime records may preserve collection evidence | Technique, instrument, equipment, material design and methodological justification | Evidence vocabulary exists; no research collection implementation | Future study/reproducibility tasks define what applies and its contract |
+| FINAL REPORT | Resultados | Future dataset, metric result, evidence bundle, and analysis mapping | Frozen inputs, metric values, derivations, uncertainty/limitations, source references, and result presentation | Traceable operational facts, lifecycle records, artifacts, audit events, provenance, and future metric outputs may feed the results | Academic analysis, presentation, interpretation, and reporting | Inputs are partial and no measurement/export exists | **AEOS-METRIC-001**, **AEOS-EXP-002**, **AEOS-REPRO-001** |
+| FINAL REPORT | Discusión de resultados | `AnalysisPlan / Study Mapping` plus interpretation record | Comparison to objectives and literature, explanation, limitations, implications, and alternative interpretations | AEOS facts can be cited as observations and limitations | Academic interpretation, comparison, argument, and discussion | Not a current AEOS output; no conclusions are generated | **AEOS-THESIS-001** assembles evidence, but discussion remains academic work |
+| FINAL REPORT | Propuesta de intervención | Future intervention mapping and evaluation plan | Problem-to-intervention diagnosis, feasibility, execution, governance, and evaluation evidence required to support the future proposal | Governance, workflows, economics, experiments, and future measurements may support diagnosis, feasibility, execution, or evaluation | The actual intervention design, improvement rationale, contribution, and academic evaluation remain external academic work | No intervention has been defined by this task | Under the supplied postgraduate final-report structure, this section is required; future study/thesis work must define it, and THESIS-000 must not invent it |
+| PROJECT | Producto de investigación | Future `Study` / thesis evidence package mapping | Final product definition, acceptance criteria, traceable sources, artifacts, and delivery format | AEOS may provide a reproducibility/evidence package and product facts | Final academic product, formatting, contribution claim, and institutional requirements | Final product intentionally not fixed | **AEOS-THESIS-001** defines evidence packaging only; academic product remains open |
+
+## Institutional stage inventory
+
+The following preserves the supplied section split, including requirements that
+are not themselves AEOS evidence mappings:
+
+| Stage | Institutional sections represented by the supplied structure |
+| --- | --- |
+| PROJECT | Información general; Título; Autor(es); Asesor; Línea de investigación; Lugar; Duración estimada; Síntesis de la situación problemática; Formulación del problema; Hipótesis, optional according to research level or nature; Objetivos; Antecedentes; Bases teóricas; Bases conceptuales / operacionalización or categorización; Diseño de contrastación de hipótesis / procedimiento a seguir; Población y muestra; Técnicas, instrumentos, equipos, materiales según corresponda; Cronograma; Presupuesto y financiamiento; Producto de investigación; Referencias; Anexos. |
+| FINAL REPORT | Información general; Resumen / palabras clave; Abstract / keywords; Introducción; Diseño teórico; Estado del Arte for postgraduate research; Bases epistemológicas for postgraduate research; Antecedentes; Bases teóricas; Bases conceptuales / operationalization or categorization; Diseño metodológico; Resultados; Discusión de resultados; Propuesta de intervención; Conclusiones; Referencias; Anexos. |
+| BOTH | The overlapping requirements are shown as `BOTH` in the mapping table; the institutional section names remain stage-specific above. |
+
+## Interpretation rules
+
+- AEOS-generated evidence is operational evidence: product facts, lifecycle
+  records, artifacts, provenance, and audit history. It does not automatically
+  establish academic validity.
+- External academic work includes literature, theoretical and conceptual
+  bases, epistemological position, methodological justification, hypotheses,
+  interpretations, and institutional formatting.
+- A requirement may have both contributions, but the table must preserve which
+  claim each source can support.
+- “Current” never means “already measured.” Where a fact, export, runtime
+  telemetry, or protocol is absent, the gap remains explicit.
