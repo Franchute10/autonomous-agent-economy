@@ -1,0 +1,1 @@
+"""Organization adapter ownership marker."""

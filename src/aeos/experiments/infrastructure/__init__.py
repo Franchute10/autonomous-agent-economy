@@ -1,0 +1,1 @@
+"""Experiment adapter ownership marker."""

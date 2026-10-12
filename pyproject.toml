@@ -10,7 +10,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "AEOS Contributors" }]
-dependencies = []
+dependencies = [
+    "SQLAlchemy>=2.0,<3",
+    "alembic>=1.13,<2",
+    "psycopg[binary]>=3.2,<4",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -24,6 +28,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 addopts = "--import-mode=importlib"
+pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.ruff]

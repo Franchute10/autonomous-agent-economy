@@ -1,0 +1,1 @@
+"""Economics adapter ownership marker."""
