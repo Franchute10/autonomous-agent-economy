@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from aeos.live.demo import build_demo_assessment
+from aeos.live.demo import build_demo_assessment, build_demo_assessments
 from aeos.live.domain import (
     AssessmentStatus,
     BestNextMove,
@@ -372,7 +372,7 @@ def test_vertical_profiles_are_declarative_and_lookup_is_case_insensitive() -> N
     assert vertical_profile_for("unknown trade") is None
 
 
-def test_fixture_demo_has_complete_fictional_assessment_without_website() -> None:
+def test_fixture_demo_runs_engine_for_website_and_no_website_businesses() -> None:
     assessment = build_demo_assessment()
     counts = {
         entity_type: sum(
@@ -385,9 +385,15 @@ def test_fixture_demo_has_complete_fictional_assessment_without_website() -> Non
     assert counts[MarketEntityType.PARTNER] == 2
     assert counts[MarketEntityType.SUPPLIER] == 2
     assert len(assessment.evidence) >= 6
-    assert len(assessment.opportunities) == 3
+    assert len(assessment.opportunities) >= 3
     assert assessment.business.website_url is None
-    assert "DEMO DATA — NOT REAL BUSINESS DATA" in assessment.limitations
+    assert any(
+        "fictional demonstration data" in item for item in assessment.limitations
+    )
+    assert all(
+        opportunity.opportunity_type is not OpportunityType.WEBSITE_CONVERSION
+        for opportunity in assessment.opportunities
+    )
     best_next_move = assessment.best_next_move
     assert best_next_move is not None
     assert best_next_move.selected_opportunity_id in {
@@ -397,6 +403,16 @@ def test_fixture_demo_has_complete_fictional_assessment_without_website() -> Non
     assert '"market_entities"' in rendered
     assert '"market_position"' in rendered
     assert '"best_next_move"' in rendered
+
+    hvac_assessment, cleaning_assessment = build_demo_assessments()
+    assert hvac_assessment.business.website_url is not None
+    assert cleaning_assessment.business.website_url is None
+    assert hvac_assessment.opportunities
+    assert cleaning_assessment.opportunities
+    assert any(
+        item.opportunity_type is OpportunityType.WEBSITE_CONVERSION
+        for item in hvac_assessment.opportunities
+    )
 
 
 def test_assessment_is_frozen_and_supports_structural_replacement() -> None:
