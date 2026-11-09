@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "source": {
+    "name": "Manatee County Bids and Proposals",
+    "starting_url": "https://www.mymanatee.org/services-and-amenities/service-listing/service-details/bids-proposals",
+    "access_mode": "MANUAL_IMPORT",
+    "response_state": "BLOCKED",
+    "block_reason": "The live procurement source is not available to this runtime; supply an authorized manual export before marking it available."
+  },
+  "solicitations": [],
+  "secondary_candidates": []
+}
