@@ -8,7 +8,7 @@ from sqlalchemy import Select, select, update
 from sqlalchemy.orm import Session
 
 from aeos.agents.domain import AgentCapability, AgentDefinition, AgentInvocation
-from aeos.core import ContentHash, ResourceUnit, VersionRef
+from aeos.core import ActorRef, ContentHash, OrganizationId, ResourceUnit, VersionRef
 from aeos.economics.domain import (
     Budget,
     BudgetLimit,
@@ -167,6 +167,29 @@ class OrganizationRepository:
                 )
             )
         return result
+
+    def list_for_actor(self, actor: ActorRef) -> tuple[Organization, ...]:
+        actor_id, actor_type, actor_kind = actor_values(actor)
+        rows = self._session.execute(
+            select(schema.organizations.c.id)
+            .join(
+                schema.role_assignments,
+                schema.role_assignments.c.organization_id == schema.organizations.c.id,
+            )
+            .where(
+                schema.role_assignments.c.actor_id == actor_id,
+                schema.role_assignments.c.actor_type == actor_type,
+                schema.role_assignments.c.actor_kind == actor_kind,
+            )
+            .distinct()
+            .order_by(schema.organizations.c.name, schema.organizations.c.id)
+        ).all()
+        organizations = []
+        for row in rows:
+            organization = self.get(OrganizationId.from_string(row[0]))
+            if organization is not None:
+                organizations.append(organization)
+        return tuple(organizations)
 
 
 class ConstitutionVersionRepository:

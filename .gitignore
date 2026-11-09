@@ -7,6 +7,8 @@ __pycache__/
 .coverage
 htmlcov/
 .venv/
+artifacts/live/
+.aeos-private/
 venv/
 env/
 .env
@@ -18,3 +20,10 @@ env/
 dist/
 build/
 site/
+
+# Local validation databases, generated reports, and temporary pytest artifacts
+.pytest-tmp-*/
+*.sqlite
+*.sqlite3
+*.db
+/reports/private/

@@ -4,6 +4,11 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from aeos.live.domain.evidence import SourceEvidence
+from aeos.live.domain.location_candidate import LocationCandidate, ServiceCandidate
+from aeos.live.domain.website_inspection import (
+    WebsiteInspectionDetails,
+    WebsitePage,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,6 +22,10 @@ class WebsiteSignal:
 class WebsiteInspectionResult:
     signals: tuple[WebsiteSignal, ...]
     evidence: tuple[SourceEvidence, ...]
+    details: WebsiteInspectionDetails | None = None
+    pages: tuple[WebsitePage, ...] = ()
+    locations: tuple[LocationCandidate, ...] = ()
+    services: tuple[ServiceCandidate, ...] = ()
 
 
 class WebsiteInspectionPort(Protocol):

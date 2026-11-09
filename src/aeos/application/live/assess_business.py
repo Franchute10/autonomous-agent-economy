@@ -1753,8 +1753,15 @@ def _industry_compatible(
     if entity.category is None or evidence_status != "supported":
         return False
     profile = vertical_profile_for(business.industry)
+    legacy_cleaning_key = (
+        business.industry.casefold().replace("_", " ").strip() == "house cleaning"
+    )
     industry = (
-        profile.canonical_industry_name if profile is not None else business.industry
+        "House Cleaning"
+        if legacy_cleaning_key
+        else profile.canonical_industry_name
+        if profile is not None
+        else business.industry
     )
     return _canonical_category(entity.category) == _canonical_category(industry)
 

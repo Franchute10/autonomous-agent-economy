@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "tenant_key": "fictional_cleaning_company",
+  "organization_id": "org-fixture-cleaning",
+  "organization_name": "Sample Cleaning Company (Fictional)",
+  "profile_file": "../business_profiles/fictional_cleaning_company.json",
+  "shared_data_files": {
+    "market_research": "../market_research/fictional_cleaning_markets.json",
+    "prospects": "../opportunity_activation/fictional_cleaning_prospects.json"
+  },
+  "ownership": "synthetic_example"
+}

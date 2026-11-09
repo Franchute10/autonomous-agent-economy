@@ -1,0 +1,38 @@
+{
+  "business_name": "Example Business (replace this)",
+  "legal_name": null,
+  "industry": "Replace with the industry name",
+  "vertical": "HOUSE_CLEANING",
+  "description": "Replace with a brief description of the business.",
+  "business_model": "B2C",
+  "country": "Example Country",
+  "state_region": "Example Region",
+  "city": "Sample City One",
+  "postal_code": null,
+  "address": null,
+  "service_radius": 15,
+  "service_radius_unit": "miles",
+  "additional_service_areas": [],
+  "primary_services": [
+    "Replace with a service the business offers"
+  ],
+  "secondary_services": null,
+  "products": null,
+  "target_customer_segments": [
+    "Replace with a customer segment"
+  ],
+  "value_proposition": null,
+  "differentiators": null,
+  "website_url": null,
+  "google_business_profile_url": null,
+  "social_media_urls": null,
+  "phone": null,
+  "business_email": null,
+  "years_in_operation": null,
+  "approximate_employees": null,
+  "existing_customer_sources": null,
+  "commercial_challenges": null,
+  "commercial_goals": null,
+  "operational_capacity": null,
+  "is_fictional_example": true
+}

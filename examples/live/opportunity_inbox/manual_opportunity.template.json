@@ -1,0 +1,79 @@
+{
+  "template_only": true,
+  "opportunity_id": "replace-with-stable-local-id",
+  "title": "Residential cleaning request in Sample City Two",
+  "source_platform": "Official public source",
+  "demand_type": "DIRECT_CUSTOMER_DEMAND",
+  "publication_date": "2026-11-07",
+  "discovered_at": "2026-11-07T15:30:00Z",
+  "service_requested": "Residential cleaning",
+  "summary": "Short, redacted evidence summary; omit names and contact details.",
+  "source_url": "https://public-request.example/public-request",
+  "source_event_ref": null,
+  "city": "Sample City Two",
+  "state": "FL",
+  "explicit_intent": true,
+  "is_open": true,
+  "response_method": "Use the source's native response form",
+  "publicly_accessible": true,
+  "business_authorized": false,
+  "source_provenance": "UNKNOWN",
+  "account_holder_authorized": false,
+  "permission_basis": "PUBLIC_NOTICE",
+  "source_terms_note": "Confirm that the source allows this business use before import.",
+  "procurement_status": null,
+  "official_deadline": null,
+  "eligibility_requirements": [],
+  "expected_jobs_per_day": 1,
+  "ongoing_need": false,
+  "limitations": [],
+  "evidence": [
+    {
+      "field": "city",
+      "value": "Sample City Two",
+      "kind": "OBSERVED",
+      "confidence": 0.95,
+      "excerpt": "The public request identifies Sample City Two."
+    },
+    {
+      "field": "state",
+      "value": "FL",
+      "kind": "OBSERVED",
+      "confidence": 0.95,
+      "excerpt": "The public request identifies Example Region."
+    },
+    {
+      "field": "service_requested",
+      "value": "Residential cleaning",
+      "kind": "OBSERVED",
+      "confidence": 0.95,
+      "excerpt": "The public request asks for residential cleaning."
+    },
+    {
+      "field": "explicit_intent",
+      "value": true,
+      "kind": "OBSERVED",
+      "confidence": 0.95,
+      "excerpt": "The author explicitly asks for a cleaning provider."
+    },
+    {
+      "field": "publication_date",
+      "value": "2026-11-07",
+      "kind": "OBSERVED",
+      "confidence": 0.95
+    },
+    {
+      "field": "open_status",
+      "value": true,
+      "kind": "OBSERVED",
+      "confidence": 0.95,
+      "excerpt": "The public request remained open at recheck."
+    },
+    {
+      "field": "response_method",
+      "value": "Use the source's native response form",
+      "kind": "OBSERVED",
+      "confidence": 0.95
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+name: PostgreSQL Security Validation
+
+on:
+  push:
+    branches:
+      - "codex/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postgresql-security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  postgresql-security:
+    name: PostgreSQL 17 tenant isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          # Job-scoped service; destroyed with the GitHub-hosted runner.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install declared project dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+
+      - name: Initialize disposable roles and database
+        run: |
+          psql --host localhost --username postgres --dbname postgres \
+            --set ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE aeos_migrator
+            LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          CREATE ROLE aeos_app
+            LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          CREATE DATABASE aeos_test OWNER aeos_migrator;
+          GRANT CONNECT ON DATABASE aeos_test TO aeos_app;
+          \connect aeos_test
+          REVOKE ALL PRIVILEGES ON DATABASE aeos_test FROM PUBLIC;
+          GRANT CONNECT ON DATABASE aeos_test TO aeos_migrator, aeos_app;
+          REVOKE ALL ON SCHEMA public FROM PUBLIC;
+          GRANT USAGE ON SCHEMA public TO aeos_app;
+          ALTER DEFAULT PRIVILEGES FOR ROLE aeos_migrator IN SCHEMA public
+            GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO aeos_app;
+          ALTER DEFAULT PRIVILEGES FOR ROLE aeos_migrator IN SCHEMA public
+            GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO aeos_app;
+          DO $$
+          BEGIN
+            IF current_setting('server_version_num')::integer / 10000 <> 17 THEN
+              RAISE EXCEPTION 'CI must use PostgreSQL 17';
+            END IF;
+            IF EXISTS (
+              SELECT 1 FROM pg_roles
+              WHERE rolname IN ('aeos_app', 'aeos_migrator')
+                AND (rolsuper OR rolbypassrls OR rolcreatedb OR rolcreaterole
+                     OR rolreplication)
+            ) THEN
+              RAISE EXCEPTION 'test roles have an unintended elevated attribute';
+            END IF;
+            IF has_database_privilege('aeos_app', 'aeos_test', 'CREATE')
+               OR has_schema_privilege('aeos_app', 'public', 'CREATE')
+               OR has_database_privilege('aeos_app', 'aeos_test', 'TEMP') THEN
+              RAISE EXCEPTION 'application test role has an unnecessary privilege';
+            END IF;
+          END;
+          $$;
+          SQL
+
+      - name: Run PostgreSQL and tenant-scoped storage tests
+        env:
+          AEOS_TEST_DATABASE_URL: postgresql+psycopg://localhost:5432/aeos_test
+          AEOS_MIGRATION_DATABASE_URL: postgresql+psycopg://localhost:5432/aeos_test
+          AEOS_DATABASE_URL: ""
+          DATABASE_URL: ""
+        run: >-
+          python -m pytest -q
+          tests/integration/persistence/test_postgresql_round_trips.py
+          tests/unit/tenancy/test_three_tenant_commercial_isolation.py

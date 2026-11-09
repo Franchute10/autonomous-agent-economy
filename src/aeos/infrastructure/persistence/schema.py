@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     ForeignKeyConstraint,
     Integer,
+    JSON,
     MetaData,
     Numeric,
     PrimaryKeyConstraint,
@@ -39,6 +40,17 @@ organizations = Table(
     Column("status", String(32), nullable=False),
     Column("current_constitution_subject", VERSION),
     Column("current_constitution_version", VERSION),
+)
+organization_business_profiles = Table(
+    "organization_business_profiles",
+    metadata,
+    Column(
+        "organization_id",
+        ID,
+        ForeignKey("organizations.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("profile_data", JSON, nullable=False),
 )
 roles = Table(
     "roles",

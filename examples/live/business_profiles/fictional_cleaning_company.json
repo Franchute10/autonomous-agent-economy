@@ -1,0 +1,87 @@
+{
+  "fixture_metadata": {
+    "synthetic_fixture": true,
+    "synthetic_record": true
+  },
+  "business_profile": {
+    "business_name": "Synthetic Example Cleaning Company",
+    "legal_name": "Synthetic Example Cleaning Company",
+    "industry": "Residential cleaning services",
+    "vertical": "HOUSE_CLEANING",
+    "description": "Fictional cleaning profile used only for AEOS examples and tests.",
+    "business_model": "B2C",
+    "country": "Example Country",
+    "state_region": "FL",
+    "city": "Sample City One",
+    "postal_code": "00000",
+    "address": "100 Synthetic Example Way",
+    "service_radius": null,
+    "service_radius_unit": null,
+    "additional_service_areas": [
+      "Sample City Two"
+    ],
+    "owner_confirmed_service_areas": [
+      "Sample City One",
+      "Sample City Two"
+    ],
+    "primary_services": [
+      "Recurring residential cleaning",
+      "Deep cleaning",
+      "Move-in cleaning",
+      "Move-out cleaning",
+      "Vacation rental turnover cleaning"
+    ],
+    "secondary_services": [
+      "Interior appliance cleaning"
+    ],
+    "products": [],
+    "target_customer_segments": [
+      "Homeowners",
+      "Property managers"
+    ],
+    "value_proposition": "A fictional sample service for exercising LIVE workflows.",
+    "differentiators": [
+      "Synthetic example only"
+    ],
+    "website_url": "https://synthetic-cleaning.example/company",
+    "google_business_profile_url": null,
+    "social_media_urls": null,
+    "phone": "202-555-0100",
+    "business_email": "contact@synthetic-cleaning.example",
+    "years_in_operation": null,
+    "approximate_employees": null,
+    "existing_customer_sources": [
+      "Synthetic sample source"
+    ],
+    "commercial_challenges": [
+      "Synthetic scheduling example"
+    ],
+    "commercial_goals": [
+      "Synthetic recurring-booking example"
+    ],
+    "operational_capacity": "Fictional capacity scenario of three jobs per day, with a hypothetical conditional maximum of four.",
+    "base_capacity_jobs_per_day": 3,
+    "expanded_capacity_jobs_per_day": 4,
+    "capacity_expansion_dependency": "Fictional expansion from three to four jobs depends on hypothetical subcontractor availability.",
+    "weekend_available": true,
+    "urgent_service_available": true,
+    "legal_business_established": true,
+    "documentation_and_insurance_in_order": true,
+    "is_fictional_example": true,
+    "owner_confirmation_source": "Synthetic fixture; not an actual owner confirmation",
+    "owner_confirmation_date": "2026-11-07",
+    "owner_confirmed_fields": [
+      "primary_services",
+      "target_customer_segments",
+      "owner_confirmed_service_areas",
+      "operational_capacity",
+      "base_capacity_jobs_per_day",
+      "expanded_capacity_jobs_per_day",
+      "capacity_expansion_dependency",
+      "weekend_available",
+      "urgent_service_available",
+      "legal_business_established",
+      "documentation_and_insurance_in_order"
+    ]
+  }
+}

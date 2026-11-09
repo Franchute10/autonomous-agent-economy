@@ -42,9 +42,13 @@ class LocalFilesystemArtifactAdapter(ArtifactPort):
                     temporary.flush()
                     os.fsync(temporary.fileno())
                 try:
-                    # Hard-link publication is exclusive: it cannot replace a
-                    # target created by a concurrent writer.
-                    os.link(temporary_path, target)
+                    # On Windows, same-directory rename is atomic and refuses
+                    # to replace an existing target. POSIX uses an exclusive
+                    # hard link because rename would replace an existing file.
+                    if os.name == "nt":
+                        os.rename(temporary_path, target)
+                    else:
+                        os.link(temporary_path, target)
                 except FileExistsError:
                     self._verify_file(target, content_hash)
             finally:

@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-07",
+  "business": "Sample Cleaning Company (Fictional)",
+  "markets": [
+    "Sample City One, FL",
+    "Sample City Two, FL"
+  ],
+  "business_facts_basis": "Synthetic example only; no real business facts are represented.",
+  "sources": [
+    {
+      "source_id": "thumbtack_self_serve",
+      "name": "Thumbtack Pro self-serve webhooks",
+      "name_es": "Webhooks de Thumbtack Pro para autoservicio",
+      "summary_es": "Principal opción para solicitudes residenciales y comerciales que lleguen a la cuenta Pro de Sample Cleaning Company; no permite buscar todo el mercado local. El titular configura un webhook HTTPS de un solo negocio; los eventos no están firmados, pueden repetirse y requieren autenticación del receptor e idempotencia. El titular debe autorizarlo. Los documentos revisados no indican un plazo numérico de retención: debe definirse antes de activarlo. El costo por contacto depende del servicio y mercado; la entrega es en tiempo real. Dificultad media; el adaptador existente continúa limitado a pruebas.",
+      "commercial_relevance": "Very high for residential, deep, recurring and commercial service requests routed to Sample Cleaning Company's enrolled Pro account.",
+      "opportunity_type": [
+        "MARKETPLACE_LEAD"
+      ],
+      "geographic_coverage": "The connected Pro business receives leads matched to its account settings; no public market-wide Sample City One/Sample City Two search.",
+      "access_method": "Owner configures lead webhooks in the Pro account; HTTPS POST to an owner-controlled receiver.",
+      "api_availability": "Self-serve webhook for one business; separate partner API exists for multi-business integrations.",
+      "authentication_requirements": "Self-serve path has no OAuth; receiver must use configured Basic Auth or a custom header because events are unsigned. HTTPS receiver is required.",
+      "permission_and_terms_limitations": "Account holder authorization required. Minimize private lead data and honor platform, privacy and retention limits. Do not treat fixture mapping as a live receiver.",
+      "data_retention": "The reviewed self-serve webhook docs do not state a numeric retention period. Before enabling, set a documented minimum retention period with the account holder, store only fields needed for qualification and deduplication, and honor applicable privacy, deletion and platform-term duties.",
+      "data_retention_es": "La guía de webhooks revisada no fija un plazo numérico. Antes de activar el receptor, el titular debe definir y documentar un plazo mínimo, guardar solo datos necesarios para calificar y detectar duplicados, y atender las obligaciones de privacidad y eliminación.",
+      "cost": "Lead price varies by service and market; the lead event/API can include the price. No local quote was available without account access.",
+      "data_freshness": "New lead event is real time; duplicate delivery can occur; webhook does not report later lead status changes.",
+      "implementation_difficulty": "MEDIUM; authenticated HTTPS receiver, bounded validation, idempotency, retention and delivery handling.",
+      "feasibility_class": "REQUIRES_ACCOUNT_AUTHORIZATION",
+      "integration_possible_now": false,
+      "pilot_status": "FIXTURE_ONLY",
+      "configuration_env": null,
+      "pilot_note": "No account-holder authorization or production HTTPS receiver is configured. Existing adapter remains fixture-only.",
+      "pilot_note_es": "Sin autorización del titular ni receptor HTTPS de producción. El adaptador existente sigue limitado a pruebas.",
+      "official_references": [
+        "https://developers.thumbtack.com/docs/pro-integrations/self-serve-webhooks",
+        "https://developers.thumbtack.com/docs/pro-integrations/negotiations",
+        "https://developers.thumbtack.com/docs/terms"
+      ]
+    },
+    {
+      "source_id": "turno_marketplace",
+      "name": "Turno Cleaner Marketplace",
+      "name_es": "Mercado de limpieza de Turno",
+      "summary_es": "Muy pertinente para limpieza de alojamientos vacacionales y relaciones con anfitriones. Requiere solicitud del limpiador y completar los pasos de identidad, referencias, perfil y alta; en EE. UU. exige una verificación de antecedentes pagada. Las ofertas se reciben y responden dentro de Turno; son búsquedas del anfitrión, no trabajos con fecha garantizada. No se verificó una API para buscar ofertas. Sus términos prohíben bots y no permiten guardar datos personales del solicitante sin consentimiento expreso. Postular es gratis; los pagos del mercado tienen una comisión del 5 % y el precio de la verificación no figura en la FAQ revisada. Uso manual.",
+      "commercial_relevance": "Very high for vacation-rental turnover cleaning and ongoing host-cleaner relationships.",
+      "opportunity_type": [
+        "MARKETPLACE_LEAD"
+      ],
+      "geographic_coverage": "Cleaner applies with an explicit service area and travel range; owner must choose Sample City One and Sample City Two deliberately.",
+      "access_method": "The cleaner must be at least 18, apply with cleaning experience, a selected service-area address and 5–50 mile travel range, profile photo/bio, and mandatory references. After approval, complete native account setup, payout account, tutorial and welcome call; US cleaners must also buy a Turno background-check badge. Then use native web/app/email/push offer notifications and bid in Turno.",
+      "api_availability": "Public External API documentation exists; no cleaner marketplace offer search endpoint was documented in the reviewed API reference.",
+      "authentication_requirements": "Approved cleaner account, ID, recent profile picture, experience bio and references. In the US, pass the required background check and complete all account-setup steps before bidding.",
+      "permission_and_terms_limitations": "Cleaner terms prohibit bots, scrapers, scripts and unauthorized collection; personal data about requesters may not be stored without express consent. Keep offers and negotiation in Turno.",
+      "data_retention": "Do not export or retain requester personal data without express consent. Keep offer details and negotiation in Turno; only a manually approved, redacted reference may enter the AEOS preview.",
+      "data_retention_es": "No exportar ni conservar datos personales de quien solicita el servicio sin consentimiento expreso. Mantener ofertas y negociación en Turno; para la vista previa de AEOS, usar solo una referencia redactada y revisada manualmente.",
+      "cost": "No fee to bid. US marketplace requires a paid Turno background-check request; its price was not published in the reviewed FAQ. Marketplace payments have a 5% platform fee.",
+      "data_freshness": "Native notifications arrive when a host opens a cleaner search in the configured area. An offer starts a relationship and is not a dated job request.",
+      "implementation_difficulty": "MANUAL; account participation and native notifications only.",
+      "feasibility_class": "REQUIRES_ACCOUNT_AUTHORIZATION",
+      "integration_possible_now": false,
+      "pilot_status": "MANUAL_ONLY",
+      "configuration_env": null,
+      "pilot_note": "No account authorization or manual offer evidence was supplied; no authenticated pages were accessed.",
+      "pilot_note_es": "No se proporcionó autorización de cuenta ni evidencia manual de ofertas; no se accedió a páginas autenticadas.",
+      "official_references": [
+        "https://help.turno.com/en/articles/8508289-how-does-the-turno-marketplace-work-and-how-can-i-join-as-a-cleaner",
+        "https://help.turno.com/en/articles/8501712-completing-the-steps-of-your-account-setup-as-a-marketplace-cleaner",
+        "https://help.turno.com/en/articles/8500667-background-check-faq",
+        "https://help.turno.com/en/articles/2643391-as-a-marketplace-cleaner-how-do-i-find-jobs",
+        "https://turno.com/terms-of-service/cleaner/",
+        "https://help.turno.com/en/articles/2696851-receiving-payments-faq-cleaners",
+        "https://apidocs.turnoverbnb.com/"
+      ]
+    },
+    {
+      "source_id": "facebook_groups_marketplace",
+      "name": "Facebook public Groups and Marketplace",
+      "name_es": "Grupos públicos y Marketplace de Facebook",
+      "summary_es": "Puede contener solicitudes locales de recomendación, pero no se verificó una API adecuada para buscar pedidos de limpieza. Solo se admite revisión manual de una URL pública cuando las reglas de la página lo permitan. La visibilidad pública no autoriza extracción automatizada; Meta exige permiso previo para recopilar automáticamente. No se consultó ninguna cuenta; la fecha y vigencia de cada publicación deben comprobarse manualmente.",
+      "commercial_relevance": "Potentially high for local recommendation requests; Marketplace was not shown to provide a cleaning-request feed.",
+      "opportunity_type": [
+        "DIRECT_CUSTOMER_DEMAND",
+        "RECOMMENDATION_SIGNAL"
+      ],
+      "geographic_coverage": "Local groups can be Sample City One- or Sample City Two-specific; no broad Example Region search is justified.",
+      "access_method": "Manual review of a public URL and user-supplied redacted evidence only, subject to the source's rules.",
+      "api_availability": "No suitable public API for searching public cleaning-request posts was established.",
+      "authentication_requirements": "Publicly accessible content only; no private groups, login bypass or account automation.",
+      "permission_and_terms_limitations": "Public visibility does not grant unrestricted automated collection. Meta says automated collection requires prior permission; no authorized AEOS integration is configured.",
+      "data_retention": "No collection is authorized here. For an individually permitted manual item, retain only a redacted URL and minimum evidence needed for review; no numeric retention window was established.",
+      "data_retention_es": "No se autoriza recopilación. Para un caso manual permitido, conservar solo la URL redactada y la evidencia mínima de revisión; no se estableció un plazo numérico de conservación.",
+      "cost": "No public reading fee documented; access and use remain subject to Meta and group rules.",
+      "data_freshness": "Post dates vary; each item needs a source date and current-state recheck.",
+      "implementation_difficulty": "NOT APPROPRIATE FOR AUTOMATED COLLECTION; manual evidence route only.",
+      "feasibility_class": "MANUAL_ONLY",
+      "integration_possible_now": false,
+      "pilot_status": "MANUAL_ONLY",
+      "configuration_env": null,
+      "pilot_note": "No public URL or permitted evidence was supplied; no Facebook access was attempted.",
+      "pilot_note_es": "No se proporcionó una URL pública ni evidencia permitida; no se intentó acceder a Facebook.",
+      "official_references": [
+        "https://about.fb.com/news/2021/04/how-we-combat-scraping/",
+        "https://www.facebook.com/terms.php"
+      ]
+    },
+    {
+      "source_id": "reddit",
+      "name": "Reddit public communities and Data API",
+      "name_es": "Comunidades públicas y API de datos de Reddit",
+      "summary_es": "Puede mostrar solicitudes locales explícitas; las publicaciones de recomendación son una señal más débil. La API oficial requiere acceso aprobado y el uso comercial exige un acuerdo separado. No se consultó la API ni se proporcionó ese acuerdo. El costo comercial no está publicado; fecha y estado deben volver a comprobarse. Dificultad alta por aprobación, OAuth y reglas de contenido, retención y eliminación.",
+      "commercial_relevance": "Moderate for explicit local homeowner requests; recommendations are weaker intent and must not be counted as purchase orders.",
+      "opportunity_type": [
+        "DIRECT_CUSTOMER_DEMAND",
+        "RECOMMENDATION_SIGNAL"
+      ],
+      "geographic_coverage": "Local subreddits and explicit city/state terms; historical posts are not current demand.",
+      "access_method": "Official Data API with registered/approved access and OAuth; no scraping or search-engine result extraction.",
+      "api_availability": "Data API exists; external access is subject to Reddit approval and current Developer/Data API Terms.",
+      "authentication_requirements": "Registered/approved developer access; valid API access information. Commercial access requires a separate agreement.",
+      "permission_and_terms_limitations": "Reddit's Data API and Developer Terms restrict commercial use absent separate written approval. User content use and retention must remain within the approved use case.",
+      "data_retention": "No commercial agreement or API access exists. If approved later, follow the agreement's retention, deletion and user-content rules; this pilot has no independent retention allowance.",
+      "data_retention_es": "No existe acuerdo comercial ni acceso API. Si se aprueba en el futuro, cumplir las reglas del acuerdo sobre conservación, eliminación y contenido de usuarios; este piloto no concede por sí mismo permiso para conservar datos.",
+      "cost": "Commercial access terms are not publicly priced; separate agreement required.",
+      "data_freshness": "Post timestamps can be observed through authorized API access; current openness still requires revalidation.",
+      "implementation_difficulty": "HIGH; approval, commercial agreement, OAuth, privacy and deletion controls.",
+      "feasibility_class": "REQUIRES_API_CREDENTIALS",
+      "integration_possible_now": false,
+      "pilot_status": "REQUIRES_API_CREDENTIALS",
+      "configuration_env": null,
+      "pilot_note": "No commercial data agreement or API access was supplied; no Reddit API request was made.",
+      "pilot_note_es": "No se proporcionó acuerdo comercial ni acceso a la API; no se hizo ninguna solicitud a Reddit.",
+      "official_references": [
+        "https://redditinc.com/policies/data-api-terms",
+        "https://redditinc.com/policies/developer-terms",
+        "https://developers.reddit.com/docs/guides/faq"
+      ]
+    },
+    {
+      "source_id": "nextdoor",
+      "name": "Nextdoor public local content",
+      "name_es": "Contenido local público de Nextdoor",
+      "summary_es": "Puede ser una señal local de hogares, pero no se verificó una API pública autorizada para buscar pedidos de limpieza. Solo se admite evidencia manual, con URL pública y permiso para ese uso; no se accedió a cuentas ni contenido autenticado. No se identificó una tarifa pública de lectura. Cada fecha y estado debe validarse; integración manual.",
+      "commercial_relevance": "Potentially high local homeowner signal, but public business-opportunity access was not established.",
+      "opportunity_type": [
+        "DIRECT_CUSTOMER_DEMAND",
+        "RECOMMENDATION_SIGNAL"
+      ],
+      "geographic_coverage": "Neighborhood-level; potentially local to either target market.",
+      "access_method": "Manual, user-supplied public URL and redacted evidence, if the particular content and rules permit use.",
+      "api_availability": "No authorized public API for local community cleaning requests was verified.",
+      "authentication_requirements": "Do not automate private or authenticated user activity.",
+      "permission_and_terms_limitations": "No public lead-search permission or suitable API was established; no account automation.",
+      "data_retention": "No collection is authorized here. Keep only minimum redacted evidence from a specific permitted public URL; no numeric retention window was established.",
+      "data_retention_es": "No se autoriza recopilación. Conservar solo evidencia mínima y redactada de una URL pública cuyo uso esté permitido; no se estableció un plazo numérico de conservación.",
+      "cost": "No public reading fee documented; account and advertising costs are not part of this pilot.",
+      "data_freshness": "Dates may be visible but should be rechecked by the account holder.",
+      "implementation_difficulty": "MANUAL; no API integration verified.",
+      "feasibility_class": "MANUAL_ONLY",
+      "integration_possible_now": false,
+      "pilot_status": "MANUAL_ONLY",
+      "configuration_env": null,
+      "pilot_note": "No eligible public URL was supplied; no authenticated Nextdoor activity was accessed.",
+      "pilot_note_es": "No se proporcionó una URL pública apta; no se accedió a actividad autenticada de Nextdoor.",
+      "official_references": [
+        "https://business.nextdoor.com/",
+        "https://legal.nextdoor.com/"
+      ]
+    },
+    {
+      "source_id": "opengov_local",
+      "name": "City of Sample City One and City of Sample City Two OpenGov procurement portals",
+      "name_es": "Portales de contratación OpenGov de Sample City One y Sample City Two",
+      "summary_es": "Fuente de avisos públicos para limpieza de oficinas, edificios y otras instalaciones. Las páginas oficiales municipales se pudieron consultar, pero los portales enlazados devolvieron HTTP 403; no se repitieron las solicitudes ni se intentó eludir el bloqueo. No se verificó una API pública anónima. Sample City Two indica que el registro y la consulta/respuesta son gratuitos; el costo del portal de Sample City One no quedó documentado. Revisar manualmente fechas oficiales o usar los avisos por correo de la ciudad. Sin proyectos capturados; integración manual.",
+      "commercial_relevance": "High for explicit office, janitorial and commercial facility solicitations; contract size and eligibility may exceed reported capacity.",
+      "opportunity_type": [
+        "PUBLIC_PROCUREMENT"
+      ],
+      "geographic_coverage": "Two separate local-government portals; review Sample City One and Sample City Two independently.",
+      "access_method": "Official city procurement pages direct vendors to public OpenGov project lists and native email notices.",
+      "api_availability": "OpenGov publishes account-scoped procurement APIs, but no public anonymous opportunity-search API for these city bid portals was verified.",
+      "authentication_requirements": "Public viewing is described by the cities; vendor registration/submission follows each portal's account process. Sample City Two says registration and viewing/responding are free.",
+      "permission_and_terms_limitations": "Do not reverse engineer portal endpoints. During this review both city portal pages returned HTTP 403 through the public retrieval path, so their projects were not queried or bypassed.",
+      "data_retention": "No projects were retrieved. For a manually reviewed public solicitation, retain the public solicitation ID, issuer, scope, deadline, eligibility, contract facts and source URL; avoid personal contact data and delete stale working copies when no longer needed. No source-specific numeric period was established.",
+      "data_retention_es": "No se obtuvieron avisos. Para una licitación pública revisada manualmente, guardar el ID, entidad, alcance, fecha límite, elegibilidad, datos contractuales y URL; evitar datos personales de contacto y borrar copias de trabajo obsoletas. No se estableció un plazo numérico propio de la fuente.",
+      "cost": "Sample City Two vendor registration is stated to be free; no separate fee to view or respond is indicated. Sample City One portal cost was not documented in the reviewed page.",
+      "data_freshness": "Official notices show release and deadline dates; native email notices are available after registration.",
+      "implementation_difficulty": "LOW for manual review; HIGH/UNKNOWN for an API integration without a documented public feed.",
+      "feasibility_class": "MANUAL_ONLY",
+      "integration_possible_now": false,
+      "pilot_status": "PROVIDER_UNAVAILABLE",
+      "configuration_env": null,
+      "pilot_note": "City pages were accessible; embedded OpenGov portal requests returned HTTP 403. No retries or circumvention were attempted.",
+      "pilot_note_es": "Las páginas municipales estaban accesibles; los portales OpenGov devolvieron HTTP 403. No hubo reintentos ni elusión.",
+      "market_checks": [
+        {
+          "city": "Sample City One",
+          "official_page": "https://sample-city-one.example/public-office/sample-city-one/purchasing",
+          "official_page_access": "ACCESSIBLE",
+          "portal_url": "https://procurement.opengov.com/portal/cityofsample-city-one",
+          "portal_access": "HTTP_403",
+          "finding": "The City says its OpenGov portal lists current solicitations, deadlines and vendor resources."
+        },
+        {
+          "city": "Sample City Two",
+          "official_page": "https://sample-city-two.example/public-office/sample-city-two/Department-Pages/Purchasing-Services",
+          "official_page_access": "ACCESSIBLE",
+          "portal_url": "https://procurement.opengov.com/portal/sample-city-twofl",
+          "portal_access": "HTTP_403",
+          "finding": "OpenGov and Bidnet are both in use during transition; the City offers free vendor registration and notices."
+        }
+      ],
+      "official_references": [
+        "https://sample-city-one.example/public-office/sample-city-one/purchasing",
+        "https://procurement.opengov.com/portal/cityofsample-city-one",
+        "https://sample-city-two.example/public-office/sample-city-two/Department-Pages/Purchasing-Services",
+        "https://procurement.opengov.com/portal/sample-city-twofl",
+        "https://developer.opengov.com/catalog/public-service-platform-procurement-contract-management"
+      ]
+    },
+    {
+      "source_id": "sam_gov",
+      "name": "SAM.gov federal contract opportunities",
+      "name_es": "Oportunidades federales de contratación en SAM.gov",
+      "summary_es": "Puede incluir contratos federales de limpieza, pero solo se deben considerar avisos locales que encajen con la capacidad y elegibilidad. La API oficial requiere clave personal y filtros de códigos postales aprobados por el titular para cada ciudad; no se consultó sin esos datos y no se hará una búsqueda estatal amplia. No se documentó tarifa de acceso. La documentación indica actualización diaria de avisos activos; dificultad media por credenciales, paginación y revisión de anexos.",
+      "commercial_relevance": "High for federal janitorial opportunities, but only locally suitable notices should be retained and capacity/eligibility review is mandatory.",
+      "opportunity_type": [
+        "PUBLIC_PROCUREMENT"
+      ],
+      "geographic_coverage": "Nationwide API supports state and ZIP filters; this pilot requires exact owner-approved local filters and must not query all Example Region.",
+      "access_method": "Official Get Opportunities Public API v2; two bounded city-specific query sets require owner-confirmed ZIP filters.",
+      "api_availability": "Documented public API. The API requires postedFrom and postedTo; request pagination is explicit and max limit is 1000.",
+      "authentication_requirements": "A registered SAM.gov user must create a personal public API key in Account Details.",
+      "permission_and_terms_limitations": "Use the official API and role-based rate limits. No local query was sent because no API key or city-specific ZIP allowlist is configured.",
+      "data_retention": "No records were retrieved. A future connector must retain only fields needed to evaluate and track public solicitations, follow applicable federal terms and privacy obligations, and define a documented retention/deletion schedule before querying.",
+      "data_retention_es": "No se obtuvieron registros. Un conector futuro debe guardar solo campos necesarios para evaluar y seguir avisos públicos, cumplir las condiciones federales y de privacidad aplicables, y documentar un calendario de conservación y eliminación antes de consultar la API.",
+      "cost": "No API access fee was documented; account/API key required.",
+      "data_freshness": "Active notices are updated daily; archived notices weekly, per API documentation.",
+      "implementation_difficulty": "MEDIUM; API key handling, local ZIP targeting, bounded paging, normalization, status and attachment review.",
+      "feasibility_class": "REQUIRES_API_CREDENTIALS",
+      "integration_possible_now": false,
+      "pilot_status": "REQUIRES_API_CREDENTIALS",
+      "configuration_env": "AEOS_SAM_GOV_API_KEY",
+      "additional_configuration_env": [
+        "AEOS_SAM_GOV_SAMPLE_CITY_ONE_ZIPS",
+        "AEOS_SAM_GOV_SAMPLE_CITY_TWO_ZIPS"
+      ],
+      "pilot_note": "No API key is configured and a city-specific ZIP allowlist was not provided; no nationwide or statewide query was made.",
+      "pilot_note_es": "No hay clave API ni lista de códigos postales autorizada por ciudad; no se hizo una búsqueda nacional o estatal.",
+      "official_references": [
+        "https://open.gsa.gov/api/get-opportunities-public-api/",
+        "https://sam.gov/opportunities"
+      ]
+    },
+    {
+      "source_id": "paid_marketplaces",
+      "name": "Bark, Angi and Yelp Request a Quote",
+      "name_es": "Bark, Angi y Yelp Request a Quote",
+      "summary_es": "Pueden ofrecer solicitudes residenciales o comerciales, pero la participación ocurre desde la cuenta de cada proveedor y la zona debe configurarse allí. Bark usa créditos; la matriz registra US$ 2,35 por crédito según la revisión previa y el consumo por solicitud varía. Angi fija precios por cuenta y Yelp limita su API a socios. No se autorizó gasto ni exportación cruzada; confirmar costos vigentes antes de pagar. Acceso manual.",
+      "commercial_relevance": "Potentially high direct consumer requests for residential or commercial cleaning; provider-side pricing and local volumes vary.",
+      "opportunity_type": [
+        "MARKETPLACE_LEAD"
+      ],
+      "geographic_coverage": "Provider account targeting and service availability; account-holder must set the local service area.",
+      "access_method": "Manual participation in each provider account; respond inside that platform.",
+      "api_availability": "No suitable public lead-feed API was found for Bark or Angi; Yelp lead API is partner-restricted.",
+      "authentication_requirements": "Provider account; Yelp integration requires partner approval and commercial terms.",
+      "permission_and_terms_limitations": "Use only the provider's native account; no automated collection or cross-platform export without permission.",
+      "data_retention": "No account data was accessed. Keep lead data in the provider account unless the account terms explicitly permit export; do not cross-store personal details by default.",
+      "data_retention_es": "No se accedió a datos de cuentas. Mantener los contactos dentro de la cuenta del proveedor salvo permiso expreso para exportarlos; no copiar datos personales a otro sistema por defecto.",
+      "cost": "Bark charges credits (published standard rate $2.35/credit; request credit count varies); Angi pricing is account-specific; Yelp partner minimum spend is not public.",
+      "data_freshness": "New request timing is account-side; public pages do not provide a current lead feed.",
+      "implementation_difficulty": "MANUAL; paid tests require owner approval and spend limits.",
+      "feasibility_class": "REQUIRES_ACCOUNT_AUTHORIZATION",
+      "integration_possible_now": false,
+      "pilot_status": "MANUAL_ONLY",
+      "configuration_env": null,
+      "pilot_note": "No account access, pricing review or paid lead purchase was authorized; no provider records were accessed.",
+      "pilot_note_es": "No se autorizó acceso a cuentas, revisión de precios ni compra de contactos; no se consultaron registros de proveedores.",
+      "official_references": [
+        "https://help.bark.com/hc/en-us/articles/13346288068892-What-is-a-credit-and-how-much-does-it-cost",
+        "https://www.bark.com/en/us/terms/",
+        "https://www.angi.com/",
+        "https://www.yelp.com/developers/documentation/v3/leads_api"
+      ]
+    },
+    {
+      "source_id": "careguide_jobs",
+      "name": "Care.com and Housekeeper.com individual household jobs",
+      "name_es": "Empleos domésticos individuales de Care.com y Housekeeper.com",
+      "summary_es": "Aunque existe demanda de limpieza doméstica, los avisos son empleos individuales y no oportunidades de compra verificadas para una empresa de limpieza. Los términos revisados no autorizan aprovechar esos avisos como contactos de ventas corporativas. Se excluye esta fuente del piloto; no se recopilaron ni guardaron avisos. Precios y vigencia no se verificaron.",
+      "commercial_relevance": "High household cleaning intent but listings are personal-employment opportunities, not verified cleaning-company purchasing contracts.",
+      "opportunity_type": [
+        "INDIVIDUAL_EMPLOYMENT"
+      ],
+      "geographic_coverage": "Local city/ZIP search is available through provider websites.",
+      "access_method": "Do not use as an AEOS corporate sales-lead source under standard provider terms.",
+      "api_availability": "No suitable public business lead API found.",
+      "authentication_requirements": "Provider account may be required to apply.",
+      "permission_and_terms_limitations": "Standard terms reviewed do not establish a cleaning LLC's right to harvest individual job posts for corporate sales leads.",
+      "data_retention": "Excluded from collection and storage for this corporate lead pilot.",
+      "data_retention_es": "Excluido de la recopilación y el almacenamiento en este piloto de contactos comerciales.",
+      "cost": "Account pricing varies and was not verified.",
+      "data_freshness": "Some listing dates are relative and need revalidation.",
+      "implementation_difficulty": "NOT SUPPORTED for corporate lead acquisition.",
+      "feasibility_class": "NOT_SUPPORTED",
+      "integration_possible_now": false,
+      "pilot_status": "NOT_SUPPORTED",
+      "configuration_env": null,
+      "pilot_note": "Excluded from the eligible lead pipeline; historical LIVE-002D1 sample remains separate.",
+      "pilot_note_es": "Excluido de la lista admisible; la muestra histórica LIVE-002D1 permanece separada.",
+      "official_references": [
+        "https://www.care.com/",
+        "https://housekeeper.com/"
+      ]
+    }
+  ],
+  "synthetic_fixture": true,
+  "privacy_notice": "Illustrative example only. Do not use its provider costs, markets, contact routes, or source descriptions as current operational guidance; validate them independently."
+}

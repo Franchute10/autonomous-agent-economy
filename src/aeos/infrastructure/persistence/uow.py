@@ -23,6 +23,7 @@ from aeos.infrastructure.persistence.repositories import (
     WorkflowDefinitionRepository,
     WorkflowRunRepository,
 )
+from aeos.infrastructure.persistence.tenant_profiles import BusinessProfileRepository
 from aeos.infrastructure.persistence.governance import (
     ApprovalDecisionRepository,
     ApprovalRequestRepository,
@@ -50,6 +51,7 @@ class SqlAlchemyUnitOfWork:
             raise RuntimeError("UnitOfWork cannot be entered twice")
         self._session = self._session_factory()
         self.organizations = OrganizationRepository(self.session)
+        self.business_profiles = BusinessProfileRepository(self.session)
         self.constitution_versions = ConstitutionVersionRepository(self.session)
         self.policy_versions = PolicyVersionRepository(self.session)
         self.permission_grants = PermissionGrantRepository(self.session)

@@ -6,6 +6,7 @@ from typing import Protocol
 
 from aeos.agents.domain import AgentDefinition, AgentInvocation
 from aeos.core import (
+    ActorRef,
     AgentDefinitionId,
     AgentInvocationId,
     EconomicTransactionId,
@@ -25,6 +26,8 @@ class OrganizationRepository(Protocol):
     def add(self, organization: Organization) -> None: ...
 
     def get(self, organization_id: OrganizationId) -> Organization | None: ...
+
+    def list_for_actor(self, actor: ActorRef) -> tuple[Organization, ...]: ...
 
 
 class EconomicTransactionRepository(Protocol):

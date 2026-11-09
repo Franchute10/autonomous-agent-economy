@@ -1,0 +1,344 @@
+{
+  "project": "Fictional cleaning opportunity example",
+  "verified_on": "2026-11-07",
+  "source_policy": {
+    "note": "Synthetic fixture only; no real sources or contacts."
+  },
+  "prospects": [
+    {
+      "entity_id": "buyer-sample-1",
+      "vendor_onboarding": "PUBLIC_VENDOR_ROUTE",
+      "vendor_onboarding_evidence_ids": [
+        "sample-evidence-027"
+      ],
+      "external_cleaning_vendor_evidence_ids": [],
+      "cleaning_delivery_model": "Synthetic cleaning delivery model.",
+      "operational_scale": "Synthetic scale; real capacity is not represented.",
+      "public_contact_channels": [
+        "Website"
+      ],
+      "public_contact_details": [
+        "Synthetic example contact channel"
+      ],
+      "relevant_public_contact_role": "Sample property operations contact",
+      "contact_revalidation_required": false,
+      "contact_revalidation_note": null,
+      "recommended_approach": "Review the fictional sample and validate all details.",
+      "validation_question": "¿Qué fechas deben validarse en la ubicación?",
+      "limitations": [
+        "Synthetic fixture only; no actual prospect or contact data."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "entity_id": "buyer-sample-2",
+      "vendor_onboarding": "NO_PUBLIC_ROUTE_FOUND",
+      "vendor_onboarding_evidence_ids": [],
+      "external_cleaning_vendor_evidence_ids": [
+        "sample-evidence-028"
+      ],
+      "cleaning_delivery_model": "Synthetic cleaning delivery model.",
+      "operational_scale": "Synthetic scale; real capacity is not represented.",
+      "public_contact_channels": [
+        "Website"
+      ],
+      "public_contact_details": [
+        "Synthetic example contact channel"
+      ],
+      "relevant_public_contact_role": "Sample property operations contact",
+      "contact_revalidation_required": false,
+      "contact_revalidation_note": null,
+      "recommended_approach": "Review the fictional sample and validate all details.",
+      "validation_question": "Would this fictional service match the sample need?",
+      "limitations": [
+        "Synthetic fixture only; no actual prospect or contact data."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "entity_id": "buyer-sample-3",
+      "vendor_onboarding": "NO_PUBLIC_ROUTE_FOUND",
+      "vendor_onboarding_evidence_ids": [],
+      "external_cleaning_vendor_evidence_ids": [],
+      "cleaning_delivery_model": "Synthetic cleaning delivery model.",
+      "operational_scale": "Synthetic scale; real capacity is not represented.",
+      "public_contact_channels": [
+        "Website"
+      ],
+      "public_contact_details": [],
+      "relevant_public_contact_role": "Sample property operations contact",
+      "contact_revalidation_required": false,
+      "contact_revalidation_note": null,
+      "recommended_approach": "Review the fictional sample and validate all details.",
+      "validation_question": "Would this fictional service match the sample need?",
+      "limitations": [
+        "Synthetic fixture only; no actual prospect or contact data."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "entity_id": "buyer-sample-4",
+      "vendor_onboarding": "NO_PUBLIC_ROUTE_FOUND",
+      "vendor_onboarding_evidence_ids": [],
+      "external_cleaning_vendor_evidence_ids": [],
+      "cleaning_delivery_model": "Synthetic cleaning delivery model.",
+      "operational_scale": "Synthetic scale; real capacity is not represented.",
+      "public_contact_channels": [
+        "Website"
+      ],
+      "public_contact_details": [],
+      "relevant_public_contact_role": "Sample property operations contact",
+      "contact_revalidation_required": true,
+      "contact_revalidation_note": "Synthetic fixture; this contact route must not be used.",
+      "recommended_approach": "Review the fictional sample and validate all details.",
+      "validation_question": "Would this fictional service match the sample need?",
+      "limitations": [
+        "Synthetic fixture only; no actual prospect or contact data."
+      ],
+      "synthetic_record": true
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "sample-evidence-029",
+      "entity_id": "buyer-sample-1",
+      "field": "cleaning_operations",
+      "value": "Synthetic fixture value for cleaning_operations.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-001",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-027",
+      "entity_id": "buyer-sample-1",
+      "field": "public_vendor_onboarding_route",
+      "value": "Synthetic fixture value for public_vendor_onboarding_route.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-002",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-030",
+      "entity_id": "buyer-sample-2",
+      "field": "cleaning_operations",
+      "value": "Synthetic fixture value for cleaning_operations.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-003",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-028",
+      "entity_id": "buyer-sample-2",
+      "field": "external_cleaning_vendor_practice_network_level",
+      "value": "Synthetic fixture value for external_cleaning_vendor_practice_network_level.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-004",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.9,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-031",
+      "entity_id": "buyer-sample-2",
+      "field": "public_business_contact",
+      "value": "Synthetic fixture value for public_business_contact.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-005",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-032",
+      "entity_id": "buyer-sample-3",
+      "field": "cleaning_operations",
+      "value": "Synthetic fixture value for cleaning_operations.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-006",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-033",
+      "entity_id": "buyer-sample-3",
+      "field": "public_business_contact",
+      "value": "Synthetic fixture value for public_business_contact.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-007",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-034",
+      "entity_id": "buyer-sample-3",
+      "field": "public_business_contact",
+      "value": "Synthetic fixture value for public_business_contact.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-008",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-035",
+      "entity_id": "buyer-sample-4",
+      "field": "cleaning_operations",
+      "value": "Synthetic fixture value for cleaning_operations.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-009",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-036",
+      "entity_id": "buyer-sample-4",
+      "field": "public_business_contact",
+      "value": "Synthetic fixture value for public_business_contact.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-010",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-037",
+      "entity_id": "buyer-sample-4",
+      "field": "public_business_contact",
+      "value": "Synthetic fixture value for public_business_contact.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-011",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-038",
+      "entity_id": "buyer-sample-1",
+      "field": "market_coverage",
+      "value": "Synthetic fixture value for market_coverage.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-012",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-039",
+      "entity_id": "buyer-sample-2",
+      "field": "market_coverage",
+      "value": "Synthetic fixture value for market_coverage.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-013",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-040",
+      "entity_id": "buyer-sample-3",
+      "field": "market_coverage",
+      "value": "Synthetic fixture value for market_coverage.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-014",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.99,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "evidence_id": "sample-evidence-041",
+      "entity_id": "buyer-sample-4",
+      "field": "market_coverage",
+      "value": "Synthetic fixture value for market_coverage.",
+      "source_name": "Synthetic fixture source",
+      "source_url": "https://sources.example/synthetic/record-015",
+      "observed_on": "2026-11-07",
+      "classification": "REPORTED",
+      "confidence": 0.98,
+      "supporting_information": "Synthetic fixture only; no real source was observed.",
+      "limitations": [
+        "No real person, business, or source is represented."
+      ],
+      "synthetic_record": true
+    }
+  ],
+  "synthetic_fixture": true
+}

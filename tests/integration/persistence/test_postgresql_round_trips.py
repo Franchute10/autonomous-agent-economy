@@ -2,9 +2,12 @@
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+import json
+from ipaddress import ip_address
 from os import environ
 from pathlib import Path
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
+from unittest.mock import patch
 
 from alembic import command
 from alembic.autogenerate import compare_metadata
@@ -12,10 +15,16 @@ from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 import pytest
 from sqlalchemy import create_engine, inspect, text
-from sqlalchemy.engine import Engine
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.engine import Connection, Engine, make_url
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from aeos.agents.domain import AgentCapability, AgentDefinition, AgentInvocation
+from aeos.application.tenancy import (
+    GetBusinessProfile,
+    RegisterBusinessProfile,
+    RegisterOrganization,
+    TenantContextResolver,
+)
 from aeos.core import (
     ActorKind,
     ActorRef,
@@ -84,6 +93,7 @@ from aeos.governance.domain import (
 from aeos.infrastructure.persistence.uow import SqlAlchemyUnitOfWork
 from aeos.infrastructure.persistence import schema
 from aeos.infrastructure.persistence.schema import metadata
+from aeos.live.domain.profile import BusinessModel, BusinessProfile, RadiusUnit
 from aeos.organization.domain import (
     Organization,
     OrganizationStatus,
@@ -102,16 +112,22 @@ from aeos.workflows.domain import (
     WorkflowRun,
     WorkflowRunStatus,
 )
+from aeos.tenancy.domain import TenantPrincipal
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
-HEAD_REVISION = "0001_initial_persistence"
+HEAD_REVISION = "0002_org_business_profiles"
+BASE_REVISION = "0001_initial_persistence"
+TEST_DATABASE_NAME = "aeos_test"
+APPLICATION_ROLE = "aeos_app"
+MIGRATION_ROLE = "aeos_migrator"
 TEST_ORGANIZATION_ID = "org-pg"
 TEST_AGENT_DEFINITION_ID = "agent-definition-pg"
 TEST_INVOCATION_ID = "invocation-pg"
 TEST_EXACT_AGENT_DEFINITION_ID = "agent-definition-exact-pg"
 TEST_EXACT_INVOCATION_ID = "invocation-exact-pg"
 APPLICATION_TABLES = (
+    "organization_business_profiles",
     "agent_invocations",
     "agent_capabilities",
     "agent_definitions",
@@ -154,9 +170,44 @@ def _alembic_config(dsn: str) -> Config:
     return config
 
 
+def _upgrade(dsn: str, revision: str) -> None:
+    with patch.dict(
+        environ,
+        {
+            "AEOS_DATABASE_URL": dsn,
+            "DATABASE_URL": "",
+            "PGUSER": MIGRATION_ROLE,
+        },
+    ):
+        command.upgrade(_alembic_config(dsn), revision)
+
+
+def _downgrade(dsn: str, revision: str) -> None:
+    with patch.dict(
+        environ,
+        {
+            "AEOS_DATABASE_URL": dsn,
+            "DATABASE_URL": "",
+            "PGUSER": MIGRATION_ROLE,
+        },
+    ):
+        command.downgrade(_alembic_config(dsn), revision)
+
+
 def _current_revision(engine) -> str | None:  # type: ignore[no-untyped-def]
     with engine.connect() as connection:
         return MigrationContext.configure(connection).get_current_revision()
+
+
+def _is_loopback_host(host: str | None) -> bool:
+    if host is None:
+        return False
+    if host.casefold() == "localhost":
+        return True
+    try:
+        return ip_address(host).is_loopback
+    except ValueError:
+        return False
 
 
 def _cleanup_test_data(engine: Engine) -> None:
@@ -177,18 +228,70 @@ def _cleanup_test_data(engine: Engine) -> None:
 
 @pytest.fixture()
 def postgres_engine() -> Iterator[Engine]:
-    dsn = environ.get("AEOS_DATABASE_URL") or environ.get("DATABASE_URL")
-    if not dsn:
-        pytest.skip("AEOS_DATABASE_URL/DATABASE_URL is required for PostgreSQL tests")
-    engine = create_engine(dsn)
-    config = _alembic_config(dsn)
-    command.upgrade(config, "head")
-    _cleanup_test_data(engine)
+    application_dsn = environ.get("AEOS_TEST_DATABASE_URL")
+    if not application_dsn:
+        pytest.skip("AEOS_TEST_DATABASE_URL is required for PostgreSQL tests")
+    migration_dsn = environ.get("AEOS_MIGRATION_DATABASE_URL")
+    if not migration_dsn:
+        pytest.fail("AEOS_MIGRATION_DATABASE_URL is required for PostgreSQL tests")
+
+    app_url = make_url(application_dsn)
+    migration_url = make_url(migration_dsn)
+    app_host = app_url.host.casefold() if app_url.host is not None else ""
+    migration_host = (
+        migration_url.host.casefold() if migration_url.host is not None else ""
+    )
+    credential_free = all(
+        url.username is None and url.password is None
+        for url in (app_url, migration_url)
+    )
+    password_authenticated = (
+        app_url.username == APPLICATION_ROLE
+        and bool(app_url.password)
+        and migration_url.username == MIGRATION_ROLE
+        and bool(migration_url.password)
+    )
+    if (
+        app_url.database != TEST_DATABASE_NAME
+        or migration_url.database != TEST_DATABASE_NAME
+        or not _is_loopback_host(app_url.host)
+        or not _is_loopback_host(migration_url.host)
+        or app_host != migration_host
+        or (app_url.port or 5432) != (migration_url.port or 5432)
+        or not (credential_free or password_authenticated)
+    ):
+        pytest.fail(
+            "PostgreSQL tests require the isolated aeos_test database, "
+            "matching loopback endpoints, and separate expected test roles"
+        )
+
+    # The transaction-boundary test holds one UoW connection while a second
+    # connection observes that the uncommitted write is not visible.
+    application_engine = create_engine(
+        application_dsn,
+        connect_args={"user": APPLICATION_ROLE},
+        pool_size=2,
+        max_overflow=0,
+    )
+    migration_engine = create_engine(
+        migration_dsn,
+        connect_args={"user": MIGRATION_ROLE},
+        pool_size=1,
+        max_overflow=0,
+    )
+    migrated = False
     try:
-        yield engine
+        _upgrade(migration_dsn, "head")
+        migrated = True
+        _cleanup_test_data(migration_engine)
+        yield application_engine
     finally:
-        _cleanup_test_data(engine)
-        engine.dispose()
+        try:
+            if migrated:
+                _cleanup_test_data(migration_engine)
+        finally:
+            application_engine.dispose()
+            migration_engine.dispose()
 
 
 def _assert_migrated_schema(engine: Engine) -> None:
@@ -196,11 +299,26 @@ def _assert_migrated_schema(engine: Engine) -> None:
     inspector = inspect(engine)
     for table_name in (
         "organizations",
+        "organization_business_profiles",
         "agent_definitions",
         "agent_invocations",
         "node_attempts",
     ):
         assert inspector.has_table(table_name)
+    assert inspector.get_pk_constraint("organization_business_profiles")[
+        "constrained_columns"
+    ] == ["organization_id"]
+    foreign_keys = inspector.get_foreign_keys("organization_business_profiles")
+    assert len(foreign_keys) == 1
+    profile_foreign_key = foreign_keys[0]
+    assert (
+        profile_foreign_key["name"]
+        == "fk_organization_business_profiles_organization_id_organizations"
+    )
+    assert profile_foreign_key["constrained_columns"] == ["organization_id"]
+    assert profile_foreign_key["referred_table"] == "organizations"
+    assert profile_foreign_key["referred_columns"] == ["id"]
+    assert profile_foreign_key.get("options", {}).get("ondelete") == "CASCADE"
 
 
 def _assert_schema_parity(engine: Engine) -> None:
@@ -380,6 +498,8 @@ def test_unit_of_work_transaction_boundaries(postgres_engine: Engine) -> None:
     )
     with SqlAlchemyUnitOfWork(postgres_engine) as unit_of_work:
         unit_of_work.organizations.add(no_commit)
+        # This independent observer needs a second pool checkout while the UoW
+        # retains its connection and transaction.
         with postgres_engine.connect() as connection:
             assert (
                 connection.execute(
@@ -829,24 +949,397 @@ def test_workflow_definition_cycle_and_execution_state_round_trip(
 def test_alembic_schema_lifecycle_and_repository_round_trip(
     postgres_engine: Engine,
 ) -> None:
+    migration_dsn = environ["AEOS_MIGRATION_DATABASE_URL"]
     _assert_migrated_schema(postgres_engine)
     _assert_schema_parity(postgres_engine)
     _assert_agent_round_trip(postgres_engine)
     _assert_migrated_schema(postgres_engine)
     _assert_schema_parity(postgres_engine)
 
-    config = _alembic_config(
-        environ.get("AEOS_DATABASE_URL") or environ["DATABASE_URL"]
-    )
-    command.downgrade(config, "base")
+    _downgrade(migration_dsn, BASE_REVISION)
+    assert _current_revision(postgres_engine) == BASE_REVISION
+    inspector = inspect(postgres_engine)
+    assert inspector.has_table("organizations")
+    assert not inspector.has_table("organization_business_profiles")
+
+    _downgrade(migration_dsn, "base")
     assert _current_revision(postgres_engine) is None
     inspector = inspect(postgres_engine)
     assert not inspector.has_table("organizations")
+    assert not inspector.has_table("organization_business_profiles")
     assert not inspector.has_table("node_attempts")
 
-    command.upgrade(config, "head")
+    _upgrade(migration_dsn, BASE_REVISION)
+    assert _current_revision(postgres_engine) == BASE_REVISION
+    inspector = inspect(postgres_engine)
+    assert inspector.has_table("organizations")
+    assert not inspector.has_table("organization_business_profiles")
+
+    _upgrade(migration_dsn, HEAD_REVISION)
     _assert_migrated_schema(postgres_engine)
     _assert_schema_parity(postgres_engine)
     _assert_agent_round_trip(postgres_engine)
     _assert_migrated_schema(postgres_engine)
     _assert_schema_parity(postgres_engine)
+
+
+TENANT_FIXTURES = (
+    ("org-ci-fictional_cleaning", "Sample Cleaning Company (Fictional)"),
+    ("org-ci-hz", "Sample HVAC Company (Fictional)"),
+    ("org-ci-fictional_builder", "Sample Builder Company (Fictional)"),
+)
+
+
+def _set_tenant_scope(connection: Connection, organization_id: str) -> None:
+    connection.execute(
+        text("SELECT set_config('aeos.organization_id', :id, true)"),
+        {"id": organization_id},
+    )
+
+
+def _insert_profile(
+    connection: Connection, organization_id: str, business_name: str
+) -> None:
+    connection.execute(
+        text(
+            "INSERT INTO organization_business_profiles "
+            "(organization_id, profile_data) "
+            "VALUES (:id, CAST(:payload AS JSON))"
+        ),
+        {
+            "id": organization_id,
+            "payload": json.dumps(
+                {"organization_id": organization_id, "business_name": business_name}
+            ),
+        },
+    )
+
+
+def _create_tenant_organizations(engine: Engine) -> None:
+    with engine.begin() as connection:
+        for organization_id, name in TENANT_FIXTURES:
+            connection.execute(
+                text(
+                    "INSERT INTO organizations (id, name, status) "
+                    "VALUES (:id, :name, 'active')"
+                ),
+                {"id": organization_id, "name": name},
+            )
+
+
+def _create_tenant_profiles(engine: Engine) -> None:
+    with engine.begin() as connection:
+        for organization_id, name in TENANT_FIXTURES:
+            _set_tenant_scope(connection, organization_id)
+            _insert_profile(connection, organization_id, name)
+
+
+def _assert_sqlstate(error: DBAPIError, expected: str) -> None:
+    assert getattr(error.orig, "sqlstate", None) == expected
+
+
+def test_postgresql_application_role_is_restricted(postgres_engine: Engine) -> None:
+    with postgres_engine.connect() as connection:
+        server_version_num: int = connection.execute(
+            text("SELECT current_setting('server_version_num')::integer")
+        ).scalar_one()
+        assert server_version_num // 10000 == 17
+        role = (
+            connection.execute(
+                text(
+                    "SELECT current_user, rolsuper, rolbypassrls, rolcreatedb, "
+                    "rolcreaterole, has_database_privilege(current_user, "
+                    "current_database(), 'CREATE') AS can_create_database, "
+                    "has_schema_privilege(current_user, 'public', 'CREATE') "
+                    "AS can_create_schema, pg_has_role(current_user, "
+                    "CAST(:migration_role AS name), 'MEMBER') "
+                    "AS is_migration_role_member "
+                    "FROM pg_roles WHERE rolname = current_user"
+                ),
+                {"migration_role": MIGRATION_ROLE},
+            )
+            .mappings()
+            .one()
+        )
+        assert role["current_user"] == APPLICATION_ROLE
+        assert not role["rolsuper"]
+        assert not role["rolbypassrls"]
+        assert not role["rolcreatedb"]
+        assert not role["rolcreaterole"]
+        assert not role["can_create_database"]
+        assert not role["can_create_schema"]
+        assert not role["is_migration_role_member"]
+        owner: str = connection.execute(
+            text(
+                "SELECT pg_get_userbyid(relowner) FROM pg_class "
+                "WHERE oid = 'organization_business_profiles'::regclass"
+            )
+        ).scalar_one()
+        assert owner == MIGRATION_ROLE
+        assert connection.execute(
+            text(
+                "SELECT has_table_privilege(current_user, "
+                "'organization_business_profiles', 'SELECT,INSERT,UPDATE,DELETE')"
+            )
+        ).scalar_one()
+        assert not connection.execute(
+            text(
+                "SELECT has_table_privilege(current_user, "
+                "'organization_business_profiles', 'TRUNCATE')"
+            )
+        ).scalar_one()
+
+
+def test_business_profile_repository_create_and_retrieve(
+    postgres_engine: Engine,
+) -> None:
+    organization_id = OrganizationId("org-ci-profile-repository")
+    principal = TenantPrincipal(
+        ActorRef(OrganizationId("actor-ci-profile-repository"), ActorKind.HUMAN)
+    )
+    at = datetime.now(timezone.utc)
+    profile = BusinessProfile(
+        business_name="Synthetic Profile Repository Business",
+        industry="Cleaning",
+        vertical="HOUSE_CLEANING",
+        description="Synthetic PostgreSQL repository fixture.",
+        business_model=BusinessModel.B2B,
+        country="United States",
+        state_region="Example Region",
+        city="Sample City One",
+        service_radius=20,
+        service_radius_unit=RadiusUnit.MILES,
+        primary_services=("Commercial cleaning",),
+        target_customer_segments=("Local businesses",),
+        organization_id=organization_id,
+        is_fictional_example=True,
+    )
+
+    with SqlAlchemyUnitOfWork(postgres_engine) as unit_of_work:
+        RegisterOrganization(unit_of_work.organizations).execute(
+            principal,
+            "Synthetic Profile Repository Organization",
+            at=at,
+            organization_id=organization_id,
+        )
+        unit_of_work.commit()
+
+    with SqlAlchemyUnitOfWork(postgres_engine) as unit_of_work:
+        resolver = TenantContextResolver(unit_of_work.organizations)
+        RegisterBusinessProfile(resolver, unit_of_work.business_profiles).execute(
+            principal, organization_id, profile, at=at
+        )
+        unit_of_work.commit()
+        retrieved = GetBusinessProfile(
+            resolver, unit_of_work.business_profiles
+        ).execute(principal, organization_id, at=at)
+        assert retrieved == profile
+        unit_of_work.commit()
+
+
+def test_postgresql_business_profile_row_level_security(
+    postgres_engine: Engine,
+) -> None:
+    with postgres_engine.connect() as connection:
+        row_security, force_row_security = connection.execute(
+            text(
+                "SELECT relrowsecurity, relforcerowsecurity FROM pg_class "
+                "WHERE oid = 'organization_business_profiles'::regclass"
+            )
+        ).one()
+        assert row_security and force_row_security
+
+    _create_tenant_organizations(postgres_engine)
+    tenant_ids = tuple(item[0] for item in TENANT_FIXTURES)
+    for source_index, source_id in enumerate(tenant_ids):
+        target_id = tenant_ids[(source_index + 1) % len(tenant_ids)]
+        with pytest.raises(DBAPIError) as denied_insert:
+            with postgres_engine.begin() as connection:
+                _set_tenant_scope(connection, source_id)
+                _insert_profile(connection, target_id, "Forged synthetic profile")
+        _assert_sqlstate(denied_insert.value, "42501")
+
+    _create_tenant_profiles(postgres_engine)
+
+    for organization_id, business_name in TENANT_FIXTURES:
+        with postgres_engine.begin() as connection:
+            _set_tenant_scope(connection, organization_id)
+            visible = connection.execute(
+                text(
+                    "SELECT organization_id, profile_data->>'business_name' "
+                    "FROM organization_business_profiles ORDER BY organization_id"
+                )
+            ).all()
+            assert visible == [(organization_id, business_name)]
+
+            for foreign_id in tenant_ids:
+                if foreign_id == organization_id:
+                    continue
+                assert (
+                    connection.execute(
+                        text(
+                            "SELECT organization_id FROM organization_business_profiles "
+                            "WHERE organization_id = :id"
+                        ),
+                        {"id": foreign_id},
+                    ).first()
+                    is None
+                )
+                hidden_update = connection.execute(
+                    text(
+                        "UPDATE organization_business_profiles "
+                        "SET profile_data = CAST(:payload AS JSON) "
+                        "WHERE organization_id = :id"
+                    ),
+                    {"id": foreign_id, "payload": '{"tampered": true}'},
+                )
+                assert hidden_update.rowcount == 0
+                hidden_delete = connection.execute(
+                    text(
+                        "DELETE FROM organization_business_profiles "
+                        "WHERE organization_id = :id"
+                    ),
+                    {"id": foreign_id},
+                )
+                assert hidden_delete.rowcount == 0
+
+    with postgres_engine.begin() as connection:
+        visible_without_scope: Sequence[str] = (
+            connection.execute(
+                text("SELECT organization_id FROM organization_business_profiles")
+            )
+            .scalars()
+            .all()
+        )
+        assert visible_without_scope == []
+
+    with postgres_engine.begin() as connection:
+        _set_tenant_scope(connection, "org-ci-invalid-context")
+        invalid_context_rows = connection.execute(
+            text("SELECT organization_id FROM organization_business_profiles")
+        ).all()
+        assert invalid_context_rows == []
+
+    first_id = tenant_ids[0]
+    with pytest.raises(IntegrityError) as duplicate_profile:
+        with postgres_engine.begin() as connection:
+            _set_tenant_scope(connection, first_id)
+            _insert_profile(connection, first_id, "Duplicate synthetic profile")
+    _assert_sqlstate(duplicate_profile.value, "23505")
+
+    missing_organization_id = "org-ci-missing-foreign-key"
+    with pytest.raises(IntegrityError) as missing_organization:
+        with postgres_engine.begin() as connection:
+            _set_tenant_scope(connection, missing_organization_id)
+            _insert_profile(connection, missing_organization_id, "Missing org")
+    _assert_sqlstate(missing_organization.value, "23503")
+
+
+def test_transaction_local_tenant_context_is_clean_on_pool_reuse(
+    postgres_engine: Engine,
+) -> None:
+    _create_tenant_organizations(postgres_engine)
+    _create_tenant_profiles(postgres_engine)
+    pooled_engine = create_engine(
+        postgres_engine.url,
+        connect_args={"user": APPLICATION_ROLE},
+        pool_size=1,
+        max_overflow=0,
+    )
+    tenant_a, tenant_b, tenant_c = (item[0] for item in TENANT_FIXTURES)
+    try:
+        with pooled_engine.connect() as connection_a:
+            with connection_a.begin():
+                backend_pid: int = connection_a.execute(
+                    text("SELECT pg_backend_pid()")
+                ).scalar_one()
+                _set_tenant_scope(connection_a, tenant_a)
+                visible_a: Sequence[str] = (
+                    connection_a.execute(
+                        text(
+                            "SELECT organization_id FROM organization_business_profiles"
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                assert visible_a == [tenant_a]
+
+        with pooled_engine.connect() as connection_b:
+            with connection_b.begin():
+                assert (
+                    connection_b.execute(text("SELECT pg_backend_pid()")).scalar_one()
+                    == backend_pid
+                )
+                no_context: Sequence[str] = (
+                    connection_b.execute(
+                        text(
+                            "SELECT organization_id FROM organization_business_profiles"
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                assert no_context == []
+                _set_tenant_scope(connection_b, tenant_b)
+                visible_b: Sequence[str] = (
+                    connection_b.execute(
+                        text(
+                            "SELECT organization_id FROM organization_business_profiles"
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                assert visible_b == [tenant_b]
+
+        with pooled_engine.connect() as connection:
+            with pytest.raises(RuntimeError, match="rollback tenant context"):
+                with connection.begin():
+                    assert (
+                        connection.execute(text("SELECT pg_backend_pid()")).scalar_one()
+                        == backend_pid
+                    )
+                    _set_tenant_scope(connection, tenant_c)
+                    visible_c: Sequence[str] = (
+                        connection.execute(
+                            text(
+                                "SELECT organization_id "
+                                "FROM organization_business_profiles"
+                            )
+                        )
+                        .scalars()
+                        .all()
+                    )
+                    assert visible_c == [tenant_c]
+                    raise RuntimeError("rollback tenant context")
+
+        with pooled_engine.connect() as connection:
+            with connection.begin():
+                assert (
+                    connection.execute(text("SELECT pg_backend_pid()")).scalar_one()
+                    == backend_pid
+                )
+                after_rollback: Sequence[str] = (
+                    connection.execute(
+                        text(
+                            "SELECT organization_id FROM organization_business_profiles"
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                assert after_rollback == []
+                _set_tenant_scope(connection, tenant_b)
+                visible_after_rollback: Sequence[str] = (
+                    connection.execute(
+                        text(
+                            "SELECT organization_id FROM organization_business_profiles"
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+                assert visible_after_rollback == [tenant_b]
+    finally:
+        pooled_engine.dispose()

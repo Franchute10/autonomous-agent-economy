@@ -1,0 +1,1217 @@
+{
+  "project": "AEOS-LIVE-002B2",
+  "snapshot_at": "2026-11-07T14:51:45Z",
+  "manual_public_source_policy": {
+    "websites": "Manual review of publicly accessible official business pages and public contact pages.",
+    "community_posts": "Manual review of public URLs only. No private Facebook groups, authentication bypass, CAPTCHA defeat, or automated outreach.",
+    "ratings": "Only claims displayed on a business's own reviewed site are retained; no Google Search HTML or Google Maps page scraping is used.",
+    "demand_staleness_days": 30
+  },
+  "markets": [
+    {
+      "city": "Sample City One",
+      "state": "Example Region",
+      "organizations": [
+        {
+          "entity_id": "sample-organization-1",
+          "name": "Synthetic Example Organization 01",
+          "city": "Sample City One",
+          "role": "COMPETITOR",
+          "website_url": "https://sample-organization-1.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City One"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-001",
+            "sample-evidence-002"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "sample-organization-2",
+          "name": "Synthetic Example Organization 09",
+          "city": "Sample City One",
+          "role": "COMPETITOR",
+          "website_url": "https://sample-organization-2.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City One"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-003",
+            "sample-evidence-004"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "buyer-sample-2",
+          "name": "Synthetic Example Organization 10",
+          "city": "Sample City One",
+          "role": "POTENTIAL_BUYER",
+          "website_url": "https://buyer-sample-2.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City One"
+          ],
+          "services": [
+            "Fictional property operations with cleaning coordination"
+          ],
+          "customer_segments": [
+            "Homeowners",
+            "Property managers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [
+            "Website"
+          ],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [
+            "Synthetic example contact channel"
+          ],
+          "buyer_fit_reason": "Synthetic example: property operations may require cleaning coordination.",
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-005",
+            "sample-evidence-006"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "buyer-sample-3",
+          "name": "Synthetic Example Organization 04",
+          "city": "Sample City One",
+          "role": "POTENTIAL_BUYER",
+          "website_url": "https://buyer-sample-3.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City One"
+          ],
+          "services": [
+            "Fictional property operations with cleaning coordination"
+          ],
+          "customer_segments": [
+            "Homeowners",
+            "Property managers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [
+            "Website"
+          ],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [
+            "Synthetic example contact channel"
+          ],
+          "buyer_fit_reason": "Synthetic example: property operations may require cleaning coordination.",
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-007",
+            "sample-evidence-008"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "buyer-sample-1",
+          "name": "Synthetic Example Organization 11",
+          "city": "Sample City One",
+          "role": "POTENTIAL_BUYER",
+          "website_url": "https://buyer-sample-1.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City One"
+          ],
+          "services": [
+            "Vacation rental turnover cleaning"
+          ],
+          "customer_segments": [
+            "Vacation rental operators"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Cleaning after guest checkouts"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [
+            "Website"
+          ],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [
+            "Synthetic example contact channel"
+          ],
+          "buyer_fit_reason": "Synthetic example: recurring vacation rental turnover cleaning may fit the sample service.",
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-009",
+            "sample-evidence-010",
+            "sample-evidence-011"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "sample-organization-3",
+          "name": "Synthetic Example Organization 06",
+          "city": "Sample City One",
+          "role": "REFERRAL_PARTNER",
+          "website_url": "https://sample-organization-3.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City One"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": false,
+          "recurring_options": [],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": "Synthetic example referral relationship.",
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-012"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        }
+      ],
+      "demand_signals": [
+        {
+          "signal_id": "sample-signal-1-1",
+          "city": "Sample City One",
+          "platform": "Synthetic sample forum",
+          "source_url": "https://sources.example/synthetic/record-001",
+          "publication_date": "2026-08-24",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "service_requested": "Residential cleaning",
+          "supporting_excerpt": "Synthetic preview request: a fictional resident is looking for residential cleaning.",
+          "evidence_id": "sample-evidence-013",
+          "limitations": [
+            "Synthetic fixture; no real buying intent is represented."
+          ],
+          "supporting_excerpt_es": "Busco una persona para limpiar una vivienda de ejemplo ficticia.",
+          "synthetic_record": true
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "sample-evidence-001",
+          "entity_id": "sample-organization-1",
+          "field": "services_and_coverage",
+          "value": "Synthetic fixture value for services_and_coverage.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-002",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.97,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-002",
+          "entity_id": "sample-organization-1",
+          "field": "public_contact",
+          "value": "Synthetic fixture value for public_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-003",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.99,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-003",
+          "entity_id": "sample-organization-2",
+          "field": "services_and_coverage",
+          "value": "Synthetic fixture value for services_and_coverage.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-004",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-004",
+          "entity_id": "sample-organization-2",
+          "field": "rating_claim",
+          "value": "Synthetic fixture value for rating_claim.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-005",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.75,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-005",
+          "entity_id": "buyer-sample-2",
+          "field": "cleaning_operations",
+          "value": "Synthetic fixture value for cleaning_operations.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-006",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.96,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-006",
+          "entity_id": "buyer-sample-2",
+          "field": "public_contact",
+          "value": "Synthetic fixture value for public_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-007",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.99,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-007",
+          "entity_id": "buyer-sample-3",
+          "field": "housekeeping_need",
+          "value": "Synthetic fixture value for housekeeping_need.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-008",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.95,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-008",
+          "entity_id": "buyer-sample-3",
+          "field": "public_contact",
+          "value": "Synthetic fixture value for public_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-009",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-009",
+          "entity_id": "buyer-sample-1",
+          "field": "market_coverage",
+          "value": "Synthetic fixture value for market_coverage.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-010",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.93,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-010",
+          "entity_id": "buyer-sample-1",
+          "field": "cleaning_operations",
+          "value": "Synthetic fixture value for cleaning_operations.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-011",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-011",
+          "entity_id": "buyer-sample-1",
+          "field": "public_vendor_contact",
+          "value": "Synthetic fixture value for public_vendor_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-012",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-012",
+          "entity_id": "sample-organization-3",
+          "field": "local_referral_channel",
+          "value": "Synthetic fixture value for local_referral_channel.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-013",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-013",
+          "entity_id": "sample-signal-1-1",
+          "field": "explicit_public_cleaner_request",
+          "value": "Synthetic fixture value for explicit_public_cleaner_request.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-014",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": "2026-08-24",
+          "classification": "REPORTED",
+          "confidence": 0.94,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        }
+      ],
+      "source_coverage": [
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "SUCCEEDED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": 6,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "SUCCEEDED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": 1,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "PROVIDER_NOT_CONFIGURED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": null,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "PROVIDER_NOT_CONFIGURED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": null,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "NOT_REQUESTED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": null,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": 0,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        }
+      ],
+      "limitations": [
+        "Synthetic fixture; not real market research."
+      ],
+      "synthetic_record": true
+    },
+    {
+      "city": "Sample City Two",
+      "state": "Example Region",
+      "organizations": [
+        {
+          "entity_id": "sample-organization-4",
+          "name": "Synthetic Example Organization 07",
+          "city": "Sample City Two",
+          "role": "COMPETITOR",
+          "website_url": "https://sample-organization-4.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-014",
+            "sample-evidence-015"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "sample-organization-5",
+          "name": "Synthetic Example Organization 08",
+          "city": "Sample City Two",
+          "role": "COMPETITOR",
+          "website_url": "https://sample-organization-5.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-016",
+            "sample-evidence-017"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "sample-organization-2",
+          "name": "Synthetic Example Organization 09",
+          "city": "Sample City Two",
+          "role": "COMPETITOR",
+          "website_url": "https://sample-organization-2.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-018",
+            "sample-evidence-019"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "buyer-sample-2",
+          "name": "Synthetic Example Organization 10",
+          "city": "Sample City Two",
+          "role": "POTENTIAL_BUYER",
+          "website_url": "https://buyer-sample-2.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Fictional property operations with cleaning coordination"
+          ],
+          "customer_segments": [
+            "Homeowners",
+            "Property managers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [
+            "Website"
+          ],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [
+            "Synthetic example contact channel"
+          ],
+          "buyer_fit_reason": "Synthetic example: property operations may require cleaning coordination.",
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-020",
+            "sample-evidence-021"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "buyer-sample-1",
+          "name": "Synthetic Example Organization 11",
+          "city": "Sample City Two",
+          "role": "POTENTIAL_BUYER",
+          "website_url": "https://buyer-sample-1.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Vacation rental turnover cleaning"
+          ],
+          "customer_segments": [
+            "Vacation rental operators"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Cleaning after guest checkouts"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [
+            "Website"
+          ],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [
+            "Synthetic example contact channel"
+          ],
+          "buyer_fit_reason": "Synthetic example: recurring vacation rental turnover cleaning may fit the sample service.",
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-022",
+            "sample-evidence-010",
+            "sample-evidence-011"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "buyer-sample-4",
+          "name": "Synthetic Example Organization 12",
+          "city": "Sample City Two",
+          "role": "POTENTIAL_BUYER",
+          "website_url": "https://buyer-sample-4.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Fictional property operations with cleaning coordination"
+          ],
+          "customer_segments": [
+            "Homeowners",
+            "Property managers"
+          ],
+          "vacation_rental_specialization": true,
+          "recurring_options": [
+            "Synthetic recurring option"
+          ],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [
+            "Website"
+          ],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [
+            "Synthetic example contact channel"
+          ],
+          "buyer_fit_reason": "Synthetic example: property operations may require cleaning coordination.",
+          "referral_reason": null,
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-023",
+            "sample-evidence-024"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "entity_id": "sample-organization-6",
+          "name": "Synthetic Example Organization 13",
+          "city": "Sample City Two",
+          "role": "REFERRAL_PARTNER",
+          "website_url": "https://sample-organization-6.example/synthetic/reference",
+          "public_address": null,
+          "service_areas": [
+            "Sample City Two"
+          ],
+          "services": [
+            "Residential cleaning"
+          ],
+          "customer_segments": [
+            "Sample customers"
+          ],
+          "vacation_rental_specialization": false,
+          "recurring_options": [],
+          "pricing_model": null,
+          "public_listing_url": null,
+          "rating_claim": null,
+          "review_count_claim": null,
+          "booking_methods": [],
+          "conversion_channels": [
+            "Website"
+          ],
+          "public_contacts": [],
+          "buyer_fit_reason": null,
+          "referral_reason": "Synthetic example referral relationship.",
+          "recommended_action": "Review the synthetic sample before use.",
+          "validation_question": "Does this fictional example match the intended service?",
+          "evidence_ids": [
+            "sample-evidence-025"
+          ],
+          "limitations": [
+            "Synthetic fixture; contact and market facts must not be used."
+          ],
+          "synthetic_record": true
+        }
+      ],
+      "demand_signals": [
+        {
+          "signal_id": "sample-signal-2-1",
+          "city": "Sample City Two",
+          "platform": "Synthetic sample forum",
+          "source_url": "https://sources.example/synthetic/record-015",
+          "publication_date": "2024-12-15",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "service_requested": "Residential cleaning",
+          "supporting_excerpt": "Synthetic preview request: a fictional resident is looking for residential cleaning.",
+          "evidence_id": "sample-evidence-026",
+          "limitations": [
+            "Synthetic fixture; no real buying intent is represented."
+          ],
+          "supporting_excerpt_es": "Necesito a alguien para limpiar una vivienda de ejemplo ficticia.",
+          "synthetic_record": true
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "sample-evidence-014",
+          "entity_id": "sample-organization-4",
+          "field": "services_and_coverage",
+          "value": "Synthetic fixture value for services_and_coverage.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-016",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-015",
+          "entity_id": "sample-organization-4",
+          "field": "pricing_and_contact",
+          "value": "Synthetic fixture value for pricing_and_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-017",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-016",
+          "entity_id": "sample-organization-5",
+          "field": "services_and_recurring_options",
+          "value": "Synthetic fixture value for services_and_recurring_options.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-018",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-017",
+          "entity_id": "sample-organization-5",
+          "field": "public_contact",
+          "value": "Synthetic fixture value for public_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-019",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.99,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-018",
+          "entity_id": "sample-organization-2",
+          "field": "services_and_coverage",
+          "value": "Synthetic fixture value for services_and_coverage.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-020",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-019",
+          "entity_id": "sample-organization-2",
+          "field": "rating_claim",
+          "value": "Synthetic fixture value for rating_claim.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-021",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.85,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-020",
+          "entity_id": "buyer-sample-2",
+          "field": "cleaning_operations",
+          "value": "Synthetic fixture value for cleaning_operations.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-022",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.94,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-021",
+          "entity_id": "buyer-sample-2",
+          "field": "public_contact",
+          "value": "Synthetic fixture value for public_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-023",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-022",
+          "entity_id": "buyer-sample-1",
+          "field": "market_coverage",
+          "value": "Synthetic fixture value for market_coverage.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-024",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.97,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-010",
+          "entity_id": "buyer-sample-1",
+          "field": "cleaning_operations",
+          "value": "Synthetic fixture value for cleaning_operations.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-025",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.94,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-011",
+          "entity_id": "buyer-sample-1",
+          "field": "vendor_contact",
+          "value": "Synthetic fixture value for vendor_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-026",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-023",
+          "entity_id": "buyer-sample-4",
+          "field": "cleaning_operations",
+          "value": "Synthetic fixture value for cleaning_operations.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-027",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-024",
+          "entity_id": "buyer-sample-4",
+          "field": "public_contact",
+          "value": "Synthetic fixture value for public_contact.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-028",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.99,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-025",
+          "entity_id": "sample-organization-6",
+          "field": "local_referral_channel",
+          "value": "Synthetic fixture value for local_referral_channel.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-029",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": null,
+          "classification": "REPORTED",
+          "confidence": 0.98,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        },
+        {
+          "evidence_id": "sample-evidence-026",
+          "entity_id": "sample-signal-2-1",
+          "field": "explicit_public_cleaner_request",
+          "value": "Synthetic fixture value for explicit_public_cleaner_request.",
+          "source_name": "Synthetic fixture source",
+          "source_url": "https://sources.example/synthetic/record-030",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "published_at": "2024-12-15",
+          "classification": "REPORTED",
+          "confidence": 0.68,
+          "supporting_information": "Synthetic fixture only; no real source was observed.",
+          "limitations": [
+            "No real source was consulted for this fixture."
+          ],
+          "synthetic_record": true
+        }
+      ],
+      "source_coverage": [
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "SUCCEEDED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": 8,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "SUCCEEDED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": 1,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "PROVIDER_NOT_CONFIGURED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": null,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "PROVIDER_NOT_CONFIGURED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": null,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "NOT_REQUESTED",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": null,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        },
+        {
+          "source_name": "Synthetic fixture source",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "retrieved_at": "2026-11-07T14:51:45Z",
+          "result_count": 0,
+          "request_count": 0,
+          "note": "Synthetic fixture only; no source request was made."
+        }
+      ],
+      "limitations": [
+        "Synthetic fixture; not real market research."
+      ],
+      "synthetic_record": true
+    }
+  ],
+  "synthetic_fixture": true
+}

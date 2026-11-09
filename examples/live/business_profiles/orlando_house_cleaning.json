@@ -1,0 +1,56 @@
+{
+  "business_name": "BrightNest Home Cleaning (Fictional)",
+  "legal_name": "BrightNest Home Cleaning LLC (Fictional)",
+  "industry": "Residential cleaning services",
+  "vertical": "HOUSE_CLEANING",
+  "description": "Fictional residential cleaning business profile used to demonstrate AEOS LIVE.",
+  "business_model": "B2C",
+  "country": "United States",
+  "state_region": "Example Region",
+  "city": "Orlando",
+  "postal_code": null,
+  "address": null,
+  "service_radius": 15,
+  "service_radius_unit": "miles",
+  "additional_service_areas": [
+    "Winter Park",
+    "Kissimmee"
+  ],
+  "primary_services": [
+    "Recurring residential cleaning",
+    "Deep cleaning",
+    "Move-in and move-out cleaning"
+  ],
+  "secondary_services": [
+    "Interior refrigerator cleaning"
+  ],
+  "products": [],
+  "target_customer_segments": [
+    "Homeowners",
+    "Renters"
+  ],
+  "value_proposition": "A single fictional team for recurring home cleaning and move-related cleanups.",
+  "differentiators": [
+    "Flexible recurring plans",
+    "Optional low-fragrance products"
+  ],
+  "website_url": null,
+  "google_business_profile_url": null,
+  "social_media_urls": null,
+  "phone": null,
+  "business_email": null,
+  "years_in_operation": 3,
+  "approximate_employees": 4,
+  "existing_customer_sources": [
+    "Customer referrals",
+    "Local social media posts"
+  ],
+  "commercial_challenges": [
+    "Keeping recurring bookings consistent"
+  ],
+  "commercial_goals": [
+    "Build a steadier recurring customer base"
+  ],
+  "operational_capacity": "Fictional capacity of up to 20 recurring households per week.",
+  "is_fictional_example": true
+}

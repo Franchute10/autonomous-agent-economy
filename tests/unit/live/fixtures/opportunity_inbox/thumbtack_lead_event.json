@@ -1,0 +1,16 @@
+{
+  "eventType": "NegotiationCreatedV4",
+  "negotiationID": "synthetic-negotiation-001",
+  "businessID": "synthetic-fictional_cleaning-business",
+  "category": {
+    "name": "Residential Cleaning"
+  },
+  "customer": {
+    "location": {
+      "city": "Sample City One",
+      "state": "FL"
+    }
+  },
+  "createTime": "2026-11-07T15:30:00Z",
+  "description": "SYNTHETIC FIXTURE TEXT; intentionally discarded by the adapter."
+}

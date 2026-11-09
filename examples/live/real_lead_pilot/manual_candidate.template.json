@@ -1,0 +1,83 @@
+{
+  "candidates": [
+    {
+      "template_only": true,
+      "source_platform": "Facebook public Groups and Marketplace",
+      "access_method": "PUBLIC_PAGE_MANUAL",
+      "demand_type": "DIRECT_CUSTOMER_DEMAND",
+      "publication_date": "YYYY-MM-DD",
+      "observed_at": null,
+      "service_requested": "Residential cleaning",
+      "summary": "This source text is not stored; provide only a redacted evidence summary.",
+      "source_url": "https://public-request.example/public-request",
+      "source_event_ref": null,
+      "city": "Sample City One",
+      "state": "FL",
+      "explicit_intent": true,
+      "is_open": true,
+      "response_method": "Use the source's native response path",
+      "publicly_accessible": true,
+      "business_authorized": false,
+      "source_provenance": "UNKNOWN",
+      "account_holder_authorized": false,
+      "permission_basis": "NOT_APPROVED",
+      "source_terms_note": "Confirm source and commercial-use permission before capture.",
+      "procurement_status": null,
+      "official_deadline": null,
+      "solicitation_id": null,
+      "issuing_organization": null,
+      "procurement_scope": null,
+      "eligibility_requirements": [],
+      "eligibility_reviewed": false,
+      "expected_jobs_per_day": null,
+      "contract_duration": null,
+      "required_insurance": null,
+      "ongoing_need": false,
+      "limitations": [],
+      "evidence": [
+        {
+          "field": "city",
+          "value": "Sample City One",
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        },
+        {
+          "field": "state",
+          "value": "FL",
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        },
+        {
+          "field": "service_requested",
+          "value": "Residential cleaning",
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        },
+        {
+          "field": "explicit_intent",
+          "value": true,
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        },
+        {
+          "field": "publication_date",
+          "value": "YYYY-MM-DD",
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        },
+        {
+          "field": "open_status",
+          "value": true,
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        },
+        {
+          "field": "response_method",
+          "value": "Use the source's native response path",
+          "kind": "OBSERVED",
+          "confidence": 0.95
+        }
+      ]
+    }
+  ]
+}
