@@ -427,9 +427,13 @@ def _website_signals(
                         getattr(page, "rendered_dom_fields_observed", ())
                     ),
                     "error_category": getattr(page, "rendered_dom_error", None),
-                    "error_message": _safe_optional_text(getattr(page, "rendered_dom_error_message", None)),
+                    "error_message": _safe_optional_text(
+                        getattr(page, "rendered_dom_error_message", None)
+                    ),
                     "title": _safe_optional_text(getattr(page, "rendered_title", None)),
-                    "meta_description": _safe_optional_text(getattr(page, "rendered_meta_description", None)),
+                    "meta_description": _safe_optional_text(
+                        getattr(page, "rendered_meta_description", None)
+                    ),
                     "h1": [
                         safe_text_for_report(item)
                         for item in getattr(page, "rendered_h1_headings", ())
@@ -453,7 +457,9 @@ def _website_signals(
                     "status": "HTML_ONLY",
                     "fields_observed": [],
                     "error_category": getattr(page, "rendered_dom_error", None),
-                    "error_message": _safe_optional_text(getattr(page, "rendered_dom_error_message", None)),
+                    "error_message": _safe_optional_text(
+                        getattr(page, "rendered_dom_error_message", None)
+                    ),
                 }
             ),
             "h2": [
