@@ -17,6 +17,7 @@ from aeos.live.public_beta import (
     PublicBetaService,
     PublicBetaHTTPServer,
     RequestGate,
+    create_fix_pack_checkout_response,
     create_server,
 )
 
@@ -255,3 +256,27 @@ def test_uncertain_fields_have_no_correction_prompt() -> None:
     pending_items = [item for item in pending if isinstance(item, dict)]
     assert all(item.get("status") == "INCONCLUSIVE" for item in pending_items)
     assert all("correction_prompt" not in item for item in pending_items)
+
+
+def test_fix_pack_checkout_reuses_recent_diagnosis(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("AEOS_PADDLE_ENV", "sandbox")
+    monkeypatch.setenv("AEOS_PADDLE_CLIENT_TOKEN", "test_checkout_token")
+    monkeypatch.setenv("AEOS_PADDLE_API_KEY", "pdl_sdbx_apikey_test")
+    monkeypatch.setenv(
+        "AEOS_PADDLE_NOTIFICATION_WEBHOOK_SECRET", "pdl_ntfset_test_secret"
+    )
+    inspector = FixtureInspector(_inspection(duplicate_titles=True))
+    service = PublicBetaService(inspector_factory=lambda: inspector)
+
+    report = service.diagnose("https://example.com/", "es")
+    assert report["fix_pack_available"] is True
+
+    status, checkout = create_fix_pack_checkout_response(
+        service, "https://example.com/", "es"
+    )
+
+    assert status == 200
+    assert checkout["price_id"]
+    assert inspector.urls == ["https://example.com/"]

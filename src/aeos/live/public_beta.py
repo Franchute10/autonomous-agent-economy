@@ -62,6 +62,8 @@ MAX_PAGE_COUNT = 3
 MAX_PAGE_BYTES = 500_000
 HTTP_TIMEOUT_SECONDS = 2
 HTTP_TOTAL_TIMEOUT_SECONDS = 25
+RECENT_REPORT_TTL_SECONDS = 120
+MAX_RECENT_REPORTS = 128
 
 _TITLE_TRANSLATIONS = {
     "Metadatos ausentes en DOM renderizado": {
@@ -112,6 +114,10 @@ class PublicBetaService:
         inspector_factory: Callable[[], WebsiteInspectionPort] | None = None,
     ) -> None:
         self._inspector_factory = inspector_factory or _public_inspector
+        self._recent_reports: dict[
+            tuple[str, str], tuple[float, dict[str, object]]
+        ] = {}
+        self._recent_reports_lock = threading.Lock()
 
     def diagnose(
         self, submitted_url: object, language: object = "es"
@@ -124,6 +130,20 @@ class PublicBetaService:
             classified = _classify_public_url(submitted_url)
         except ValueError as error:
             raise PublicInputError("invalid_url") from error
+
+        cache_key = (classified.url, language)
+        now = time.monotonic()
+        with self._recent_reports_lock:
+            expired_keys = [
+                key
+                for key, (expires_at, _) in self._recent_reports.items()
+                if expires_at <= now
+            ]
+            for key in expired_keys:
+                self._recent_reports.pop(key, None)
+            cached = self._recent_reports.get(cache_key)
+            if cached is not None:
+                return dict(cached[1])
 
         inspection = None
         inspection_status = "NOT_STARTED"
@@ -152,7 +172,20 @@ class PublicBetaService:
             failure_stage=failure_stage,
             inspected_at=inspected_at,
         )
-        return _public_projection(report, language)
+        response = _public_projection(report, language)
+        if response.get("fix_pack_available") is True:
+            with self._recent_reports_lock:
+                if len(self._recent_reports) >= MAX_RECENT_REPORTS:
+                    oldest_key = min(
+                        self._recent_reports,
+                        key=lambda key: self._recent_reports[key][0],
+                    )
+                    self._recent_reports.pop(oldest_key, None)
+                self._recent_reports[cache_key] = (
+                    time.monotonic() + RECENT_REPORT_TTL_SECONDS,
+                    response,
+                )
+        return response
 
 
 def create_fix_pack_checkout_response(
