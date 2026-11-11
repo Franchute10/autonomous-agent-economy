@@ -252,6 +252,6 @@ def test_uncertain_fields_have_no_correction_prompt() -> None:
     pending = response["pending_verifications"]
     assert pending
     assert isinstance(pending, list)
-    assert all(isinstance(item, dict) for item in pending)
-    assert all(item.get("status") == "INCONCLUSIVE" for item in pending if isinstance(item, dict))
-    assert all("correction_prompt" not in item for item in pending if isinstance(item, dict))
+    pending_items = [item for item in pending if isinstance(item, dict)]
+    assert all(item.get("status") == "INCONCLUSIVE" for item in pending_items)
+    assert all("correction_prompt" not in item for item in pending_items)
