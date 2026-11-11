@@ -57,7 +57,6 @@ def _inspection(*, duplicate_titles: bool) -> WebsiteInspectionResult:
             requested_url=root,
             final_url=root,
             inspected_at=datetime(2026, 11, 10, tzinfo=timezone.utc),
-            structured_data_types=("Organization",),
         ),
         pages=pages,
     )
@@ -66,7 +65,7 @@ def _inspection(*, duplicate_titles: bool) -> WebsiteInspectionResult:
 @pytest.fixture
 def beta_server() -> Iterator[tuple[PublicBetaHTTPServer, FixtureInspector]]:
     inspector = FixtureInspector(_inspection(duplicate_titles=True))
-    service = PublicBetaService(inspector_factory=lambda: inspector)  # type: ignore[arg-type]
+    service = PublicBetaService(inspector_factory=lambda: inspector)
     server = create_server(
         "127.0.0.1", 0, service=service, gate=RequestGate(daily_limit=20)
     )
@@ -130,9 +129,19 @@ def test_website_report_flows_from_form_endpoint_to_bilingual_evidence(
     findings = report["confirmed_findings"]
     assert isinstance(findings, list) and len(findings) == 1
     finding = findings[0]
-    assert finding["title"]["en"] == "Repeated titles or descriptions"
-    assert "https://example.com/" in finding["correction_prompt"]["en"]
-    assert {source["url"] for source in finding["sources"]} == {
+    assert isinstance(finding, dict)
+    title = finding.get("title")
+    prompt = finding.get("correction_prompt")
+    sources = finding.get("sources")
+    assert isinstance(title, dict) and title.get("en") == "Repeated titles or descriptions"
+    assert isinstance(prompt, dict) and "https://example.com/" in str(prompt.get("en"))
+    assert isinstance(sources, list)
+    assert all(isinstance(source, dict) for source in sources)
+    assert {
+        source["url"]
+        for source in sources
+        if isinstance(source, dict) and isinstance(source.get("url"), str)
+    } == {
         "https://example.com/",
         "https://example.com/services",
     }
@@ -156,21 +165,24 @@ def test_social_urls_request_owner_evidence_without_calling_inspector(
     def inspector_must_not_run() -> FixtureInspector:
         pytest.fail("social URLs must never be fetched")
 
-    service = PublicBetaService(inspector_factory=inspector_must_not_run)  # type: ignore[arg-type]
+    service = PublicBetaService(inspector_factory=inspector_must_not_run)
     report = service.diagnose(url, "es")
 
     assert report["platform"] == platform
     assert report["inspection_status"] == "OWNER_EVIDENCE_REQUIRED"
     assert report["confirmed_findings"] == []
-    assert "No se abrió" in report["summary"]["es"]
-    assert "acceso autorizado" in report["access_request"]["es"]
+    summary = report.get("summary")
+    access_request = report.get("access_request")
+    assert isinstance(summary, dict) and "No se abrió" in str(summary.get("es"))
+    assert isinstance(access_request, dict)
+    assert "acceso autorizado" in str(access_request.get("es"))
 
 
 def test_local_address_is_rejected_before_any_inspection() -> None:
     def inspector_must_not_run() -> FixtureInspector:
         pytest.fail("a private URL must be rejected before inspection")
 
-    service = PublicBetaService(inspector_factory=inspector_must_not_run)  # type: ignore[arg-type]
+    service = PublicBetaService(inspector_factory=inspector_must_not_run)
 
     with pytest.raises(ValueError):
         service.diagnose("http://127.0.0.1/admin")
@@ -181,7 +193,7 @@ def test_per_ip_rate_limit_rejects_excess_work() -> None:
         "127.0.0.1",
         0,
         service=PublicBetaService(
-            inspector_factory=lambda: FixtureInspector(  # type: ignore[arg-type]
+            inspector_factory=lambda: FixtureInspector(
                 _inspection(duplicate_titles=False)
             )
         ),
@@ -219,7 +231,6 @@ def test_uncertain_fields_have_no_correction_prompt() -> None:
     page = WebsitePage(
         url="https://example.com/",
         status_code=200,
-        inspection_method="HTML_ONLY",
     )
     result = WebsiteInspectionResult(
         signals=(),
@@ -232,11 +243,13 @@ def test_uncertain_fields_have_no_correction_prompt() -> None:
         pages=(page,),
     )
     response = PublicBetaService(
-        inspector_factory=lambda: FixtureInspector(result)  # type: ignore[arg-type]
+        inspector_factory=lambda: FixtureInspector(result)
     ).diagnose(page.url, "en")
 
     assert response["confirmed_findings"] == []
     pending = response["pending_verifications"]
     assert pending
-    assert all(item["status"] == "INCONCLUSIVE" for item in pending)
-    assert all("correction_prompt" not in item for item in pending)
+    assert isinstance(pending, list)
+    assert all(isinstance(item, dict) for item in pending)
+    assert all(item.get("status") == "INCONCLUSIVE" for item in pending if isinstance(item, dict))
+    assert all("correction_prompt" not in item for item in pending if isinstance(item, dict))
