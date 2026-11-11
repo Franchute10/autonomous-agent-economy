@@ -585,7 +585,11 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         route = self.path.split("?", 1)[0]
-        if route not in {"/api/diagnose", "/api/fix-pack/checkout", "/api/fix-pack/redeem"}:
+        if route not in {
+            "/api/diagnose",
+            "/api/fix-pack/checkout",
+            "/api/fix-pack/redeem",
+        }:
             self._send_json(404, {"error": "not_found"})
             return
         if self.headers.get_content_type() != "application/json":
@@ -637,7 +641,9 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                     if not _stripe_configured():
                         self._send_json(503, {"error": "fix_pack_unavailable"})
                         return
-                    report = self.beta_server.service.diagnose(payload.get("url"), language)
+                    report = self.beta_server.service.diagnose(
+                        payload.get("url"), language
+                    )
                     pack = build_fix_pack(report, language=cast(str, language))
                     if pack is None:
                         self._send_json(422, {"error": "no_confirmed_fix"})
@@ -646,17 +652,23 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                     if not isinstance(submitted_url, str) or len(submitted_url) > 450:
                         self._send_json(400, {"error": "url_too_long_for_checkout"})
                         return
-                    checkout_url = _create_fix_pack_checkout(submitted_url, cast(str, language))
+                    checkout_url = _create_fix_pack_checkout(
+                        submitted_url, cast(str, language)
+                    )
                     self._send_json(200, {"checkout_url": checkout_url})
                     return
                 else:
                     session_id = payload.get("session_id")
-                    if not isinstance(session_id, str) or not re.fullmatch(r"cs_test_[A-Za-z0-9_]+", session_id):
+                    if not isinstance(session_id, str) or not re.fullmatch(
+                        r"cs_test_[A-Za-z0-9_]+", session_id
+                    ):
                         self._send_json(400, {"error": "invalid_checkout_session"})
                         return
                     checkout = _retrieve_fix_pack_checkout(session_id)
                     metadata_value = checkout.get("metadata")
-                    metadata = metadata_value if isinstance(metadata_value, Mapping) else {}
+                    metadata = (
+                        metadata_value if isinstance(metadata_value, Mapping) else {}
+                    )
                     if (
                         checkout.get("payment_status") != "paid"
                         or checkout.get("mode") != "payment"
@@ -667,16 +679,23 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                     ):
                         self._send_json(402, {"error": "payment_not_confirmed"})
                         return
-                    report = self.beta_server.service.diagnose(metadata.get("url"), metadata.get("language", "es"))
-                    pack = build_fix_pack(report, language=cast(str, metadata.get("language", "es")))
+                    report = self.beta_server.service.diagnose(
+                        metadata.get("url"), metadata.get("language", "es")
+                    )
+                    pack = build_fix_pack(
+                        report, language=cast(str, metadata.get("language", "es"))
+                    )
                     if pack is None:
                         self._send_json(409, {"error": "fix_no_longer_confirmed"})
                         return
-                    self._send_json(200, {
-                        "filename": "aeos-fix-pack.md",
-                        "markdown": render_fix_pack_markdown(pack),
-                        "pack": pack,
-                    })
+                    self._send_json(
+                        200,
+                        {
+                            "filename": "aeos-fix-pack.md",
+                            "markdown": render_fix_pack_markdown(pack),
+                            "pack": pack,
+                        },
+                    )
                     return
             except PublicInputError as error:
                 self._send_json(400, {"error": error.code})
@@ -767,7 +786,9 @@ def _stripe_configured() -> bool:
     return key.startswith("sk_test_") and base_url.startswith("https://")
 
 
-def _stripe_request(path: str, fields: Mapping[str, str] | None = None) -> dict[str, object]:
+def _stripe_request(
+    path: str, fields: Mapping[str, str] | None = None
+) -> dict[str, object]:
     key = os.environ.get("AEOS_STRIPE_SECRET_KEY", "")
     if not key.startswith("sk_test_"):
         raise ValueError("Stripe test-mode key is not configured")
@@ -804,7 +825,9 @@ def _create_fix_pack_checkout(url: str, language: str) -> str:
     }
     session = _stripe_request("checkout/sessions", fields)
     checkout_url = session.get("url")
-    if not isinstance(checkout_url, str) or not checkout_url.startswith("https://checkout.stripe.com/"):
+    if not isinstance(checkout_url, str) or not checkout_url.startswith(
+        "https://checkout.stripe.com/"
+    ):
         raise ValueError("Stripe did not return a valid Checkout URL")
     return checkout_url
 
