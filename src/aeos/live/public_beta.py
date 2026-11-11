@@ -657,7 +657,14 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                     checkout = _retrieve_fix_pack_checkout(session_id)
                     metadata_value = checkout.get("metadata")
                     metadata = metadata_value if isinstance(metadata_value, Mapping) else {}
-                    if checkout.get("payment_status") != "paid" or checkout.get("mode") != "payment" or metadata.get("product") != "fix_pack_v1":
+                    if (
+                        checkout.get("payment_status") != "paid"
+                        or checkout.get("mode") != "payment"
+                        or checkout.get("livemode") is not False
+                        or checkout.get("amount_total") != 500
+                        or checkout.get("currency") != "usd"
+                        or metadata.get("product") != "fix_pack_v1"
+                    ):
                         self._send_json(402, {"error": "payment_not_confirmed"})
                         return
                     report = self.beta_server.service.diagnose(metadata.get("url"), metadata.get("language", "es"))
