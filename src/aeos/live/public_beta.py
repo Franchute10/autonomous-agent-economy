@@ -778,8 +778,6 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
         return
 
 
-
-
 def _stripe_configured() -> bool:
     key = os.environ.get("AEOS_STRIPE_SECRET_KEY", "")
     base_url = os.environ.get("AEOS_PUBLIC_BASE_URL", "")
@@ -834,6 +832,7 @@ def _create_fix_pack_checkout(url: str, language: str) -> str:
 
 def _retrieve_fix_pack_checkout(session_id: str) -> dict[str, object]:
     return _stripe_request(f"checkout/sessions/{session_id}")
+
 
 def create_server(
     host: str = "127.0.0.1",
