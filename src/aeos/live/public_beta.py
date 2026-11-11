@@ -18,6 +18,8 @@ import threading
 import time
 import traceback
 from typing import cast
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 from aeos.application.live.business_url_diagnosis import (
     BusinessURLPlatform,
@@ -34,6 +36,7 @@ from aeos.live.adapters.website_inspector import (
 )
 from aeos.live.ports.website import WebsiteInspectionPort
 from aeos.live.domain.url_policy import safe_url_for_report
+from aeos.live.fix_pack import build_fix_pack, render_fix_pack_markdown
 
 STATIC_DIR = Path(__file__).with_name("public_beta_static")
 MAX_BODY_BYTES = 2048
@@ -197,11 +200,17 @@ def _public_projection(
         "summary": message,
         "confirmed_findings": findings,
         "pending_verifications": pending,
+        "fix_pack_available": False,
         "limits": {
             "es": "Revisión pública y limitada: hasta 3 páginas, 500 KB por respuesta, 2 segundos por solicitud y 25 segundos de red HTTP en total (DNS del sistema aparte). El HTML se revisa sin iniciar sesión; no se analizan posiciones ni tráfico.",
             "en": "A limited public review: up to 3 pages, 500 KB per response, 2 seconds per request, and 25 seconds of total HTTP time (system DNS excluded). HTML is reviewed without signing in; rankings and traffic are not measured.",
         },
     }
+    result["fix_pack_available"] = (
+        _stripe_configured()
+        and status == "SUCCEEDED"
+        and build_fix_pack(result, language=language) is not None
+    )
     if platform != BusinessURLPlatform.WEBSITE.value:
         result["access_request"] = {
             "es": "Para revisar Facebook, Instagram, LinkedIn o Google Business, comparte una captura o exportación de los campos pertinentes, o proporciona acceso autorizado mediante el mecanismo oficial. No envíes contraseñas.",
@@ -556,10 +565,13 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
             "/app.js": ("app.js", "text/javascript; charset=utf-8"),
             "/styles.css": ("styles.css", "text/css; charset=utf-8"),
         }
-        if self.path == "/health":
+        route = self.path.split("?", 1)[0]
+        if route == "/fix-pack/success":
+            route = "/"
+        if route == "/health":
             self._send_json(200, {"status": "ok"})
             return
-        resource = resources.get(self.path)
+        resource = resources.get(route)
         if resource is None:
             self._send_json(404, {"error": "not_found"})
             return
@@ -572,7 +584,12 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
         self._send(200, content_type, body)
 
     def do_POST(self) -> None:
-        if self.path != "/api/diagnose":
+        route = self.path.split("?", 1)[0]
+        if route not in {
+            "/api/diagnose",
+            "/api/fix-pack/checkout",
+            "/api/fix-pack/redeem",
+        }:
             self._send_json(404, {"error": "not_found"})
             return
         if self.headers.get_content_type() != "application/json":
@@ -615,9 +632,71 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                 self._send_json(400, {"error": "invalid_payload"})
                 return
             try:
-                response = self.beta_server.service.diagnose(
-                    payload.get("url"), payload.get("language", "es")
-                )
+                language = payload.get("language", "es")
+                if route == "/api/diagnose":
+                    response = self.beta_server.service.diagnose(
+                        payload.get("url"), language
+                    )
+                elif route == "/api/fix-pack/checkout":
+                    if not _stripe_configured():
+                        self._send_json(503, {"error": "fix_pack_unavailable"})
+                        return
+                    report = self.beta_server.service.diagnose(
+                        payload.get("url"), language
+                    )
+                    pack = build_fix_pack(report, language=cast(str, language))
+                    if pack is None:
+                        self._send_json(422, {"error": "no_confirmed_fix"})
+                        return
+                    submitted_url = report.get("submitted_url")
+                    if not isinstance(submitted_url, str) or len(submitted_url) > 450:
+                        self._send_json(400, {"error": "url_too_long_for_checkout"})
+                        return
+                    checkout_url = _create_fix_pack_checkout(
+                        submitted_url, cast(str, language)
+                    )
+                    self._send_json(200, {"checkout_url": checkout_url})
+                    return
+                else:
+                    session_id = payload.get("session_id")
+                    if not isinstance(session_id, str) or not re.fullmatch(
+                        r"cs_test_[A-Za-z0-9_]+", session_id
+                    ):
+                        self._send_json(400, {"error": "invalid_checkout_session"})
+                        return
+                    checkout = _retrieve_fix_pack_checkout(session_id)
+                    metadata_value = checkout.get("metadata")
+                    metadata = (
+                        metadata_value if isinstance(metadata_value, Mapping) else {}
+                    )
+                    if (
+                        checkout.get("payment_status") != "paid"
+                        or checkout.get("mode") != "payment"
+                        or checkout.get("livemode") is not False
+                        or checkout.get("amount_total") != 500
+                        or checkout.get("currency") != "usd"
+                        or metadata.get("product") != "fix_pack_v1"
+                    ):
+                        self._send_json(402, {"error": "payment_not_confirmed"})
+                        return
+                    report = self.beta_server.service.diagnose(
+                        metadata.get("url"), metadata.get("language", "es")
+                    )
+                    pack = build_fix_pack(
+                        report, language=cast(str, metadata.get("language", "es"))
+                    )
+                    if pack is None:
+                        self._send_json(409, {"error": "fix_no_longer_confirmed"})
+                        return
+                    self._send_json(
+                        200,
+                        {
+                            "filename": "aeos-fix-pack.md",
+                            "markdown": render_fix_pack_markdown(pack),
+                            "pack": pack,
+                        },
+                    )
+                    return
             except PublicInputError as error:
                 self._send_json(400, {"error": error.code})
                 return
@@ -697,6 +776,62 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args: object) -> None:
         return
+
+
+def _stripe_configured() -> bool:
+    key = os.environ.get("AEOS_STRIPE_SECRET_KEY", "")
+    base_url = os.environ.get("AEOS_PUBLIC_BASE_URL", "")
+    return key.startswith("sk_test_") and base_url.startswith("https://")
+
+
+def _stripe_request(
+    path: str, fields: Mapping[str, str] | None = None
+) -> dict[str, object]:
+    key = os.environ.get("AEOS_STRIPE_SECRET_KEY", "")
+    if not key.startswith("sk_test_"):
+        raise ValueError("Stripe test-mode key is not configured")
+    request = Request(
+        "https://api.stripe.com/v1/" + path.lstrip("/"),
+        data=urlencode(fields).encode("utf-8") if fields is not None else None,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method="POST" if fields is not None else "GET",
+    )
+    with urlopen(request, timeout=10) as response:
+        payload = json.loads(response.read(100_000))
+    if not isinstance(payload, dict):
+        raise ValueError("Unexpected Stripe response")
+    return cast(dict[str, object], payload)
+
+
+def _create_fix_pack_checkout(url: str, language: str) -> str:
+    base_url = os.environ.get("AEOS_PUBLIC_BASE_URL", "").rstrip("/")
+    fields = {
+        "mode": "payment",
+        "success_url": f"{base_url}/fix-pack/success?session_id={{CHECKOUT_SESSION_ID}}",
+        "cancel_url": f"{base_url}/?checkout=cancelled",
+        "line_items[0][price_data][currency]": "usd",
+        "line_items[0][price_data][unit_amount]": "500",
+        "line_items[0][price_data][product_data][name]": "AEOS Fix Pack",
+        "line_items[0][price_data][product_data][description]": "Evidence-based page-by-page website fixes",
+        "line_items[0][quantity]": "1",
+        "metadata[product]": "fix_pack_v1",
+        "metadata[url]": url,
+        "metadata[language]": language,
+    }
+    session = _stripe_request("checkout/sessions", fields)
+    checkout_url = session.get("url")
+    if not isinstance(checkout_url, str) or not checkout_url.startswith(
+        "https://checkout.stripe.com/"
+    ):
+        raise ValueError("Stripe did not return a valid Checkout URL")
+    return checkout_url
+
+
+def _retrieve_fix_pack_checkout(session_id: str) -> dict[str, object]:
+    return _stripe_request(f"checkout/sessions/{session_id}")
 
 
 def create_server(

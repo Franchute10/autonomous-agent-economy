@@ -175,3 +175,24 @@ h1 em { color: #6d8758; font-weight: 500; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+
+.fix-pack-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+.fix-pack-card h3 { margin: 8px 0; font-size: 20px; }
+.fix-pack-card p { color: var(--muted); line-height: 1.6; }
+.fix-pack-status { min-height: 1.3em; margin-bottom: 0; }
+.fix-pack-button { width: auto; min-width: 210px; }
+@media (max-width: 640px) {
+  .fix-pack-card { align-items: stretch; flex-direction: column; }
+  .fix-pack-button { width: 100%; }
+}
