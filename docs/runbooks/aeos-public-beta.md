@@ -22,6 +22,59 @@ El repositorio ya tiene los contratos de dominio `AgentDefinition` y
 La beta no invoca ni simula agentes: muestra el diagnóstico determinístico
 existente.
 
+## Oferta AEOS Fix Pack con Paddle Sandbox
+
+El diagnóstico sigue siendo gratuito y no requiere configuración de Paddle.
+Después de un resultado con hallazgos web confirmados, la página ofrece un
+`AEOS Fix Pack` v1 por **USD 5.00, pago único**. Checkout usa el precio existente
+`pri_01m767jwcw14hkmd6p6jxx9xtn` del producto
+`pro_01m767hpzp5ttkp3b7cscasr7f`.
+
+La oferta muestra las páginas y hallazgos cubiertos, evidencia de origen, las
+plantillas exactas de título y meta descripción, los cuatro pasos de
+implementación por página, las cuatro comprobaciones finales y los tres límites
+del paquete. La descarga Markdown no incluye cambios directos al CMS ni texto
+que invente afirmaciones comerciales.
+
+Para desarrollo local, copia
+`src/aeos/live/public_beta_static/paddle-config.local.example.json` como
+`src/aeos/live/public_beta_static/paddle-config.local.json` y reemplaza el
+marcador por el token **Sandbox** `test_...`. El archivo local está ignorado por
+Git. Para iniciar el servidor, configura también estas variables solo en el
+entorno del proceso:
+
+```powershell
+$env:AEOS_PADDLE_ENV = "sandbox"
+$env:AEOS_PADDLE_API_KEY = "pdl_sdbx_apikey_..."
+$env:AEOS_PADDLE_NOTIFICATION_WEBHOOK_SECRET = "pdl_ntfset_..."
+```
+
+La API key y el secreto de notificaciones son credenciales de servidor: no los
+pongas en el archivo de configuración del navegador, el repositorio, registros
+ni respuestas HTTP. En un host remoto, configúralos mediante el almacén de
+variables secretas del host. El token `test_...` también puede configurarse
+como `AEOS_PADDLE_CLIENT_TOKEN` en ese entorno para que el servidor lo exponga
+al navegador; no se incluye en el HTML ni en el JavaScript estático.
+
+En el panel **Sandbox** de Paddle, crea una notificación para
+`transaction.completed` cuyo destino sea
+`https://<host-de-prueba>/api/paddle/webhook` y usa el secreto de notificación
+de ese destino como `AEOS_PADDLE_NOTIFICATION_WEBHOOK_SECRET`. Configura también
+el Default payment link de Sandbox para que apunte a la página de prueba que
+carga Paddle.js. Checkout se abre en Sandbox explícitamente. El servidor valida
+la firma HMAC del webhook con el cuerpo original y una ventana temporal; antes
+de entregar, vuelve a consultar el ID de transacción solo en la API Sandbox y
+exige estado `completed`, el producto y precio esperados, USD 5.00, cantidad 1,
+pago único y metadatos de orden firmados por AEOS.
+
+El navegador comunica `checkout.completed` para iniciar la comprobación; ese
+evento del cliente no autoriza la descarga por sí solo. La descarga se habilita
+solo tras la verificación del servidor. Para una prueba real se necesita un
+host de prueba alcanzable por Paddle, las credenciales Sandbox anteriores, la
+notificación y Default payment link de Sandbox configurados, y completar un
+pago con un medio de prueba de Paddle. Las pruebas automatizadas simulan el API
+y las firmas, y no realizan pagos ni llamadas a Paddle.
+
 ## Límites del servicio
 
 - 3 revisiones por dirección cliente cada 10 minutos.

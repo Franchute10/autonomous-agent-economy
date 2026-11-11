@@ -14,6 +14,7 @@ env/
 .env
 .env.*
 !.env.example
+src/aeos/live/public_beta_static/paddle-config.local.json
 .idea/
 .vscode/
 *.swp

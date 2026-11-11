@@ -7,6 +7,8 @@
     <meta name="description" content="Revisión breve y gratuita de sitios web, con evidencia y pasos concretos.">
     <title>AEOS · Revisión de sitio web</title>
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js" defer></script>
+    <script src="/paddle-config.js" defer></script>
     <script src="/app.js" defer></script>
   </head>
   <body>
@@ -97,6 +99,21 @@
           </section>
         </div>
         <p id="limits" class="limits-note"></p>
+
+        <section id="fix-pack-card" class="fix-pack-card" aria-labelledby="fix-pack-title" hidden>
+          <div class="fix-pack-heading">
+            <div>
+              <p id="fix-pack-eyebrow" class="eyebrow"></p>
+              <h3 id="fix-pack-title"></h3>
+            </div>
+            <span id="fix-pack-price" class="fix-pack-price"></span>
+          </div>
+          <p id="fix-pack-description" class="fix-pack-description"></p>
+          <div id="fix-pack-included" class="fix-pack-included"></div>
+          <div id="fix-pack-pages" class="fix-pack-pages"></div>
+          <button id="fix-pack-button" class="fix-pack-button" type="button"></button>
+          <p id="fix-pack-status" class="fix-pack-status" role="status" aria-live="polite"></p>
+        </section>
       </section>
     </main>
 

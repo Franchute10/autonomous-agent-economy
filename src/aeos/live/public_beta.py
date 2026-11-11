@@ -34,9 +34,25 @@ from aeos.live.adapters.website_inspector import (
 )
 from aeos.live.ports.website import WebsiteInspectionPort
 from aeos.live.domain.url_policy import safe_url_for_report
+from aeos.live.fix_pack import (
+    build_fix_pack,
+    build_fix_pack_offer,
+    render_fix_pack_markdown,
+)
+from aeos.live.paddle_sandbox import (
+    PaddleConfigurationError,
+    fix_pack_order_from_transaction,
+    is_expected_completed_transaction,
+    paddle_browser_config_script,
+    paddle_sandbox_configured,
+    prepare_fix_pack_checkout,
+    retrieve_sandbox_transaction,
+    verify_paddle_signature,
+)
 
 STATIC_DIR = Path(__file__).with_name("public_beta_static")
 MAX_BODY_BYTES = 2048
+MAX_WEBHOOK_BODY_BYTES = 256_000
 MAX_PER_IP = 3
 RATE_WINDOW_SECONDS = 600
 DEFAULT_DAILY_LIMIT = 100
@@ -139,6 +155,92 @@ class PublicBetaService:
         return _public_projection(report, language)
 
 
+def create_fix_pack_checkout_response(
+    service: PublicBetaService, submitted_url: object, language: object
+) -> tuple[int, dict[str, object]]:
+    """Prepare a fixed-price Sandbox checkout from a fresh free diagnosis."""
+    if not paddle_sandbox_configured():
+        return 503, {"error": "fix_pack_unavailable"}
+    if not isinstance(language, str) or language not in {"es", "en"}:
+        return 400, {"error": "invalid_language"}
+    try:
+        report = service.diagnose(submitted_url, language)
+        checkout = prepare_fix_pack_checkout(report, language=language)
+    except PublicInputError as error:
+        return 400, {"error": error.code}
+    except PaddleConfigurationError:
+        return 503, {"error": "fix_pack_unavailable"}
+    except ValueError as error:
+        code = (
+            "url_too_long_for_checkout"
+            if "too long" in str(error)
+            else "no_confirmed_fix"
+        )
+        return (400 if code.startswith("url_") else 422), {"error": code}
+    return 200, checkout
+
+
+def redeem_fix_pack_transaction(
+    transaction_id: object, service: PublicBetaService
+) -> tuple[int, dict[str, object]]:
+    """Fetch Sandbox as the payment source of truth before returning the pack."""
+    if not isinstance(transaction_id, str) or not re.fullmatch(
+        r"txn_[a-z0-9]{26}", transaction_id
+    ):
+        return 400, {"error": "invalid_transaction"}
+    if not paddle_sandbox_configured():
+        return 503, {"error": "fix_pack_unavailable"}
+    try:
+        transaction = retrieve_sandbox_transaction(transaction_id)
+    except Exception:
+        return 502, {"error": "paddle_verification_unavailable"}
+    if isinstance(transaction, Mapping) and transaction.get("status") in {
+        "draft",
+        "ready",
+    }:
+        return 202, {"error": "payment_pending"}
+    order = fix_pack_order_from_transaction(transaction)
+    if order is None:
+        return 402, {"error": "payment_not_confirmed"}
+    submitted_url, order_language = order
+    try:
+        report = service.diagnose(submitted_url, order_language)
+    except PublicInputError as error:
+        return 400, {"error": error.code}
+    pack = build_fix_pack(report, language=order_language)
+    if pack is None:
+        return 409, {"error": "fix_no_longer_confirmed"}
+    return 200, {
+        "filename": "aeos-fix-pack.md",
+        "markdown": render_fix_pack_markdown(pack),
+        "pack": pack,
+    }
+
+
+def process_paddle_webhook(
+    raw_body: bytes, signature: str
+) -> tuple[int, dict[str, object]]:
+    """Verify a Sandbox notification signature and inspect completed transactions."""
+    secret = os.environ.get("AEOS_PADDLE_NOTIFICATION_WEBHOOK_SECRET", "")
+    sandbox_environment = (
+        os.environ.get("AEOS_PADDLE_ENV", "sandbox").strip().casefold() == "sandbox"
+    )
+    if not sandbox_environment or not secret.startswith("pdl_ntfset_"):
+        return 503, {"error": "paddle_webhook_unavailable"}
+    if not verify_paddle_signature(raw_body, signature, secret):
+        return 401, {"error": "invalid_signature"}
+    try:
+        event = json.loads(raw_body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return 400, {"error": "invalid_event"}
+    if not isinstance(event, Mapping):
+        return 400, {"error": "invalid_event"}
+    if event.get("event_type") != "transaction.completed":
+        return 200, {"received": True, "processed": False}
+    processed = is_expected_completed_transaction(event.get("data"))
+    return 200, {"received": True, "processed": processed}
+
+
 def _public_inspector() -> WebsiteInspector:
     return WebsiteInspector(
         timeout_seconds=HTTP_TIMEOUT_SECONDS,
@@ -202,6 +304,10 @@ def _public_projection(
             "en": "A limited public review: up to 3 pages, 500 KB per response, 2 seconds per request, and 25 seconds of total HTTP time (system DNS excluded). HTML is reviewed without signing in; rankings and traffic are not measured.",
         },
     }
+    pack = build_fix_pack(result, language=language)
+    result["fix_pack_available"] = pack is not None
+    if pack is not None:
+        result["fix_pack_offer"] = build_fix_pack_offer(pack)
     if platform != BusinessURLPlatform.WEBSITE.value:
         result["access_request"] = {
             "es": "Para revisar Facebook, Instagram, LinkedIn o Google Business, comparte una captura o exportación de los campos pertinentes, o proporciona acceso autorizado mediante el mecanismo oficial. No envíes contraseñas.",
@@ -495,6 +601,7 @@ class PublicBetaHTTPServer(ThreadingHTTPServer):
         max_threads: int = MAX_WORKER_THREADS,
         service: PublicBetaService | None = None,
         gate: RequestGate | None = None,
+        payment_gate: RequestGate | None = None,
         max_concurrent_diagnoses: int = MAX_CONCURRENT_DIAGNOSES,
         trust_proxy_headers: bool = False,
     ) -> None:
@@ -502,6 +609,9 @@ class PublicBetaHTTPServer(ThreadingHTTPServer):
         self.diagnosis_slots = threading.BoundedSemaphore(max_concurrent_diagnoses)
         self.service = service or PublicBetaService()
         self.gate = gate or RequestGate()
+        self.payment_gate = payment_gate or RequestGate(
+            per_ip_limit=20, daily_limit=1000
+        )
         self.trust_proxy_headers = trust_proxy_headers
         super().__init__(address, handler)
 
@@ -556,10 +666,18 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
             "/app.js": ("app.js", "text/javascript; charset=utf-8"),
             "/styles.css": ("styles.css", "text/css; charset=utf-8"),
         }
-        if self.path == "/health":
+        route = self.path.split("?", 1)[0]
+        if route == "/paddle-config.js":
+            self._send(
+                200,
+                "text/javascript; charset=utf-8",
+                paddle_browser_config_script(),
+            )
+            return
+        if route == "/health":
             self._send_json(200, {"status": "ok"})
             return
-        resource = resources.get(self.path)
+        resource = resources.get(route)
         if resource is None:
             self._send_json(404, {"error": "not_found"})
             return
@@ -572,7 +690,15 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
         self._send(200, content_type, body)
 
     def do_POST(self) -> None:
-        if self.path != "/api/diagnose":
+        route = self.path.split("?", 1)[0]
+        if route == "/api/paddle/webhook":
+            self._do_paddle_webhook()
+            return
+        if route not in {
+            "/api/diagnose",
+            "/api/fix-pack/checkout",
+            "/api/fix-pack/redeem",
+        }:
             self._send_json(404, {"error": "not_found"})
             return
         if self.headers.get_content_type() != "application/json":
@@ -589,12 +715,20 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
             )
             return
 
-        if not self.beta_server.diagnosis_slots.acquire(blocking=False):
+        needs_diagnosis = route in {"/api/diagnose", "/api/fix-pack/checkout"}
+        if needs_diagnosis and not self.beta_server.diagnosis_slots.acquire(
+            blocking=False
+        ):
             self._send_json(503, {"error": "busy"}, retry_after=5)
             return
         try:
             client_ip = self._client_ip()
-            allowed, reason, retry_after = self.beta_server.gate.consume(client_ip)
+            request_gate = (
+                self.beta_server.gate
+                if needs_diagnosis
+                else self.beta_server.payment_gate
+            )
+            allowed, reason, retry_after = request_gate.consume(client_ip)
             if not allowed:
                 self._send_json(
                     429,
@@ -615,9 +749,23 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                 self._send_json(400, {"error": "invalid_payload"})
                 return
             try:
-                response = self.beta_server.service.diagnose(
-                    payload.get("url"), payload.get("language", "es")
-                )
+                language = payload.get("language", "es")
+                if route == "/api/diagnose":
+                    response = self.beta_server.service.diagnose(
+                        payload.get("url"), language
+                    )
+                elif route == "/api/fix-pack/checkout":
+                    status, checkout = create_fix_pack_checkout_response(
+                        self.beta_server.service, payload.get("url"), language
+                    )
+                    self._send_json(status, checkout)
+                    return
+                else:
+                    status, redemption = redeem_fix_pack_transaction(
+                        payload.get("transaction_id"), self.beta_server.service
+                    )
+                    self._send_json(status, redemption)
+                    return
             except PublicInputError as error:
                 self._send_json(400, {"error": error.code})
                 return
@@ -636,7 +784,31 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                 return
             self._send_json(200, response)
         finally:
-            self.beta_server.diagnosis_slots.release()
+            if needs_diagnosis:
+                self.beta_server.diagnosis_slots.release()
+
+    def _do_paddle_webhook(self) -> None:
+        if self.headers.get_content_type() != "application/json":
+            self._send_json(415, {"error": "content_type_required"})
+            return
+        try:
+            content_length = int(self.headers.get("Content-Length", "-1"))
+        except ValueError:
+            content_length = -1
+        if content_length < 0 or content_length > MAX_WEBHOOK_BODY_BYTES:
+            self._send_json(
+                413 if content_length > MAX_WEBHOOK_BODY_BYTES else 400,
+                {"error": "invalid_body_size"},
+            )
+            return
+        raw_body = self.rfile.read(content_length)
+        if len(raw_body) != content_length:
+            self._send_json(400, {"error": "invalid_body_size"})
+            return
+
+        signature = self.headers.get("Paddle-Signature", "")
+        status, result = process_paddle_webhook(raw_body, signature)
+        self._send_json(status, result)
 
     def _client_ip(self) -> str:
         peer = self.client_address[0] if self.client_address else "unknown"
@@ -682,8 +854,14 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
         self.send_header("X-Frame-Options", "DENY")
         self.send_header(
             "Content-Security-Policy",
-            "default-src 'none'; script-src 'self'; style-src 'self'; "
-            "connect-src 'self'; img-src 'self' data:; base-uri 'none'; "
+            "default-src 'none'; script-src 'self' https://cdn.paddle.com; "
+            "style-src 'self' 'unsafe-inline'; "
+            "connect-src 'self' https://sandbox-api.paddle.com "
+            "https://*.paddle.com https://*.paddle.io wss://*.paddle.com; "
+            "frame-src https://*.paddle.com https://*.paddle.io; "
+            "img-src 'self' data: https://*.paddle.com https://*.paddle.io; "
+            "font-src 'self' data: https://*.paddle.com https://*.paddle.io; "
+            "base-uri 'none'; "
             "form-action 'self'; frame-ancestors 'none'",
         )
         self.send_header(
