@@ -10,6 +10,7 @@ import ipaddress
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import sys
 import threading
@@ -89,7 +90,9 @@ class PublicBetaService:
     ) -> None:
         self._inspector_factory = inspector_factory or _public_inspector
 
-    def diagnose(self, submitted_url: object, language: object = "es") -> dict[str, object]:
+    def diagnose(
+        self, submitted_url: object, language: object = "es"
+    ) -> dict[str, object]:
         if not isinstance(submitted_url, str) or len(submitted_url) > 2048:
             raise PublicInputError("invalid_url")
         if not isinstance(language, str) or language not in {"es", "en"}:
@@ -134,14 +137,18 @@ def _public_inspector() -> WebsiteInspector:
         timeout_seconds=HTTP_TIMEOUT_SECONDS,
         max_response_bytes=MAX_PAGE_BYTES,
         max_pages=MAX_PAGE_COUNT,
-        transport=PublicHTTPTransport(
-            total_timeout_seconds=HTTP_TOTAL_TIMEOUT_SECONDS
-        ),
+        transport=PublicHTTPTransport(total_timeout_seconds=HTTP_TOTAL_TIMEOUT_SECONDS),
     )
 
 
 def _classify_public_url(value: str) -> ClassifiedBusinessURL:
-    classified = classify_business_url(value)
+    trimmed = value.strip()
+    candidate = (
+        trimmed
+        if re.match(r"^[a-z][a-z0-9+.-]*:", trimmed, flags=re.IGNORECASE)
+        else f"https://{trimmed}"
+    )
+    classified = classify_business_url(candidate)
     try:
         _validate_url(classified.url, resolve_host=False)
     except WebsiteInspectionError as error:
@@ -219,9 +226,7 @@ def _summary_message(platform: str, status: str, page_count: int) -> dict[str, s
 
 def _project_item(item: Mapping[str, object], *, confirmed: bool) -> dict[str, object]:
     raw_title = str(item.get("title", "Hallazgo"))
-    titles = _TITLE_TRANSLATIONS.get(
-        raw_title, {"es": raw_title, "en": raw_title}
-    )
+    titles = _TITLE_TRANSLATIONS.get(raw_title, {"es": raw_title, "en": raw_title})
     evidence_value = item.get("evidence")
     evidence = evidence_value if isinstance(evidence_value, Mapping) else {}
     source_values = _as_list(evidence.get("sources"))
@@ -324,16 +329,17 @@ def _evidence_summary(title: str, confirmed: bool) -> dict[str, str]:
 def _localize_source_excerpt(
     title: str, excerpt: str, *, confirmed: bool
 ) -> dict[str, str]:
-    if confirmed and title == "Posibles mejoras: títulos o meta descripciones duplicados":
+    if (
+        confirmed
+        and title == "Posibles mejoras: títulos o meta descripciones duplicados"
+    ):
         translated = excerpt.replace("Metadato duplicado:", "Repeated metadata:", 1)
     else:
         translated = _evidence_summary(title, confirmed=confirmed)["en"]
     return {"es": excerpt, "en": translated}
 
 
-def _confirmed_copy(
-    title: str, sources: list[dict[str, str]]
-) -> dict[str, object]:
+def _confirmed_copy(title: str, sources: list[dict[str, str]]) -> dict[str, object]:
     urls = [source["url"] for source in sources]
     url_list = ", ".join(urls[:3]) or "la página indicada"
     if title == "Metadatos ausentes en DOM renderizado":
@@ -565,7 +571,10 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
         except ValueError:
             content_length = -1
         if content_length < 0 or content_length > MAX_BODY_BYTES:
-            self._send_json(413 if content_length > MAX_BODY_BYTES else 400, {"error": "invalid_body_size"})
+            self._send_json(
+                413 if content_length > MAX_BODY_BYTES else 400,
+                {"error": "invalid_body_size"},
+            )
             return
 
         if not self.beta_server.diagnosis_slots.acquire(blocking=False):
@@ -630,12 +639,18 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
         return str(peer)
 
     def _send_json(
-        self, status: int, payload: Mapping[str, object], *, retry_after: int | None = None
+        self,
+        status: int,
+        payload: Mapping[str, object],
+        *,
+        retry_after: int | None = None,
     ) -> None:
         body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode(
             "utf-8"
         )
-        self._send(status, "application/json; charset=utf-8", body, retry_after=retry_after)
+        self._send(
+            status, "application/json; charset=utf-8", body, retry_after=retry_after
+        )
 
     def _send(
         self,
@@ -659,7 +674,9 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
             "connect-src 'self'; img-src 'self' data:; base-uri 'none'; "
             "form-action 'self'; frame-ancestors 'none'",
         )
-        self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        self.send_header(
+            "Permissions-Policy", "camera=(), microphone=(), geolocation=()"
+        )
         if retry_after is not None:
             self.send_header("Retry-After", str(retry_after))
         self.end_headers()

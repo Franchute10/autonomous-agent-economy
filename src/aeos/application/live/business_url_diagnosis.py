@@ -429,9 +429,7 @@ def _website_signals(
                     )
                     if getattr(page, "rendered_dom_error_message", None)
                     else None,
-                    "title": safe_text_for_report(
-                        getattr(page, "rendered_title", None)
-                    )
+                    "title": safe_text_for_report(getattr(page, "rendered_title", None))
                     if getattr(page, "rendered_title", None)
                     else None,
                     "meta_description": safe_text_for_report(
@@ -502,9 +500,7 @@ def _website_signals(
                 for item in getattr(page, "link_urls", ())
             ],
             "robots_directives": list(getattr(page, "robots_directives", ())),
-            "x_robots_tag": safe_text_for_report(
-                getattr(page, "x_robots_tag", None)
-            )
+            "x_robots_tag": safe_text_for_report(getattr(page, "x_robots_tag", None))
             if getattr(page, "x_robots_tag", None)
             else None,
             "potentially_indexable": _page_is_potentially_indexable(page),
@@ -518,8 +514,7 @@ def _website_signals(
     rendered_pages = [
         page
         for page in inspection.pages
-        if getattr(page, "inspection_method", "HTML_ONLY")
-        == "HTTP_AND_RENDERED_DOM"
+        if getattr(page, "inspection_method", "HTML_ONLY") == "HTTP_AND_RENDERED_DOM"
     ]
     return {
         "inspection_scope": {
@@ -710,17 +705,21 @@ def _website_findings(
             if details is not None
             else None
         )
-        if details is not None and structured_data_types is not None and not any(
-            item.casefold()
-            in {
-                "localbusiness",
-                "homeandconstructionbusiness",
-                "cleaningservice",
-                "hvacbusiness",
-                "generalcontractor",
-                "organization",
-            }
-            for item in structured_data_types
+        if (
+            details is not None
+            and structured_data_types is not None
+            and not any(
+                item.casefold()
+                in {
+                    "localbusiness",
+                    "homeandconstructionbusiness",
+                    "cleaningservice",
+                    "hvacbusiness",
+                    "generalcontractor",
+                    "organization",
+                }
+                for item in structured_data_types
+            )
         ):
             page = eligible[0]
             findings.append(

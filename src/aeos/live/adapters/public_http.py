@@ -87,7 +87,10 @@ class PublicHTTPTransport:
                     response.read(byte_limit + 1)
                     if not location:
                         return FetchResponse(
-                            b"", response.status, current_url, response.getheader("Content-Type")
+                            b"",
+                            response.status,
+                            current_url,
+                            response.getheader("Content-Type"),
                         )
                     if redirect_count >= _MAX_REDIRECTS:
                         raise WebsiteInspectionError(
@@ -156,7 +159,11 @@ class PublicHTTPTransport:
         addresses: set[str] = set()
         for item in results:
             sockaddr = item[4] if len(item) > 4 else None
-            if isinstance(sockaddr, tuple) and sockaddr and isinstance(sockaddr[0], str):
+            if (
+                isinstance(sockaddr, tuple)
+                and sockaddr
+                and isinstance(sockaddr[0], str)
+            ):
                 addresses.add(sockaddr[0].split("%", 1)[0])
         try:
             parsed = {ipaddress.ip_address(item) for item in addresses}
@@ -191,9 +198,7 @@ def _pinned_connection(
                 raw_socket = socket.create_connection(
                     (address, port), self.timeout, self.source_address
                 )
-                self.sock = self._context.wrap_socket(
-                    raw_socket, server_hostname=host
-                )
+                self.sock = self._context.wrap_socket(raw_socket, server_hostname=host)
 
         return PinnedHTTPSConnection(host, port, timeout=timeout)
 

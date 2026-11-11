@@ -108,17 +108,19 @@ def _get(server: PublicBetaHTTPServer, path: str) -> tuple[int, dict[str, str], 
     return response.status, headers, body
 
 
+@pytest.mark.parametrize("submitted_url", ["https://example.com/", "example.com"])
 def test_website_report_flows_from_form_endpoint_to_bilingual_evidence(
     beta_server: tuple[PublicBetaHTTPServer, FixtureInspector],
+    submitted_url: str,
 ) -> None:
     server, inspector = beta_server
     page_status, page_headers, page_html = _get(server, "/")
     assert page_status == 200
     assert page_headers["content-security-policy"].startswith("default-src 'none'")
     assert b"AEOS" in page_html and b"/app.js" in page_html
-    status, headers, report = _post(
-        server, {"url": "https://example.com/", "language": "en"}
-    )
+    assert b'class="input-prefix"' not in page_html
+    assert b'placeholder="https://tusitio.com"' in page_html
+    status, headers, report = _post(server, {"url": submitted_url, "language": "en"})
 
     assert status == 200
     assert headers["cache-control"] == "no-store"
