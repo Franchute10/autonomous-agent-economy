@@ -111,7 +111,6 @@ class PublicHTTPTransport:
                     response.status,
                     current_url,
                     response.getheader("Content-Type"),
-                    response.getheader("X-Robots-Tag"),
                 )
             except WebsiteInspectionError:
                 raise
