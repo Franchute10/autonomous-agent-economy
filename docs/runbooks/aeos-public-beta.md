@@ -22,6 +22,32 @@ El repositorio ya tiene los contratos de dominio `AgentDefinition` y
 La beta no invoca ni simula agentes: muestra el diagnóstico determinístico
 existente.
 
+## Fix Pack de prueba
+
+El Fix Pack v1 ofrece un archivo Markdown con una plantilla y pasos por URL
+para hallazgos confirmados. Excluye verificaciones inconclusas y no aplica
+cambios al sitio. El precio de prueba está fijado en **USD 5**.
+
+La compra está desactivada por defecto. Para probar Checkout en Render, añade
+en **Dashboard → aeos-public-beta → Environment**:
+
+- `AEOS_STRIPE_SECRET_KEY`: una clave **test** de Stripe que empiece por
+  `sk_test_`. El servidor rechaza claves live.
+- `AEOS_PUBLIC_BASE_URL`: URL HTTPS pública de la beta, sin barra final.
+
+No pegues claves en el repositorio, comandos compartidos ni chats. Reinicia o
+despliega el servicio después de definir las variables. La interfaz solo muestra
+el botón si Stripe está configurado y la revisión produjo al menos una
+corrección confirmada que admite el paquete. El pago se verifica consultando
+directamente la sesión de Checkout antes de generar el archivo. El archivo se
+reconstruye a partir de la URL y el informe vigente; no se guarda el informe.
+Los enlaces largos (más de 450 caracteres) no pueden pasar por la metadata del
+Checkout en esta versión.
+
+Mientras no haya una clave de prueba, la beta gratuita funciona igual que antes
+y no muestra el botón de compra. No configures una clave `sk_live_` para esta
+beta.
+
 ## Límites del servicio
 
 - 3 revisiones por dirección cliente cada 10 minutos.
