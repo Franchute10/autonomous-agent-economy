@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import sys
 import threading
 import time
 from typing import cast
@@ -598,7 +599,12 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
             except PublicInputError as error:
                 self._send_json(400, {"error": error.code})
                 return
-            except Exception:
+            except Exception as error:
+                print(
+                    f"Public beta diagnosis failed: {type(error).__name__}",
+                    file=sys.stderr,
+                    flush=True,
+                )
                 self._send_json(500, {"error": "diagnosis_unavailable"})
                 return
             self._send_json(200, response)
