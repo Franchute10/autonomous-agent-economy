@@ -133,7 +133,9 @@ def test_website_report_flows_from_form_endpoint_to_bilingual_evidence(
     title = finding.get("title")
     prompt = finding.get("correction_prompt")
     sources = finding.get("sources")
-    assert isinstance(title, dict) and title.get("en") == "Repeated titles or descriptions"
+    assert (
+        isinstance(title, dict) and title.get("en") == "Repeated titles or descriptions"
+    )
     assert isinstance(prompt, dict) and "https://example.com/" in str(prompt.get("en"))
     assert isinstance(sources, list)
     assert all(isinstance(source, dict) for source in sources)
