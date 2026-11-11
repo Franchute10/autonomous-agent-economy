@@ -14,6 +14,7 @@ import socket
 import sys
 import threading
 import time
+import traceback
 from typing import cast
 
 from aeos.application.live.business_url_diagnosis import (
@@ -600,8 +601,13 @@ class PublicBetaHandler(BaseHTTPRequestHandler):
                 self._send_json(400, {"error": error.code})
                 return
             except Exception as error:
+                frames = traceback.extract_tb(error.__traceback__)[-4:]
+                location = " -> ".join(
+                    f"{Path(frame.filename).name}:{frame.lineno}:{frame.name}"
+                    for frame in frames
+                )
                 print(
-                    f"Public beta diagnosis failed: {type(error).__name__}",
+                    f"Public beta diagnosis failed: {type(error).__name__} at {location}",
                     file=sys.stderr,
                     flush=True,
                 )
