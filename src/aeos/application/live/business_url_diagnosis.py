@@ -57,7 +57,7 @@ def classify_business_url(value: str) -> ClassifiedBusinessURL:
     if has_sensitive_query_parameter(raw):
         raise ValueError("URL contains a sensitive query parameter")
     normalized = safe_url_for_report(raw)
-    if normalized in {None, "[URL omitted]"}:
+    if normalized is None or normalized == "[URL omitted]":
         raise ValueError("URL could not be normalized safely")
 
     hostname = host.casefold().rstrip(".")
@@ -159,8 +159,11 @@ def build_business_url_diagnosis_report(
             "Los contenidos publicados por el sitio son OBSERVED como contenido web; las afirmaciones empresariales dentro de ellos siguen siendo REPORTED por el sitio.",
             "Las explicaciones sobre posible impacto son INFERRED y no demuestran una causa de posicionamiento ni pérdida de clientes.",
             *(
-                cast_list(website_report["website_inspection"].get("limitaciones"))
-                if isinstance(website_report.get("website_inspection"), Mapping)
+                _string_list(website_inspection.get("limitaciones"))
+                if isinstance(
+                    (website_inspection := website_report.get("website_inspection")),
+                    Mapping,
+                )
                 else []
             ),
         ]
@@ -275,18 +278,18 @@ def render_business_url_diagnosis_markdown(report: Mapping[str, object]) -> str:
                     f"- Title DOM: {_rendered_value(page, 'title')}",
                     f"- Meta description HTML: {page.get('meta_description') or 'no encontrada en el HTML recibido'}",
                     f"- Meta description DOM: {_rendered_value(page, 'meta_description')}",
-                    f"- H1 HTML: {', '.join(cast_list(page.get('h1'))) or 'no encontrado en el HTML recibido'}",
+                    f"- H1 HTML: {', '.join(_string_list(page.get('h1'))) or 'no encontrado en el HTML recibido'}",
                     f"- H1 DOM: {_rendered_value(page, 'h1')}",
                     f"- Indexabilidad potencial: {'no (directiva noindex observada)' if page_noindex else page.get('potential_indexability_basis')}",
-                    f"- H2 ({'DOM' if page.get('inspection_method') == 'HTTP_AND_RENDERED_DOM' else 'HTML'}): {', '.join(cast_list(page.get('h2'))) or 'No encontrados'}",
+                    f"- H2 ({'DOM' if page.get('inspection_method') == 'HTTP_AND_RENDERED_DOM' else 'HTML'}): {', '.join(_string_list(page.get('h2'))) or 'No encontrados'}",
                     f"- Enlaces observados ({'DOM' if page.get('inspection_method') == 'HTTP_AND_RENDERED_DOM' else 'HTML'}): {len(cast_list(page.get('link_urls')))}",
                 )
             )
         lines.extend(
             (
-                f"- Tipos de datos estructurados: {', '.join(cast_list(signals.get('structured_data_types'))) or 'No identificados en el HTML inspeccionado'}",
+                f"- Tipos de datos estructurados: {', '.join(_string_list(signals.get('structured_data_types'))) or 'No identificados en el HTML inspeccionado'}",
                 f"- robots.txt: {signals.get('robots_status')}",
-                f"- Sitemaps encontrados: {', '.join(cast_list(signals.get('sitemaps'))) or 'No encontrados'}",
+                f"- Sitemaps encontrados: {', '.join(_string_list(signals.get('sitemaps'))) or 'No encontrados'}",
                 f"- Teléfono/correo/dirección visibles o estructurados: {signals.get('contact')}",
                 f"- Referencias de ubicación encontradas: {len(cast_list(signals.get('locations')))}",
                 "",
@@ -314,9 +317,9 @@ def render_business_url_diagnosis_markdown(report: Mapping[str, object]) -> str:
         )
     else:
         scope = cast_mapping(signals.get("inspection_scope"))
-        pages_received = int(scope.get("pages_received", 0) or 0)
-        eligible_pages = int(scope.get("potentially_indexable_pages", 0) or 0)
-        checks = ", ".join(cast_list(scope.get("checks_completed"))) or "ninguna"
+        pages_received = _report_count(scope.get("pages_received"))
+        eligible_pages = _report_count(scope.get("potentially_indexable_pages"))
+        checks = ", ".join(_string_list(scope.get("checks_completed"))) or "ninguna"
         if pages_received == 0:
             lines.extend(
                 (
@@ -424,19 +427,9 @@ def _website_signals(
                         getattr(page, "rendered_dom_fields_observed", ())
                     ),
                     "error_category": getattr(page, "rendered_dom_error", None),
-                    "error_message": safe_text_for_report(
-                        getattr(page, "rendered_dom_error_message", None)
-                    )
-                    if getattr(page, "rendered_dom_error_message", None)
-                    else None,
-                    "title": safe_text_for_report(getattr(page, "rendered_title", None))
-                    if getattr(page, "rendered_title", None)
-                    else None,
-                    "meta_description": safe_text_for_report(
-                        getattr(page, "rendered_meta_description", None)
-                    )
-                    if getattr(page, "rendered_meta_description", None)
-                    else None,
+                    "error_message": _safe_optional_text(getattr(page, "rendered_dom_error_message", None)),
+                    "title": _safe_optional_text(getattr(page, "rendered_title", None)),
+                    "meta_description": _safe_optional_text(getattr(page, "rendered_meta_description", None)),
                     "h1": [
                         safe_text_for_report(item)
                         for item in getattr(page, "rendered_h1_headings", ())
@@ -460,11 +453,7 @@ def _website_signals(
                     "status": "HTML_ONLY",
                     "fields_observed": [],
                     "error_category": getattr(page, "rendered_dom_error", None),
-                    "error_message": safe_text_for_report(
-                        getattr(page, "rendered_dom_error_message", None)
-                    )
-                    if getattr(page, "rendered_dom_error_message", None)
-                    else None,
+                    "error_message": _safe_optional_text(getattr(page, "rendered_dom_error_message", None)),
                 }
             ),
             "h2": [
@@ -500,9 +489,7 @@ def _website_signals(
                 for item in getattr(page, "link_urls", ())
             ],
             "robots_directives": list(getattr(page, "robots_directives", ())),
-            "x_robots_tag": safe_text_for_report(getattr(page, "x_robots_tag", None))
-            if getattr(page, "x_robots_tag", None)
-            else None,
+            "x_robots_tag": _safe_optional_text(getattr(page, "x_robots_tag", None)),
             "potentially_indexable": _page_is_potentially_indexable(page),
             "potential_indexability_basis": _page_indexability_basis(page),
         }
@@ -751,9 +738,9 @@ def _missing_fields_finding(
     for page, _, evidence in fields:
         pages_by_url.setdefault(page.url, []).append(evidence)
     sources = tuple(
-        (page, "; ".join(evidence))
+        (page, "; ".join(page_evidence))
         for page in dict.fromkeys(page for page, _, _ in fields)
-        if (evidence := pages_by_url.get(page.url))
+        if (page_evidence := pages_by_url.get(page.url))
     )
     urls_and_fields = "; ".join(
         f"{_report_page_url(page)}: "
@@ -878,7 +865,11 @@ def _normalized_page_field_value(
         else getattr(page, "h1_headings" if field == "h1" else field)
     )
     if field == "h1":
-        normalized = tuple(item.strip() for item in value if item.strip())
+        if not isinstance(value, tuple):
+            return None
+        normalized = tuple(
+            item.strip() for item in value if isinstance(item, str) and item.strip()
+        )
         return normalized or None
     return value.strip() if isinstance(value, str) and value.strip() else None
 
@@ -974,31 +965,31 @@ def _duplicate_values_for_prompt(
 
 def _website_claims(inspection: WebsiteInspectionResult) -> list[dict[str, object]]:
     claims: list[dict[str, object]] = []
-    for item in inspection.services:
+    for service in inspection.services:
         claims.append(
             {
                 "field": "service",
-                "value": safe_text_for_report(item.service),
+                "value": safe_text_for_report(service.service),
                 "classification": "WEBSITE_REPORTED",
-                "source_url": safe_url_for_report(item.source_url),
-                "evidence": safe_text_for_report(item.supporting_text),
+                "source_url": safe_url_for_report(service.source_url),
+                "evidence": safe_text_for_report(service.supporting_text),
             }
         )
-    for item in inspection.locations:
-        if item.location_type.value not in {
+    for location in inspection.locations:
+        if location.location_type.value not in {
             LocationType.SERVICE_AREA.value,
             LocationType.EXPLICITLY_SERVED_CITY.value,
             "REGIONAL_SERVICE_AREA",
         }:
             continue
-        location = ", ".join(part for part in (item.city, item.state) if part)
+        location = ", ".join(part for part in (location.city, location.state) if part)
         claims.append(
             {
                 "field": "service_area",
                 "value": safe_text_for_report(location),
                 "classification": "WEBSITE_REPORTED",
-                "source_url": safe_url_for_report(item.source_url),
-                "evidence": safe_text_for_report(item.supporting_text),
+                "source_url": safe_url_for_report(location.source_url),
+                "evidence": safe_text_for_report(location.supporting_text),
             }
         )
     return claims
@@ -1214,6 +1205,20 @@ def _safe_value(value: object) -> object:
 
 def cast_list(value: object) -> list[object]:
     return value if isinstance(value, list) else []
+
+
+def _string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, str)]
+
+
+def _report_count(value: object) -> int:
+    return value if isinstance(value, int) and not isinstance(value, bool) else 0
+
+
+def _safe_optional_text(value: object) -> str | None:
+    return safe_text_for_report(value) if isinstance(value, str) and value else None
 
 
 def cast_mapping(value: object) -> Mapping[str, object]:
