@@ -195,17 +195,14 @@ def _pinned_connection(
 
         class PinnedHTTPSConnection(HTTPSConnection):
             def connect(self) -> None:
-                raw_socket = socket.create_connection(
-                    (address, port), self.timeout, self.source_address
-                )
-                self.sock = self._context.wrap_socket(raw_socket, server_hostname=host)
+                raw_socket = socket.create_connection((address, port), self.timeout)
+                context = ssl.create_default_context()
+                self.sock = context.wrap_socket(raw_socket, server_hostname=host)
 
         return PinnedHTTPSConnection(host, port, timeout=timeout)
 
     class PinnedHTTPConnection(HTTPConnection):
         def connect(self) -> None:
-            self.sock = socket.create_connection(
-                (address, port), self.timeout, self.source_address
-            )
+            self.sock = socket.create_connection((address, port), self.timeout)
 
     return PinnedHTTPConnection(host, port, timeout=timeout)
