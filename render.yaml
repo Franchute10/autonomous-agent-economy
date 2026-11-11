@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: aeos-public-beta
+    runtime: python
+    plan: free
+    buildCommand: python -m pip install .
+    startCommand: python -m aeos.live.public_beta
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: AEOS_DAILY_DIAGNOSIS_LIMIT
+        value: "100"
+      - key: AEOS_TRUST_PROXY_HEADERS
+        value: "true"
