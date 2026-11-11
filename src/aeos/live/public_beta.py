@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Callable, Mapping
+from typing import TypedDict
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import ipaddress
@@ -31,6 +32,7 @@ from aeos.live.adapters.website_inspector import (
     WebsiteInspector,
     _validate_url,
 )
+from aeos.live.ports.website import WebsiteInspectionPort
 from aeos.live.domain.url_policy import safe_url_for_report
 
 STATIC_DIR = Path(__file__).with_name("public_beta_static")
@@ -73,6 +75,11 @@ _TITLE_TRANSLATIONS = {
 }
 
 
+class PublicSource(TypedDict):
+    url: str
+    evidence: dict[str, str]
+
+
 class PublicInputError(ValueError):
     """A user-input error safe to return from the public endpoint."""
 
@@ -86,7 +93,7 @@ class PublicBetaService:
 
     def __init__(
         self,
-        inspector_factory: Callable[[], WebsiteInspector] | None = None,
+        inspector_factory: Callable[[], WebsiteInspectionPort] | None = None,
     ) -> None:
         self._inspector_factory = inspector_factory or _public_inspector
 
@@ -129,7 +136,7 @@ class PublicBetaService:
             failure_stage=failure_stage,
             inspected_at=inspected_at,
         )
-        return _public_projection(report, cast(str, language))
+        return _public_projection(report, language)
 
 
 def _public_inspector() -> WebsiteInspector:
@@ -230,7 +237,7 @@ def _project_item(item: Mapping[str, object], *, confirmed: bool) -> dict[str, o
     evidence_value = item.get("evidence")
     evidence = evidence_value if isinstance(evidence_value, Mapping) else {}
     source_values = _as_list(evidence.get("sources"))
-    sources: list[dict[str, str]] = []
+    sources: list[PublicSource] = []
     seen_urls: set[str] = set()
     for raw_source in source_values:
         if not isinstance(raw_source, Mapping):
@@ -339,7 +346,7 @@ def _localize_source_excerpt(
     return {"es": excerpt, "en": translated}
 
 
-def _confirmed_copy(title: str, sources: list[dict[str, str]]) -> dict[str, object]:
+def _confirmed_copy(title: str, sources: list[PublicSource]) -> dict[str, object]:
     urls = [source["url"] for source in sources]
     url_list = ", ".join(urls[:3]) or "la página indicada"
     if title == "Metadatos ausentes en DOM renderizado":
@@ -499,11 +506,14 @@ class PublicBetaHTTPServer(ThreadingHTTPServer):
         super().__init__(address, handler)
 
     def process_request(
-        self, request: socket.socket, client_address: tuple[str, int]
+        self,
+        request: socket.socket | tuple[bytes, socket.socket],
+        client_address: tuple[str, int],
     ) -> None:
+        connection = request[1] if isinstance(request, tuple) else request
         if not self.request_slots.acquire(blocking=False):
             try:
-                request.sendall(
+                connection.sendall(
                     b"HTTP/1.1 503 Service Unavailable\r\n"
                     b"Connection: close\r\nContent-Length: 0\r\n\r\n"
                 )
@@ -518,7 +528,9 @@ class PublicBetaHTTPServer(ThreadingHTTPServer):
             raise
 
     def process_request_thread(
-        self, request: socket.socket, client_address: tuple[str, int]
+        self,
+        request: socket.socket | tuple[bytes, socket.socket],
+        client_address: tuple[str, int],
     ) -> None:
         try:
             super().process_request_thread(request, client_address)
