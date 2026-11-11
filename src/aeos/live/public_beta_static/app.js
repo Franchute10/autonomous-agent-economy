@@ -27,6 +27,13 @@ const copy = {
     copyPrompt: "Copiar prompt",
     copied: "Copiado",
     nextLabel: "Siguiente paso",
+    fixPackTitle: "Fix Pack · USD 5",
+    fixPackDescription: "Recibe plantillas y pasos por cada página con un hallazgo confirmado. No incluye cambios directos en tu sitio.",
+    fixPackButton: "Preparar Fix Pack",
+    fixPackLoading: "Preparando pago de prueba…",
+    fixPackUnavailable: "El Fix Pack no está disponible ahora.",
+    fixPackPaid: "Pago confirmado. Descarga tu paquete.",
+    downloadPack: "Descargar Fix Pack",
     accessLabel: "Se requiere evidencia o acceso autorizado",
     platform: "Plataforma",
     errors: {
@@ -67,6 +74,13 @@ const copy = {
     copyPrompt: "Copy prompt",
     copied: "Copied",
     nextLabel: "Next step",
+    fixPackTitle: "Fix Pack · USD 5",
+    fixPackDescription: "Get page-by-page templates and steps for confirmed findings. Direct website edits are not included.",
+    fixPackButton: "Prepare Fix Pack",
+    fixPackLoading: "Preparing test checkout…",
+    fixPackUnavailable: "The Fix Pack is unavailable right now.",
+    fixPackPaid: "Payment confirmed. Download your pack.",
+    downloadPack: "Download Fix Pack",
     accessLabel: "Evidence or authorized access required",
     platform: "Platform",
     errors: {
@@ -87,6 +101,10 @@ const form = document.querySelector("#diagnosis-form");
 const button = document.querySelector("#submit-button");
 const feedback = document.querySelector("#feedback");
 const reportPanel = document.querySelector("#report");
+const fixPackCard = document.querySelector("#fix-pack-card");
+const fixPackButton = document.querySelector("#fix-pack-button");
+const fixPackStatus = document.querySelector("#fix-pack-status");
+let fixPackMarkdown = null;
 
 function localized(value) {
   if (value && typeof value === "object") return value[language] ?? value.es ?? "";
@@ -112,6 +130,34 @@ function setLanguage(nextLanguage) {
 document.querySelectorAll(".language-button").forEach((element) => {
   element.addEventListener("click", () => setLanguage(element.dataset.language));
 });
+
+fixPackButton.addEventListener("click", async () => {
+  if (fixPackMarkdown) {
+    downloadFixPack(fixPackMarkdown);
+    return;
+  }
+  if (!latestReport?.fix_pack_available) return;
+  fixPackButton.disabled = true;
+  fixPackButton.textContent = copy[language].fixPackLoading;
+  try {
+    const response = await fetch("/api/fix-pack/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: latestReport.submitted_url, language })
+    });
+    const result = await response.json();
+    if (!response.ok || typeof result.checkout_url !== "string") throw new Error("checkout_failed");
+    window.location.assign(result.checkout_url);
+  } catch {
+    fixPackStatus.textContent = copy[language].fixPackUnavailable;
+  } finally {
+    fixPackButton.disabled = false;
+    fixPackButton.textContent = copy[language].fixPackButton;
+  }
+});
+
+const checkoutSession = new URLSearchParams(window.location.search).get("session_id");
+if (checkoutSession) redeemFixPack(checkoutSession);
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -170,6 +216,8 @@ function renderReport(data) {
   fillList("confirmed-list", "confirmed-empty", data.confirmed_findings, true);
   fillList("pending-list", "pending-empty", data.pending_verifications, false);
   document.querySelector("#limits").textContent = localized(data.limits);
+  fixPackCard.hidden = data.fix_pack_available !== true;
+  if (fixPackCard.hidden) fixPackStatus.textContent = "";
 
   const access = document.querySelector("#access-request");
   if (data.access_request) {
@@ -288,4 +336,39 @@ function normalizeUrl(value) {
   const trimmed = value.trim();
   if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
+}
+
+
+async function redeemFixPack(sessionId) {
+  fixPackCard.hidden = false;
+  fixPackButton.disabled = true;
+  fixPackStatus.textContent = copy[language].fixPackLoading;
+  try {
+    const response = await fetch("/api/fix-pack/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId })
+    });
+    const result = await response.json();
+    if (!response.ok || typeof result.markdown !== "string") throw new Error("redeem_failed");
+    fixPackMarkdown = result.markdown;
+    fixPackButton.textContent = copy[language].downloadPack;
+    fixPackStatus.textContent = copy[language].fixPackPaid;
+    window.history.replaceState({}, "", window.location.pathname);
+  } catch {
+    fixPackStatus.textContent = copy[language].fixPackUnavailable;
+    fixPackCard.scrollIntoView({ behavior: "smooth", block: "center" });
+  } finally {
+    fixPackButton.disabled = false;
+  }
+}
+
+function downloadFixPack(markdown) {
+  const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "aeos-fix-pack.md";
+  link.click();
+  URL.revokeObjectURL(url);
 }
