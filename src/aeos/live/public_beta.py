@@ -200,12 +200,17 @@ def _public_projection(
         "summary": message,
         "confirmed_findings": findings,
         "pending_verifications": pending,
-        "fix_pack_available": _stripe_configured() and bool(findings) and status == "SUCCEEDED" and platform == BusinessURLPlatform.WEBSITE.value,
+        "fix_pack_available": False,
         "limits": {
             "es": "Revisión pública y limitada: hasta 3 páginas, 500 KB por respuesta, 2 segundos por solicitud y 25 segundos de red HTTP en total (DNS del sistema aparte). El HTML se revisa sin iniciar sesión; no se analizan posiciones ni tráfico.",
             "en": "A limited public review: up to 3 pages, 500 KB per response, 2 seconds per request, and 25 seconds of total HTTP time (system DNS excluded). HTML is reviewed without signing in; rankings and traffic are not measured.",
         },
     }
+    result["fix_pack_available"] = (
+        _stripe_configured()
+        and status == "SUCCEEDED"
+        and build_fix_pack(result, language=language) is not None
+    )
     if platform != BusinessURLPlatform.WEBSITE.value:
         result["access_request"] = {
             "es": "Para revisar Facebook, Instagram, LinkedIn o Google Business, comparte una captura o exportación de los campos pertinentes, o proporciona acceso autorizado mediante el mecanismo oficial. No envíes contraseñas.",
