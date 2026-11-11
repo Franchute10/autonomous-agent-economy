@@ -259,7 +259,7 @@ def render_business_url_diagnosis_markdown(report: Mapping[str, object]) -> str:
                 "Se comparan el HTML recibido y el DOM renderizado cuando está disponible; "
                 "consulta el método indicado para cada URL.",
                 f"- Páginas recibidas: {scope.get('pages_received', 0)}; candidatas potencialmente indexables según la respuesta observada: {scope.get('potentially_indexable_pages', 0)}.",
-                f"- Cobertura de comprobaciones: {', '.join(cast_list(scope.get('checks_completed'))) or 'ninguna; no se recibieron páginas HTML'}.",
+                f"- Cobertura de comprobaciones: {', '.join(_string_list(scope.get('checks_completed'))) or 'ninguna; no se recibieron páginas HTML'}.",
                 f"- Páginas excluidas por estado HTTP distinto de 200: {scope.get('excluded_non_200', 0)}; excluidas por directiva noindex: {scope.get('excluded_noindex', 0)}.",
                 "",
                 "## Señales observadas en el sitio",
@@ -988,11 +988,13 @@ def _website_claims(inspection: WebsiteInspectionResult) -> list[dict[str, objec
             "REGIONAL_SERVICE_AREA",
         }:
             continue
-        location = ", ".join(part for part in (location.city, location.state) if part)
+        location_value = ", ".join(
+            part for part in (location.city, location.state) if part
+        )
         claims.append(
             {
                 "field": "service_area",
-                "value": safe_text_for_report(location),
+                "value": safe_text_for_report(location_value),
                 "classification": "WEBSITE_REPORTED",
                 "source_url": safe_url_for_report(location.source_url),
                 "evidence": safe_text_for_report(location.supporting_text),
