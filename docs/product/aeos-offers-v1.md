@@ -27,16 +27,16 @@ research workflow, checkout, delivery, and sandbox tests are complete.
 - For confirmed duplicate title or meta-description findings: one editable
   template per affected page, using known business/page facts and explicit
   placeholders where facts are unknown.
+- One public lead opportunity teaser selected from the second- or third-ranked candidate in the full qualified list, with source URL, visible date, fit reason, and public response path. This teaser is included only when at least three candidates pass the qualification rules.
 - Prioritized implementation checklist and final verification checklist.
-- Downloadable Markdown report after a completed Sandbox/Live transaction.
+- Downloadable Markdown report after a completed Sandbox/Live transaction, with CMS instructions and a page-specific optional prompt for an LLM/coding agent.
 
 ### Not included
 
 - H1 or other inconclusive issues.
 - Direct CMS access or edits.
 - Search ranking, traffic, lead, or revenue guarantees.
-- Competitor research, Porter analysis, lead discovery, outreach, or ongoing
-  monitoring.
+- Porter analysis, the complete lead list, outreach, or ongoing monitoring.
 
 ## USD 10 — AEOS Market & Leads Pack
 
@@ -52,6 +52,8 @@ do not infer it silently.
 
 ### Included
 
+The USD 10 purchase is the complete version of the USD 5 offer. It includes the Fix Pack, the highest-ranked lead, and the broader opportunity list; it is not an extra USD 10 on top of the USD 5 payment.
+
 1. **Porter's Five Forces snapshot**
    - All five forces assessed for the stated service and geography.
    - Each force receives a Low / Medium / High pressure rating and a concise
@@ -63,7 +65,8 @@ do not infer it silently.
      converted into a confident rating.
 
 2. **Public lead opportunities**
-   - Up to 5 public posts or listings that explicitly indicate a current need
+   - Up to 5 qualified public opportunities, including the highest-ranked lead and the other best-ranked candidates available. The USD 5 teaser is drawn from rank 2 or 3 when the qualified pool has at least 3 candidates.
+   - Public posts or listings must explicitly indicate a current need
      matching the customer's offer and geography.
    - For each: source link, date if visible, public excerpt or short evidence
      summary, service/location match, why it qualifies, and the public response
@@ -102,12 +105,18 @@ do not infer it silently.
 - No full consulting engagement or custom strategy workshop.
 - No direct changes to the customer's website or business listings.
 
+## Current implementation gap
+
+The public beta does not yet discover or attach real leads to its website diagnosis. The existing opportunity pilot accepts manually captured, permission-reviewed evidence; it does not run a live search connector. Do not sell or claim the lead teaser until a real, current, qualified candidate pool is available for the submitted market. Synthetic fixtures and directory listings cannot be shown as customer leads.
+
+The Fix Pack Markdown is intended as an implementation worksheet. Customers who manage a CMS can fill the templates and edit SEO fields directly. Customers using an LLM or coding agent can paste the page-specific prompt to get a proposal; code changes still require repository access and the customer's approval. AEOS does not call an LLM automatically.
+
 ## Implementation sequence
 
-1. **Keep USD 5 available.** Preserve the free review and the current Fix Pack.
-2. **Build the USD 10 research intake.** Collect service, market, geography, and
-   optional exclusions; validate and retain these inputs only for the report
-   transaction.
+1. **Preserve the free review and Fix Pack.** Keep the free diagnosis and the current USD 5 payment path stable while the lead capability is added.
+2. **Build the market/lead intake.** Collect service, market, geography, and
+   optional exclusions; do not infer missing geography. Store only the information
+   needed to create and deliver the paid report.
 3. **Build evidence-first research.** Add an approved public-source discovery
    method, record source/date/evidence, deduplicate opportunities, and support
    an honest zero-lead result. Do not claim Facebook or social coverage until a
