@@ -13,6 +13,7 @@ class FixPage(TypedDict):
     title_template: str
     description_template: str
     implementation_steps: list[str]
+    llm_prompt: str
 
 
 class FixPack(TypedDict):
@@ -79,6 +80,12 @@ def build_fix_pack(
                     "title_template": _title_template(language),
                     "description_template": _description_template(language),
                     "implementation_steps": _implementation_steps(language),
+                    "llm_prompt": _llm_prompt(
+                        url,
+                        finding_title,
+                        _localized(raw_source.get("evidence"), language) or evidence,
+                        language,
+                    ),
                 }
             )
 
@@ -106,6 +113,19 @@ def render_fix_pack_markdown(pack: FixPack) -> str:
         if language == "es"
         else "Implementation pack based only on confirmed findings.",
         "",
+        "## Cómo usar este paquete" if language == "es" else "## How to use this pack",
+        "",
+        (
+            "Si administras el CMS, completa las plantillas con datos reales y actualiza los campos SEO de cada página. No necesitas una LLM."
+            if language == "es"
+            else "If you manage the CMS, fill in the templates with verified facts and update each page's SEO fields. You do not need an LLM."
+        ),
+        (
+            "Si usas una LLM o un agente de código, copia el prompt de la página correspondiente. Pídele primero una propuesta; revisa los datos y aprueba cualquier cambio antes de publicarlo."
+            if language == "es"
+            else "If you use an LLM or coding agent, copy the prompt for the relevant page. Ask for a proposal first; review the facts and approve any changes before publishing."
+        ),
+        "",
     ]
     for index, page in enumerate(pack["pages"], start=1):
         lines.extend(
@@ -129,6 +149,14 @@ def render_fix_pack_markdown(pack: FixPack) -> str:
                 "**Implementation**" if language == "en" else "**Implementación**",
                 "",
                 *[f"- {step}" for step in page["implementation_steps"]],
+                "",
+                "**Prompt opcional para una LLM o agente de código**"
+                if language == "es"
+                else "**Optional prompt for an LLM or coding agent**",
+                "",
+                "```text",
+                page["llm_prompt"],
+                "```",
                 "",
             ]
         )
@@ -165,10 +193,12 @@ def build_fix_pack_offer(pack: FixPack) -> dict[str, object]:
             "title_template",
             "description_template",
             "implementation_steps",
+            "llm_prompt",
         ],
         "title_template": first_page["title_template"],
         "description_template": first_page["description_template"],
         "implementation_steps": first_page["implementation_steps"],
+        "llm_prompt": first_page["llm_prompt"],
         "implementation_step_count": len(first_page["implementation_steps"]),
         "quality_checks": pack["quality_checks"],
         "limitations": pack["limitations"],
@@ -198,6 +228,38 @@ def _is_actionable_finding(title: str) -> bool:
         )
     )
 
+
+
+def _llm_prompt(url: str, finding: str, evidence: str, language: str) -> str:
+    if language == "en":
+        return (
+            "Review the public page at "
+            + url
+            + ". The confirmed observation is: "
+            + finding
+            + ". Evidence: "
+            + evidence
+            + ". Based only on facts visible on this page, propose a distinct SEO title "
+            "and meta description that accurately describe its real content. Do not "
+            "invent services, locations, audiences, prices, credentials, or promises. "
+            "Return the proposed values and identify any unknown facts. Do not change "
+            "the page, repository, CMS, or publish anything unless I separately "
+            "authorize that action. Preserve the page content and H1."
+        )
+    return (
+        "Revisa la página pública "
+        + url
+        + ". La observación confirmada es: "
+        + finding
+        + ". Evidencia: "
+        + evidence
+        + ". Usando solo datos visibles en esta página, propón un título SEO y una "
+        "meta descripción distintos que describan su contenido real. No inventes "
+        "servicios, ubicaciones, públicos, precios, credenciales ni promesas. "
+        "Devuelve los textos propuestos e identifica los datos desconocidos. No "
+        "modifiques la página, el repositorio ni el CMS, ni publiques cambios, salvo "
+        "que te autorice por separado. Conserva el contenido de la página y su H1."
+    )
 
 def _title_template(language: str) -> str:
     if language == "en":
