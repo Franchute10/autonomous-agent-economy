@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (refreshed with the six-checkout inventory; exact local file reconciliation and ignored-data review remain)  
+**Snapshot:** 2026-11-20 (uploaded bundle SHA comparison completed; semantic diff review and ignored-data review remain)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -117,6 +117,21 @@ The fresh inventory confirms the local main, review, and 003c worktrees remain d
 - A targeted pattern scan of the uploaded text found no provider credential-shaped tokens. It is not a full repository secret scan. It did identify fixed disposable PostgreSQL test passwords in the untracked CI workflow; these are test-only values, not production credentials. A Tavily credential was previously pasted into the conversation and still needs rotation.
 
 The upload review classifies the local material but does not authorize deleting worktrees, rewriting local history, or publishing the real-tenant and Lumen files. The full local history still needs an owner-approved disposition for the real-tenant records in the three local main commits. No file cleanup or history rewrite has been performed.
+
+## Exact local bundle comparison (2026-11-20)
+
+The uploaded patches and review archives were compared by Git blob SHA with the current remote development tree `codex/aeos-live-003c` at `0cc8598e2272f6da25de07826b880d37e7ab43c4`. This is an exact-content comparison for the files present in those artifacts, not a semantic review of every difference and not a scan of the laptop.
+
+- `aeos-main-tracked.patch`: 77 tracked paths; local content matches 28 remote 003C blobs exactly, 46 differ, and three paths are deleted locally (`AGENTS.md`, `PROJECT_HANDBOOK.md`, and `docs/PROJECT_READINESS.md`). Do not apply the patch or restore those deletions. The three canonical documents exist on remote `main`.
+- `aeos-main-untracked-review.zip`: 39 reviewable files (directory entries excluded); nine match remote 003C exactly, 14 have a same-named remote file with different content, and 16 are absent from 003C. The 46-path untracked manifest also lists binary marketing assets that were not included in the review archive. Treat differing and absent files as unclassified until their purpose, privacy, and tests are reviewed.
+- `aeos-003c-local.patch`: 20 tracked paths; 12 local result blobs match current remote 003C and eight differ.
+- `aeos-003c-followup-review.patch`: 23 tracked paths; 16 local result blobs match current remote 003C and seven differ.
+- A heuristic credential-pattern scan of the three supplied patch files and text files in both review archives scanned 45 text files and found no matches. It does not cover ignored laptop data, all repository history, files omitted from the archives, or credentials that do not match the tested patterns. Rotate the Tavily key previously shared in chat.
+- No uploaded patch was applied to a worktree, and no Windows worktree was reset, cleaned, overwritten, or deleted.
+
+Remote `main` advanced after the inventory bundle was created and is now at `b896523cc8685bb286886d263844db59e2ed8ae1`; the inventory's older `260dff3` reference remains a record of what was fetched at collection time.
+
+The exact hash results reduce uncertainty about duplicate files, but they do not tell whether a differing version is better, stale, private, or safe to publish. The next reconciliation work is to inspect those differences semantically, then inspect ignored paths and run a full secret scan on the laptop before cleaning or archiving any checkout.
 
 ## Final reconciliation package (2026-11-20)
 
