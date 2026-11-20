@@ -583,11 +583,14 @@ def _vertical_label(profile: BusinessProfile) -> str:
 
 
 def _profile_storage_directory(profile: BusinessProfile) -> Path:
-    identity = (
-        profile.organization_id.value
-        if profile.organization_id is not None
-        else profile.business_name
-    )
+    if profile.organization_id is not None:
+        identity = profile.organization_id.value
+    elif profile.is_fictional_example:
+        identity = f"synthetic-{profile.business_name}"
+    else:
+        raise InvalidLiveContract(
+            "organization_id is required when using default pilot storage paths"
+        )
     slug = re.sub(r"[^a-z0-9]+", "-", identity.casefold()).strip("-")
     return ROOT / "artifacts/live/profiles" / (slug or "unidentified-profile")
 
@@ -858,9 +861,10 @@ def run_pilot(
     feasibility = json.loads(feasibility_path.read_text(encoding="utf-8"))
     if not isinstance(feasibility, dict):
         raise InvalidLiveContract("source feasibility file must contain a JSON object")
-    profile_directory = _profile_storage_directory(business_profile)
-    output_dir = output_dir or profile_directory / "reports"
-    store_path = store_path or profile_directory / "opportunities.json"
+    if output_dir is None or store_path is None:
+        profile_directory = _profile_storage_directory(business_profile)
+        output_dir = output_dir or profile_directory / "reports"
+        store_path = store_path or profile_directory / "opportunities.json"
     if confirm_import and candidate_file is None:
         raise InvalidLiveContract("--confirm-import requires --candidate-file")
 
