@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (includes uploaded-bundle review, the followup worktree fast-forward to `e456832`, and current PR/CI checks)  
+**Snapshot:** 2026-11-20 (includes the refreshed worktree inventory, final-reconciliation commit ancestry check, and current PR state)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -44,7 +44,7 @@ Keep the projects distinct:
 
 ### AEOS main
 
-Verified at commit `cd7e220e20fcce020b505c5438ee28037dc16ce8` on 2026-11-20. The two latest commits on main (#23 and #24) update project-control documentation and local-diff findings.
+Verified at commit `e5bb8099481358019ad70f08763254bb16074407` on 2026-11-20. Main includes the latest project-control and worktree-inventory documentation updates.
 
 - The current README, AGENTS.md, and this readiness file establish a consistent entry point and reading order. The handbook remains the durable product and architecture history; date-specific statements in it should be checked against this snapshot.
 - The repository packages the experimental Python core and configures tests, Ruff, and mypy.
@@ -93,15 +93,15 @@ Rules:
 | AEOS main checkout | `main` / `9847fce29e3ee9f83dacc02e8ee53ba8c3b5cbcf` | 3 commits ahead and 17 behind the then-cached `origin/main`; 58 tracked files changed (1,362 insertions, 3,111 deletions), including data deletions; 46 untracked paths. The three local commits (`f45411f`, `40e1e9d`, `9847fce`) were not found by SHA in GitHub. The inventory was captured against the previously fetched `cd7e220`; main has since advanced with documentation-only PR #25 to `02ac5ba`, so the local count is now stale. | Preserve. Do not pull, reset, clean, stage broadly, or push this history. Uploaded content was classified; private-tenant records and local history still need a disposition decision. |
 | AEOS 003c followup | `codex/aeos-003c-followup-20261120` / `e4568322e4162ba0f8888c8d9f5c0ac841ac6894` | Clean and exactly matched its upstream after the operator ran `git pull --ff-only`. | Reconciled for this branch. Its changes remain a proposal in PR #17; they are not merged to main. |
 | AEOS 003c review | `codex/aeos-003c-review-20261120` / `65a4b6c8d540a9c22a71f90b38e7a07f0fe4e136` | 7 commits behind its upstream; 19 tracked files modified, five untracked files, no staged diff reported. The changes are unstaged. | Preserve. Content overlaps the later 003c followup proposal. Do not merge or discard this residual copy before comparing its five untracked files and current diff against PR #17. |
-| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913cece73702c78ed6839a08b6be3e634abc0` | Clean; one local commit ahead and 17 behind its then-cached `origin/main`. No local diff was reported. | Preserve its unique commit. Compare ancestry/content before integration; refresh upstream state first. |
-| AEOS LIVE 003c | `codex/aeos-live-003c` / `763d9398baf3e14e8f083886c463e50a90f59be4` | 18 commits behind upstream; 20 tracked files modified and 11 untracked files; no staged diff reported. Its tracked changes substantially overlap the 003c review/followup work. | Preserve. Compare unique residual files, including the HZ profile and overpass-resilience note, against remote branches before moving or deleting anything. |
+| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913cece73702c78ed6839a08b6be3e634abc0` | The local branch had one commit ahead of its then-cached `origin/main`; the commit SHA is present in GitHub and is an ancestor of `codex/aeos-live-003c` at `d56b48d`. The checkpoint branch ref itself was not found on origin. | The 003b code commit is already in the remote 003c development history. Do not apply `003b-a23913c.patch` again or treat the commit as unique local work. Preserve/refresh the local checkout before any cleanup. |
+| AEOS LIVE 003c | `codex/aeos-live-003c` / `763d9398baf3e14e8f083886c463e50a90f59be4` | 18 commits behind upstream; 20 tracked files modified and 11 untracked files; no staged diff reported. Its tracked changes substantially overlap the 003c review/followup work. | Preserve the dirty worktree pending fresh inventory. Keep the HZ fixture private due real business/person identifiers. Keep the Overpass note private until its client references are removed and current policy language is used. |
 | Commercial Lead Engine | Last known `codex/intent-evidence-evaluation` / `a647263` | Last separately reported clean and synchronized at inventory time; this AEOS worktree listing does not refresh or verify it. | Keep separate from AEOS. Refresh that repository independently; do not push a mismatched local clone. |
 
-The current remote branch comparison confirms the development line is not the same as `main`: `codex/aeos-live-003c` diverges from `main` (24 commits ahead and 8 behind as of `main` `02ac5ba`). It contains broad LIVE, tenancy, offer, and beta work. PR #16 proposes manual capture; PR #17 proposes website/market pilot hardening. These are overlapping implementation lines, not evidence that local data or every file is safely duplicated.
+The current remote branch comparison confirms the development line is not the same as `main`: `codex/aeos-live-003c` diverges from `main` (24 commits ahead and 9 behind as of `main` `e5bb809`). The 003b commit `a23913c` is already in that development line (33 commits ahead, 0 behind when comparing `a23913c` to `d56b48d`). It contains broad LIVE, tenancy, offer, and beta work. PR #16 proposes manual capture; PR #17 proposes website/market pilot hardening. These are overlapping implementation lines, not evidence that local data or every file is safely duplicated.
 
 Ignored paths previously reported include `.aeos-private/`, `.venv/`, `artifacts/`, pytest temporary output, and tool caches. Their contents remain uninspected and must be treated as local data until classified. The uploaded bundle received a targeted content review, but no full current secret scan of the repositories or ignored paths was performed.
 
-The uploaded-bundle review and the 003c-followup fast-forward are complete. The latest PowerShell inventory confirms the remaining AEOS local state: the main checkout is heavily modified and diverged; the 003c review and 003c worktrees contain overlapping residual diffs; 003b is clean but has one unique local commit. No cleanup or history rewrite has been performed. Next, compare the remaining local diffs to the current remote proposals using explicit file lists, then record what to preserve or quarantine. Do not run `git pull`, `reset`, `restore`, `clean`, broad staging, or history rewrites on the dirty worktrees until that comparison and disposition are recorded.
+The earlier uploaded-bundle review and the 003c-followup fast-forward are complete. The latest reported PowerShell state still shows the main checkout heavily modified and diverged, and the 003c review/003c worktrees contain overlapping residual diffs. The 003b commit is confirmed in the remote 003c ancestry, so its exported patch is redundant. The attached final-reconciliation ZIP and both unique 003c files have now been reviewed: the HZ profile must remain private, and the Overpass note must be sanitized and corrected before publication. No cleanup or history rewrite has been performed. Do not run `git pull`, `reset`, `restore`, `clean`, broad staging, or history rewrites on the dirty worktrees until that comparison and disposition are recorded.
 
 ## Results from uploaded local-diff bundle
 
@@ -119,6 +119,16 @@ The uploaded-bundle review and the 003c-followup fast-forward are complete. The 
 
 The upload review classifies the local material but does not authorize deleting worktrees, rewriting local history, or publishing the real-tenant and Lumen files. The full local history still needs an owner-approved disposition for the real-tenant records in the three local main commits. No file cleanup or history rewrite has been performed.
 
+## Final reconciliation package (2026-11-20)
+
+The operator attached the ZIP and its three key files. The patch and both local 003c files were reviewed.
+
+- `003b-a23913c.patch`: this is a full commit patch for `a23913cece73702c78ed6839a08b6be3e634abc0`, not an uncommitted diff. GitHub contains the commit, and comparison confirms it is an ancestor of remote `codex/aeos-live-003c` at `d56b48d53b1354d53c3e640247d2208fe45753fe` (33 commits ahead, 0 behind). Its code is in the development branch, not main. Do not apply the patch or duplicate its changes.
+- `tests/unit/live/fixtures/profiles/hz-air-conditioning-services.json`: reviewed. It contains identifying information for a real HVAC business, including a registered address, a named registered agent, a registration identifier, and business social URLs. Do not add this fixture to this public repository. Keep the original local/private; if a public test fixture is needed, replace all identifying values and evidence with clearly synthetic data.
+- `docs/research/AEOS-LIVE-003C-overpass-resilience.md`: reviewed. Its 504 observations are dated 2026-11-09; the note says the validation made no live market calls, and its tests simulate provider responses. The note names real pilot businesses, so do not publish this exact copy. Keep a sanitized, dated research record if needed. The current [OpenStreetMap Wiki instance guidance](https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances) still lists the VK Maps endpoint and says it may be used in projects, but also warns public instances can be overloaded and unreliable and advises commercial use to use self-hosted or paid servers. An unannounced request limit is not an availability commitment or commercial-service endorsement. Keep free public Overpass usage to low-volume experiments subject to the operator's terms; do not rely on it for production.
+
+The final ZIP is reviewed. Remaining local reconciliation is limited to the dirty main/review/003c Windows worktrees and the separate Commercial Lead Engine checkout; do not clean or rewrite them until their current diffs and private data are inventoried.
+
 ## Ordered backlog
 
 ### P0 — Close project-control gaps
@@ -127,8 +137,8 @@ The upload review classifies the local material but does not authorize deleting 
 - [x] Repair the reported PR #17 type-check failures and rerun GitHub CI. The exact current head and evidence are recorded above.
 - [x] Collect the initial Windows inventory and inspect/classify the uploaded main diff and untracked-file bundle.
 - [x] Refresh remote refs and fast-forward the clean 003c followup worktree to `e456832`.
-- [x] Refresh the AEOS worktree inventory; the 003c followup is clean, while main/review/003c remain dirty and 003b retains one local commit.
-- [ ] Compare the remaining local main/review/003b/003c changes against current remote branches and document keep/quarantine decisions before integration or cleanup.
+- [x] Refresh the AEOS worktree inventory; the 003c followup is clean, while main/review/003c remain dirty. The 003b commit was confirmed as already published in the remote 003c ancestry.
+- [ ] Finish the remaining local main/review/003c diff comparison and inspect the HZ profile fixture; document keep/quarantine decisions before integration or cleanup. The 003b commit ancestry and patch redundancy are now verified.
 - [ ] Refresh the separate Commercial Lead Engine checkout independently.
 - [ ] Review and reconcile the AEOS PR stack. Confirm the correct ancestry, inspect combined diff scope, and merge in dependency order only after local worktree reconciliation.
 - [ ] Reconcile the Commercial Lead Engine local checkout with PR #1/#2; do not push the mismatched local clone.
