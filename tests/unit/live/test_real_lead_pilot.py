@@ -14,6 +14,7 @@ from aeos.live.real_lead_pilot import (
     run_pilot,
 )
 from aeos.live.domain.errors import InvalidLiveContract
+from aeos.live.domain.profile import parse_business_profile_document
 
 
 AS_OF = date(2026, 11, 7)
@@ -642,6 +643,6 @@ def test_explicit_storage_paths_allow_isolated_profile_without_organization_id(
 
 def test_fictional_default_storage_uses_synthetic_namespace() -> None:
     profile_payload = json.loads(DEFAULT_PROFILE.read_text(encoding="utf-8"))
-    profile = real_lead_pilot.parse_business_profile_document(profile_payload)
+    profile = parse_business_profile_document(profile_payload)
     storage = real_lead_pilot._profile_storage_directory(profile)
     assert storage.name.startswith("synthetic-")
