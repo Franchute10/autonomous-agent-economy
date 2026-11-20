@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (uploaded bundle SHA comparison completed; semantic diff review and ignored-data review remain)  
+**Snapshot:** 2026-11-20 (uploaded bundle and ignored-path inventories reviewed; semantic diff and private-data content review remain)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -101,6 +101,25 @@ Rules:
 The current remote comparison is `main` at `260dff3276f74a2c6d4944bc0f9fbbed363ffa74` versus `codex/aeos-live-003c` at `0cc8598e2272f6da25de07826b880d37e7ab43c4`: 45 commits ahead and 14 behind, with merge base `6851ae3152b87ba1347e4914c259296c4f340828`. This is a divergent development line, not a fast-forward. The 003b checkpoint SHA is already in the 003C ancestry (0 commits unique to 003b; 54 commits exist after it on 003C). Neither fact makes the dirty local main checkout safe to push or overwrite.
 
 The fresh inventory confirms the local main, review, and 003c worktrees remain dirty; 003c followup, 003b checkpoint, and Commercial Lead Engine are clean. The earlier uploaded bundle classified several local files, but the newly reported counts do not replace an exact content comparison of every remaining local diff. Ignored paths such as `.aeos-private/`, virtual environments, artifacts, and caches remain uninspected. No complete repository secret scan has been performed.
+## Ignored-path inventory reported by the operator (2026-11-20)
+
+The operator ran `git status --short --ignored --untracked-files=normal` across all six registered checkouts. This revealed ignored path names and ordinary untracked path names, but did not read their contents.
+
+| Checkout | Ignored entries | Observed private or generated paths |
+|---|---:|---|
+| AEOS local `main` | 53 | `.aeos-private/`, `.venv/`, `artifacts/`, Python/test caches |
+| AEOS 003c followup | 50 | `artifacts/`, Python/test caches |
+| AEOS 003c review | 17 | `artifacts/`, Python/test caches |
+| AEOS 003b checkpoint | 56 | Several `.pytest-tmp-*/` directories and Python/test caches |
+| AEOS LIVE 003c | 53 | `.pytest-tmp-live003c-validation/`, `.venv/`, `artifacts/`, Python/test caches |
+| Commercial Lead Engine | 16 | `.venv/`, `lead_engine.db`, `pilot_local/`, Python/test caches |
+
+Keep `.aeos-private/`, `lead_engine.db`, and `pilot_local/` local and out of the public repositories; they may contain tenant settings, prospect evidence, labels, or local application data. Treat `artifacts/` and the pytest temporary directories as generated/private until their contents are understood. Virtual environments, bytecode, egg-info, and tool caches are routine local state. None of these paths should be deleted as part of this reconciliation.
+
+The status command emitted Windows “Filename too long” traversal warnings under long pytest artifact paths in the followup, 003b checkpoint, and 003c worktrees. These are generated test paths, but the warnings mean this inventory is names-only and not a content scan. The previous credential-pattern scan covered only 45 text files from uploaded patches and archives; no credential-shaped matches were found there. No complete scan of ignored data or local repository history has been performed.
+
+The ordinary untracked code, examples, and Lumen/Paddle folders remain subject to the exact blob and privacy classifications above. No cleanup, staging, or worktree mutation has occurred.
+
 ## Results from uploaded local-diff bundle
 
 **Reviewed:** 2026-11-20. The operator supplied the tracked patch, untracked manifest, and archive of reviewable untracked files.
@@ -154,13 +173,13 @@ The six-checkout inventory is now current as of 2026-11-20. The Overpass note is
 - [x] Refresh remote refs and review the uploaded final 003c package. Confirm the 003b commit is already in the remote 003c ancestry; avoid reapplying its patch.
 - [x] Reconcile the 003c implementation path list into the development branch through PRs #16/#17; merge a sanitized Overpass note through PR #31; classify the HZ profile as local/private because it contains real identifiers.
 - [x] Refresh remote refs and collect the six-checkout local inventory on 2026-11-20. Main, review, and 003c remain dirty; 003c followup, 003b, and Commercial Lead Engine were clean.
-- [ ] Compare exact remaining local `main`, review, and 003c file contents against merged remote branches and classify each unique/private/superseded item. Preserve all three dirty worktrees until that review is complete.
+- [ ] Semantically review differing local `main`, review, and 003c files against their merged remote counterparts; SHA matches are classified, but differing versions remain unresolved. Preserve all dirty worktrees.
 - [x] Fetch the separate Commercial Lead Engine checkout and confirm the local intent-evaluation branch is clean against its upstream ref.
 - [x] Reconcile and merge AEOS PRs #17 and #16 into the 003c development line in dependency order; merge the sanitized research note as PR #31. These merges do not target `main`.
 - [ ] Review open AEOS PRs #1 and #2 against the current 003c base; PR #1 remains draft and PR #2 was reported non-mergeable. Do not merge either without refreshing its base and reviewing the diff.
 - [ ] Reconcile the Commercial Lead Engine local checkout with PR #1/#2; do not push the mismatched local clone.
 - [ ] Configure PR-required branch rules for both public repositories after the required check names are verified. The AEOS main branch was last observed without protection; this GitHub connection did not provide a successful settings update.
-- [ ] Run a repository secret scan and rotate any credential previously pasted into conversation or stored in local history. Never copy credential values into this public repository.
+- [ ] Run a complete repository/history and local private-data secret scan; the uploaded-file heuristic scan is limited. Rotate the Tavily credential previously shared in chat. Never copy credential values into this public repository.
 
 ### P1 — Verify a deployable backend
 
