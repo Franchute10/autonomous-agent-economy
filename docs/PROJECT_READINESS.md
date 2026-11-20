@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20  
+**Snapshot:** 2026-11-20 (refreshed after PR #17 CI passed)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -44,28 +44,33 @@ Keep the projects distinct:
 
 ### AEOS main
 
-Verified at commit 6851ae3152b87ba1347e4914c259296c4f340828 on 2026-11-20.
+Verified at commit `b627c06dd8c7694db48bfc5b6ae2d87ef9175d4c` on 2026-11-20.
 
-- The checked-in README describes an early experimental architecture / pre-MVP and is stale: it says there are no business-domain entities. It conflicts with the more recent handbook and code history.
-- The checked-in pyproject.toml packages the Python core and configures tests, Ruff, and mypy.
-- There is no render.yaml or src/aeos/live/public_beta.py on main (GitHub returned 404 for both paths). Therefore the Public Beta server/deployment work on another local/remote line is not part of the canonical main backend.
-- Do not describe public website checkout, webhooks, or lead capture as live from this branch unless a deployed URL and an end-to-end run prove it.
+- The current README, AGENTS.md, and this readiness file establish a consistent entry point and reading order. The handbook remains the durable product and architecture history; date-specific statements in it should be checked against this snapshot.
+- The repository packages the experimental Python core and configures tests, Ruff, and mypy.
+- There is no `render.yaml` or `src/aeos/live/public_beta.py` on main (GitHub returned 404 for both paths). Public checkout, webhook handling, and lead capture are not deployed from main.
+- Do not describe the product as backend-ready or production-ready without a deployed service and end-to-end evidence.
 
-### AEOS open pilot pull requests
+### AEOS open pull requests
 
-- [PR #16 — manual public request capture](https://github.com/Franchute10/autonomous-agent-economy/pull/16): open; head 771995f250755a966afb64c730abdceea6acf58b; base codex/aeos-live-003c. Captures text and URL supplied by a human; it does not fetch the post, scrape groups, prove the requester is a buyer, or contact anyone. Its reported CI was green: 880 passed, 11 skipped.
-- [PR #17 — harden AEOS LIVE website and market pilots](https://github.com/Franchute10/autonomous-agent-economy/pull/17): open and stacked on PR #16's branch; head 36f79fd3f9068c538e5ed147a357063df3260483; base codex/aeos-003c-review-20261120. The local Windows report says 938 passed, 11 skipped, Ruff and source mypy passed. GitHub Actions for this exact SHA failed in the checks jobs during type checking; the full suite did not run there. The PostgreSQL tenant isolation job passed.
-- The failed CI run reports type errors in test code in test_website_inspector.py, test_business_profile.py, and test_business_url_diagnosis.py. The local mypy command used mypy src/aeos, so it omitted the test files that CI checks. Fix and rerun the exact CI command before merging either stacked PR.
-- PR #17 reports a large change (23 files; 4,728 insertions and 290 deletions). Review scope and tests file by file; the local followup worktree was created to preserve work, not to establish that every other worktree is clean or reconciled.
+These PRs target development branches, not main. Treat them as proposals; their green checks do not establish product readiness or safe integration to main.
+
+- [PR #17 — harden AEOS LIVE website and market pilots](https://github.com/Franchute10/autonomous-agent-economy/pull/17): open; head `e4568322e4162ba0f8888c8d9f5c0ac841ac6894`; base `codex/aeos-003c-review-20261120`. GitHub CI and PostgreSQL Security Validation both passed on this exact head (2026-11-20). Local report: 938 passed, 11 skipped; Ruff check/format, source mypy, and diff check passed. The GitHub CI now checks the previously failing test typing as well. This corrects the prior readiness entry that said this SHA was failing.
+- [PR #16 — manual public request capture](https://github.com/Franchute10/autonomous-agent-economy/pull/16): open; head `771995f250755a966afb64c730abdceea6acf58b`; base `codex/aeos-live-003c`. Latest CI and PostgreSQL Security Validation passed on this SHA. Captures text and URL supplied by a human; it does not fetch the post, scrape groups, prove the requester is a buyer, or contact anyone.
+- [PR #2 — align Fix Pack scope with verified Sandbox capabilities](https://github.com/Franchute10/autonomous-agent-economy/pull/2): open; head `d2ead1d406356cc5f25b4a248ce92f2a0607b955`; base `codex/aeos-live-003c`. CI and PostgreSQL Security Validation passed on the current head. It has not been reconciled against the other open branches.
+- [PR #1 — test-mode $5 Fix Pack](https://github.com/Franchute10/autonomous-agent-economy/pull/1): open and draft; head `7e784dc378fada568848c56bef03ed389f52d014`; base `codex/aeos-live-003c`. CI and PostgreSQL Security Validation passed on the current head. Draft status means it is not proposed as merge-ready.
+
+PR #17 is stacked on PR #16's head branch, while PRs #1, #2, and #16 also target the historical `codex/aeos-live-003c` line. These branches must be compared and integrated in a deliberate sequence. Passing CI is necessary but does not replace scope review, conflict review, or reconciling the operator's unclassified local worktrees.
 
 ### Commercial Lead Engine
 
-- main is a local-first Typer CLI application. It is not a hosted HTTP API, background worker, or multi-agent orchestration service.
-- [PR #1 — Tavily public intent search](https://github.com/Franchute10/commercial-lead-engine/pull/1): open; head b1b0092a57ca693a9e4cf47a3ed6abfb992b3b46; base main. It uses Tavily's public index. The PR description says validation was not run there. A valid key and a bounded live search are needed to verify provider operation; never share the key in chat or commit it.
-- [PR #2 — intent evidence and evaluation](https://github.com/Franchute10/commercial-lead-engine/pull/2): open; head a647263bcde2be074479321928b0cd74fc1c0252; base is PR #1's feature branch, so this is stacked, not independently mergeable to main. The PR reports 878 offline tests and 11 evaluation tests, Ruff, formatting, and source mypy. No live Tavily call was made for that report.
-- The pilot's candidate label is a machine filter outcome, not a verified lead. A user-checked Facebook URL resolved to a dog adoption post while its search excerpt contained cleaning text. It was relabeled NOT_REQUEST; precision on that labelled candidate was 0%.
-- Search indexing may return irrelevant, stale, misattributed, or geographically incorrect snippets. The current pilot cannot read closed Facebook/Nextdoor groups and does not automatically verify the post page. A zero-result run means “no candidate found by this provider/query/run”, not “no demand exists.”
-- No live result establishes repeatable useful-lead yield, buyer identity, contactability, conversion, or willingness to pay.
+- main is a local-first Typer CLI application, not a hosted HTTP API, background worker, or multi-agent orchestration service.
+- [PR #1 — public service-intent capture](https://github.com/Franchute10/commercial-lead-engine/pull/1): open; head `b1b0092a57ca693a9e4cf47a3ed6abfb992b3b46`; base `main`. No GitHub Actions run was returned for this branch in the current check.
+- [PR #2 — intent evidence and evaluation](https://github.com/Franchute10/commercial-lead-engine/pull/2): open; head `a647263bcde2be074479321928b0cd74fc1c0252`; base `feat/public-intent-capture-v1` (PR #1). This is stacked and no GitHub Actions run was returned for its current head in this check.
+- Earlier local validation reports exist in the PR history, but a current repeatable live Tavily run and current branch CI have not been independently verified here. Do not treat machine classifications as verified leads.
+- Tavily search results are indexed public-web observations. They do not establish a real buyer, contactability, exact post identity, or permission to access private groups. The labelled Facebook URL mismatch was relabelled `NOT_REQUEST`; precision on that labelled candidate was 0%.
+- Search indexing may return irrelevant, stale, misattributed, or geographically incorrect snippets. The pilot cannot read closed Facebook/Nextdoor groups and does not automatically verify the post page. A zero-result run means no candidate was found by that provider/query/run, not that no demand exists.
+- No live result establishes repeatable useful-lead yield, buyer identity, contactability, conversion, or willingness to pay. No automatic outreach is in scope or implemented.
 
 ## Worktree and patch control
 
@@ -81,34 +86,40 @@ Rules:
 
 ## Ordered backlog
 
-### P0 — Establish one trustworthy source of truth
+### P0 — Close project-control gaps
 
-- Fix the stale README and update historical sections of PROJECT_HANDBOOK.md; make this file the live snapshot and link it from the README.
-- Produce a fresh laptop inventory for AEOS main, LIVE 003c, 003b checkpoint, review/followup, Commercial Lead Engine, and any remaining worktrees. Reconcile without deleting unclassified work.
-- Fix PR #17 CI by running the same mypy scope as GitHub (source and tests), then rerun all required checks.
-- Review the PR #16/#17 stack and merge only when CI and scope are acceptable.
-- Reconcile Commercial Lead Engine's current local branch with remote PR #1/#2; resolve stack and validation without pushing the mismatched local clone.
-- Enable PR-required branch protection/checks on AEOS main after check names are known and green. Apply equivalent rules to Commercial Lead Engine if its available CI is configured.
+- [x] Establish a canonical entry point: README links to the readiness snapshot; AGENTS.md requires reading it before changes.
+- [x] Repair the reported PR #17 type-check failures and rerun GitHub CI. The exact current head and evidence are recorded above.
+- [ ] Refresh the Windows laptop inventory for AEOS main, LIVE 003c, 003b checkpoint, review/followup, Commercial Lead Engine, and any other worktrees. Preserve and classify uncommitted and ignored files before any cleanup.
+- [ ] Review and reconcile the AEOS PR stack. Confirm the correct ancestry, inspect combined diff scope, and merge in dependency order only after local worktree reconciliation.
+- [ ] Reconcile the Commercial Lead Engine local checkout with PR #1/#2; do not push the mismatched local clone.
+- [ ] Configure PR-required branch rules for both public repositories after the required check names are verified. The AEOS main branch was last observed without protection; this GitHub connection did not provide a successful settings update.
+- [ ] Run a repository secret scan and rotate any credential previously pasted into conversation or stored in local history. Never copy credential values into this public repository.
 
-### P1 — Verify the backend as a deployable service
+### P1 — Verify a deployable backend
 
-- Decide whether the public diagnostic/fix-pack beta belongs in AEOS or a separate product service; document the owner and repository boundary.
-- If AEOS beta code is to ship, reconcile it from its branch/worktree into a reviewed PR based on current main. Check auth, tenant isolation, rate limits, data retention, secrets, payment sandbox/live separation, webhook signature/idempotency, delivery recovery, health checks, and rollback.
-- Add an explicit CI workflow for the deployable backend and a documented local/staging smoke test. Do not label it “ready” until deployment and end-to-end smoke evidence exist.
-- Document environment-variable names and secret locations, never secret values.
+- [ ] Decide whether the public diagnostic/Fix Pack beta belongs in AEOS or a separate product service; document its owner and repository boundary.
+- [ ] If beta code is to ship, reconcile it into a reviewed PR based on current main. Check authentication, tenant isolation, rate limits, retention, secrets, payment sandbox/live separation, webhook signatures/idempotency, delivery recovery, health checks, and rollback.
+- [ ] Add explicit CI for the deployable backend and a documented local/staging smoke test. Do not label it ready until deployment and end-to-end smoke evidence exist.
+- [ ] Document environment-variable names and secret locations, never secret values.
 
-### P2 — Validate customer value before adding automation
+### P2 — Validate customer value
 
-- Select one business, vertical, segment, locality, and allowed source set.
-- Define a small human-labelled gold set and rules for useful opportunity, wrong URL, stale signal, buyer context, locality, contactability, and disqualifiers.
-- Measure precision and recall only against that labelled set, retain source URL/snippet/date and reviewer decision, and record API spend.
-- Continue with an offer only after a real business confirms usefulness and a paid test validates willingness to pay. Keep outreach human-approved.
+- [ ] Select one business, vertical, segment, locality, and allowed source set.
+- [ ] Define a small human-labelled gold set and rules for useful opportunity, wrong URL, stale signal, buyer context, locality, contactability, and disqualifiers.
+- [ ] Measure precision and recall only against that labelled set, retain source URL/snippet/date and reviewer decision, and record API spend.
+- [ ] Continue an offer only after a real business confirms usefulness and a paid test validates willingness to pay. Keep outreach human-approved.
 
 ## Definition of “ready for external AI review”
 
-Claude, Grok, or another reviewer can read both public repositories using their public GitHub URLs. They should be directed to read in this sequence: this file, AGENTS.md, PROJECT_HANDBOOK.md, README, architecture/ADR documents, then the linked open PRs. They should treat main as the only merged state, PR branches as proposals, and local-only work as unknown until documented.
+Both canonical repositories are public and readable without special GitHub permission:
 
-This project is not yet ready to be called organized, backend-ready, production-ready, or validated for lead sales. The outstanding blockers are stale/conflicting top-level docs, unclassified laptop worktrees, stacked PRs, a failing AEOS CI type-check, no AEOS beta service on main, and no repeatable verified lead-yield evidence.
+- https://github.com/Franchute10/autonomous-agent-economy
+- https://github.com/Franchute10/commercial-lead-engine
+
+The repository-level reading sequence is ready: README → PROJECT_READINESS → AGENTS.md → PROJECT_HANDBOOK → architecture/ADR → task-specific runbook and open PRs. For now, external reviewers should be asked to audit the project status, not to implement or merge changes. They should treat main as the merged source of truth, PR branches as proposals, and local-only work as unknown.
+
+This is an organized handoff baseline, not a fully reconciled project. Remaining blockers are the unclassified Windows worktrees, stacked PR dependencies and combined scope review, branch protection, current secret scan/credential rotation, absence of a deployable beta service on AEOS main, and lack of repeatable verified lead-yield evidence. Do not create the separate-model master prompt until those repository/worktree-control checks are completed and this snapshot is refreshed again.
 
 ## Update protocol
 
