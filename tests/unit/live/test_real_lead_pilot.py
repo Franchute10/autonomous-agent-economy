@@ -592,3 +592,56 @@ def test_import_confirmation_requires_candidate_file(tmp_path: Path) -> None:
             as_of=AS_OF,
             confirm_import=True,
         )
+\n
+def _real_profile_without_organization_id(tmp_path: Path) -> Path:
+    payload = json.loads(DEFAULT_PROFILE.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+    profile = payload.get("business_profile")
+    assert isinstance(profile, dict)
+    profile["is_fictional_example"] = False
+    profile.pop("organization_id", None)
+    path = tmp_path / "real-profile.json"
+    path.write_text(json.dumps(profile), encoding="utf-8")
+    return path
+
+
+def test_default_storage_requires_organization_id_for_real_profile(
+    tmp_path: Path,
+) -> None:
+    profile_path = _real_profile_without_organization_id(tmp_path)
+    with pytest.raises(InvalidLiveContract, match="organization_id is required"):
+        run_pilot(
+            candidate_file=None,
+            feasibility_path=DEFAULT_FEASIBILITY,
+            profile_path=profile_path,
+            as_of=AS_OF,
+            confirm_import=False,
+        )
+
+
+def test_explicit_storage_paths_allow_isolated_profile_without_organization_id(
+    tmp_path: Path,
+) -> None:
+    profile_path = _real_profile_without_organization_id(tmp_path)
+    output_dir = tmp_path / "explicit-output"
+    store_path = tmp_path / "explicit-store.json"
+    result = run_pilot(
+        candidate_file=None,
+        output_dir=output_dir,
+        store_path=store_path,
+        feasibility_path=DEFAULT_FEASIBILITY,
+        profile_path=profile_path,
+        as_of=AS_OF,
+        confirm_import=False,
+    )
+    assert Path(str(result["output_dir"])) == output_dir
+    assert (output_dir / "acquisition-report-es.md").is_file()
+    assert not store_path.exists()
+
+
+def test_fictional_default_storage_uses_synthetic_namespace() -> None:
+    profile_payload = json.loads(DEFAULT_PROFILE.read_text(encoding="utf-8"))
+    profile = real_lead_pilot.parse_business_profile_document(profile_payload)
+    storage = real_lead_pilot._profile_storage_directory(profile)
+    assert storage.name.startswith("synthetic-")
+
