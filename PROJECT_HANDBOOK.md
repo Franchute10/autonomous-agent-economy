@@ -60,7 +60,7 @@ Los ocho ADR del índice son decisiones aceptadas de arquitectura; el estado de 
 
 | Repositorio | Papel en AEOS | Rama/estado observado en GitHub |
 |---|---|---|
-| [autonomous-agent-economy](https://github.com/Franchute10/autonomous-agent-economy) | Repositorio rector y código de AEOS Core/LIVE. | `main` en `9733f69e89aa63f5507321df4a1c4f4a60defe19`. `codex/aeos-live-003c` aparece **22 commits adelante y 0 atrás** de `main`; no está integrado en `main`. |
+| [autonomous-agent-economy](https://github.com/Franchute10/autonomous-agent-economy) | Repositorio rector y código de AEOS Core/LIVE. | GitHub `main` en `8c2d708396d220b84809c1c4311ac31141c6e1c3`. `codex/aeos-live-003c` está **22 commits adelante y 2 atrás**; no está integrado en `main`. |
 | [commercial-lead-engine](https://github.com/Franchute10/commercial-lead-engine) | Motor satélite de investigación comercial; comparte hipótesis y pilotos, no runtime. | PR #1 está abierto desde `feat/public-intent-capture-v1` hacia `main` y aparece con conflictos/no mergeable. PR #2 está abierto desde `codex/intent-evidence-evaluation` hacia la rama de PR #1: es una pila dependiente, no una integración a `main`. |
 | [lumen-business-consulting](https://github.com/Franchute10/lumen-business-consulting) | Sitio de consultoría Lumen. | Repo disponible, pero el historial AEOS revisado no lo vincula al producto AEOS. Se mantiene fuera del alcance de este proyecto. |
 | [sistema-jhaz](https://github.com/Franchute10/sistema-jhaz) | Repo privado. | No se encontró referencia a este repo en el historial rector y la lectura de README devolvió 404. No se clasifica como parte de AEOS hasta confirmar una relación concreta. |
@@ -69,7 +69,7 @@ Los repositorios visibles bajo una cuenta de GitHub no forman automáticamente p
 
 ### Rama AEOS LIVE pendiente de reconciliación
 
-La rama `codex/aeos-live-003c` contiene una línea amplia de trabajo: perfiles de negocio, análisis de sitio, mercado, oportunidades, activación, importación de procurement, multi-tenancy, privacidad, beta pública, Sandbox de Paddle, reportes y ejemplos. Según el compare remoto tiene 22 commits no integrados a `main`. El historial contiene también un checkpoint de importación manual de Manatee County; el propio documento indica que la fuente oficial no se pudo descargar automáticamente y que el candidato aún no se verificó en la fuente primaria.
+La rama `codex/aeos-live-003c` contiene una línea amplia de trabajo: perfiles de negocio, análisis de sitio, mercado, oportunidades, activación, importación de procurement, multi-tenancy, privacidad, beta pública, Sandbox de Paddle, reportes y ejemplos. Según el compare remoto tiene 22 commits no integrados y 2 commits de `main` que aún no contiene. El historial contiene también un checkpoint de importación manual de Manatee County; el propio documento indica que la fuente oficial no se pudo descargar automáticamente y que el candidato aún no se verificó en la fuente primaria.
 
 El PR #2 de AEOS, [Align Fix Pack scope with verified Sandbox capabilities](https://github.com/Franchute10/autonomous-agent-economy/pull/2), está abierto sobre esa rama y cambia cuatro archivos. Su criterio importante es correcto: no prometer un lead en el Fix Pack hasta poder entregarlo; USD 10 permanece como propuesta. El PR #1, [feat: add test-mode $5 Fix Pack](https://github.com/Franchute10/autonomous-agent-economy/pull/1), también está abierto, es draft y no es mergeable; describe una implementación anterior con Stripe mientras el trabajo posterior documenta Paddle Sandbox. **No se debe combinar ni cerrar a ciegas:** hay que comparar ambos cambios y decidir si el PR #1 se reemplaza o se cierra después de verificar que el PR #2 conserva el trabajo válido.
 
@@ -98,7 +98,7 @@ Esto acredita presencia de entregas de dominio, arquitectura, persistencia y un 
 
 ### Producto/pilotos en ramas no integradas
 
-- AEOS LIVE: rama `codex/aeos-live-003c`, 22 commits por delante de `main`; necesita reconciliación de rama, cambios locales y PR antes de considerarse parte de la línea principal.
+- AEOS LIVE: rama `codex/aeos-live-003c`, 22 commits por delante y 2 por detrás de `main`; su worktree local reporta 20 archivos rastreados modificados y 12 rutas sin seguimiento, y además está 6 commits detrás de la rama remota. Requiere revisión antes de integrar.
 - Fix Pack: el historial de la conversación contiene una compra de prueba en Paddle Sandbox y un correo de prueba; eso solo demuestra una transacción de prueba reportada, no una venta Live ni que la descarga y el webhook estén verificados de punta a punta en el despliegue público.
 - La documentación del PR #2 señala un riesgo de re-diagnóstico posterior al pago que puede producir un 409 y deja gates de entrega/webhook pendientes. Comprobar esos gates antes de afirmar que el archivo pagado siempre se entrega.
 - Ningún checkout Live, cargo real o deploy de producción está confirmado aquí.
@@ -110,18 +110,18 @@ Esto acredita presencia de entregas de dominio, arquitectura, persistencia y un 
 - El cuerpo del PR #2 reporta 878 pruebas offline aprobadas. En el chat actual se mostró la corrida focal `test_intent_provider_promotion.py`: 2 aprobadas. Un resultado no sustituye al otro; CI y el número final deben verificarse sobre el SHA que se quiera integrar.
 - El experimento del operador con Tavily produjo candidatos irrelevantes y cero leads validados. El objetivo de calidad comercial sigue bloqueado por evidencia insuficiente, no por falta de otro filtro regex.
 
-### Inventario local reportado por el operador — 2026-11-20
+### Inventario local actualizado por el operador — 2026-11-20
 
-El operador pegó la salida de un inventario de Windows. Es un **reporte local**, no una verificación de GitHub; las dos copias adjuntas eran iguales. No se observaron claves en ese inventario. Los conteos siguientes describen el momento del reporte y deben refrescarse antes de decidir qué integrar:
+El operador ejecutó `git fetch origin` y reportó el estado de los worktrees de Windows. La comparación local es posterior al fetch, pero el contenido local no se inspeccionó directamente desde esta sesión. GitHub confirmó los commits remotos accesibles, no los cambios sin commit:
 
-| Repositorio/worktree | Rama y HEAD reportados | Estado reportado |
-|---|---|---|
-| AEOS, worktree principal | `main`, `9847fce` | 3 commits por delante del `origin/main` cacheado; 58 archivos rastreados modificados (incluye eliminaciones), más archivos sin seguimiento. El ref remoto estaba potencialmente desactualizado. |
-| AEOS, checkpoint 003b | `codex/aeos-live-003b-checkpoint`, `a23913c` | El worktree aparece en el listado, pero no se capturó su estado ni diff. |
-| AEOS LIVE 003c | `codex/aeos-live-003c`, `763d939` | Reportado igual a su rama remota; 20 archivos rastreados modificados y 12 rutas sin seguimiento. |
-| Commercial Lead Engine | `codex/intent-evidence-evaluation`, `a647263` | Reportado limpio y alineado con su tracking remoto. |
+| Repositorio/worktree | Rama y HEAD reportados | Estado local reportado | Comparación remota |
+|---|---|---|---|
+| AEOS, worktree principal | `main`, `9847fce29e3ee9f83dacc02e8ee53ba8c3b5cbcf` | `ahead 3, behind 2`; 58 archivos rastreados modificados o eliminados, archivos sin seguimiento; sin cambios staged. | GitHub no pudo resolver el SHA local `9847fce`; los 3 commits locales no se pudieron revisar remotamente. La rama local también está 2 commits detrás de `origin/main`. |
+| AEOS, checkpoint 003b | `codex/aeos-live-003b-checkpoint`, `a23913cece73702c78ed6839a08b6be3e634abc0` | Limpio; sin diff unstaged ni staged. | El worktree sigue a `origin/main`; GitHub confirma que está 1 commit adelante y 2 detrás de `main`. |
+| AEOS LIVE 003c | `codex/aeos-live-003c`, `763d9398baf3e14e8f083886c463e50a90f59be4` | 20 archivos rastreados modificados y 12 rutas sin seguimiento; sin cambios staged. | 6 commits detrás de `origin/codex/aeos-live-003c`. En GitHub, la rama remota está 22 commits adelante y 2 detrás de `main`. |
+| Commercial Lead Engine | `codex/intent-evidence-evaluation`, `a647263bcde2be074479321928b0cd74fc1c0252` | Limpio; sin diff unstaged ni staged. | Igual a `origin/codex/intent-evidence-evaluation` según el estado local tras fetch. |
 
-Este corte no demuestra qué cambios siguen vigentes hoy, qué contiene cada ruta no rastreada, ni si hay divergencia remota. No se copió ni se publicó ningún contenido de los archivos locales. La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) lleva el proceso de reconciliación.
+El inventario no inspecciona el contenido de archivos no rastreados ni certifica su sensibilidad. No se copiaron ni publicaron esos contenidos. La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) lleva la reconciliación. **No hacer pull, merge, rebase, reset, clean ni staging masivo** hasta comparar explícitamente los commits, revisar las diferencias y clasificar los archivos locales.
 
 ### Lo local que requiere acceso a la laptop
 
