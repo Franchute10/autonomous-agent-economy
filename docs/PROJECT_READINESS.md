@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (refreshed after PR #17 CI passed)  
+**Snapshot:** 2026-11-20 (refreshed after PR #17 CI passed and operator inventory was received)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -84,13 +84,30 @@ Rules:
 4. Compare a patch's source SHA and file list with its destination branch before applying. Prefer a fresh worktree from current remote and explicit file selection.
 5. Merge only after the PR is current, reviewable, CI green, and its base is correct. Recheck the stack after each merge.
 
+## Local inventory reported by the operator
+
+**Collected:** 2026-11-20 from a PowerShell inventory pasted by the operator. This is a report of Git metadata and filenames, not an independent inspection of local file contents. Remote refs may have advanced since collection; run `git fetch origin` before using ahead/behind counts.
+
+| Checkout | Reported branch / HEAD | Reported state | Handling |
+|---|---|---|---|
+| AEOS main checkout | `main` / `9847fce` | At collection: 3 ahead, 10 behind its then-current `origin/main`; 58 tracked files changed, including deletions of business/market data, plus new tenancy, migration, sandbox, and LinkedIn files. | Preserve. Do not pull, reset, stage broadly, or delete. Identify the three local commits and classify all edits first. |
+| AEOS 003c followup | `codex/aeos-003c-followup-20261120` / `36f79fd` | Clean at collection. The remote PR branch has since advanced to `e456832` with CI fixes. | Fetch, then confirm local is merely behind before updating. |
+| AEOS 003c review | `codex/aeos-003c-review-20261120` / `65a4b6c` | Seven commits behind its then-current tracking ref; 19 tracked files modified and five new files. Changes overlap the work proposed in PR #17. | Preserve and compare its complete diff to current PR #17 before classifying it as duplicate or obsolete. |
+| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913c` | Clean tracked tree; one commit ahead and ten behind its then-current `origin/main`. Multiple ignored pytest temporary directories. | Preserve its unique commit; inspect/test ancestry before integrating. Temporary paths are not proof that data can be deleted. |
+| AEOS LIVE 003c | `codex/aeos-live-003c` / `763d939` | 18 commits behind its then-current tracking ref; tracked and untracked code/docs/tests changed. | Preserve and compare against remote and the newer PR branches. |
+| Commercial Lead Engine | `codex/intent-evidence-evaluation` / `a647263` | Clean at collection and matched the then-current PR #2 head. | Fetch and verify against current PR #1/#2 before any push or merge. |
+
+Ignored paths reported include `.aeos-private/`, `.venv/`, `artifacts/`, pytest temporary output, and tool caches. Their contents were not inspected and must be treated as local data until classified. No secrets scan was part of this inventory.
+
+This inventory closes the **collection** step only. It does not reconcile local commits, determine whether data deletions are intentional, authorize cleanup, or establish that every local edit is already represented by a remote PR.
+
 ## Ordered backlog
 
 ### P0 — Close project-control gaps
 
 - [x] Establish a canonical entry point: README links to the readiness snapshot; AGENTS.md requires reading it before changes.
 - [x] Repair the reported PR #17 type-check failures and rerun GitHub CI. The exact current head and evidence are recorded above.
-- [ ] Refresh the Windows laptop inventory for AEOS main, LIVE 003c, 003b checkpoint, review/followup, Commercial Lead Engine, and any other worktrees. Preserve and classify uncommitted and ignored files before any cleanup.
+- [x] Collect a Windows laptop inventory for the known AEOS and Commercial Lead Engine checkouts. [ ] Refresh remote refs and classify the remaining main, review, 003b, and 003c divergence before any integration or cleanup.
 - [ ] Review and reconcile the AEOS PR stack. Confirm the correct ancestry, inspect combined diff scope, and merge in dependency order only after local worktree reconciliation.
 - [ ] Reconcile the Commercial Lead Engine local checkout with PR #1/#2; do not push the mismatched local clone.
 - [ ] Configure PR-required branch rules for both public repositories after the required check names are verified. The AEOS main branch was last observed without protection; this GitHub connection did not provide a successful settings update.
