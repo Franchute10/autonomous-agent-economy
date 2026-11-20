@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (uploaded bundle and ignored-path inventories reviewed; semantic diff and private-data content review remain)  
+**Snapshot:** 2026-11-20 (targeted semantic review found stale and privacy-sensitive local code; broader diff and private-data review remain)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -152,6 +152,19 @@ Remote `main` advanced after the inventory bundle was created and is now at `b89
 
 The exact hash results reduce uncertainty about duplicate files, but they do not tell whether a differing version is better, stale, private, or safe to publish. The next reconciliation work is to inspect those differences semantically, then inspect ignored paths and run a full secret scan on the laptop before cleaning or archiving any checkout.
 
+## Semantic spot-check of local 003C patch (2026-11-20)
+
+A targeted semantic comparison was completed for the eight files whose blobs differed between the uploaded `aeos-003c-local.patch` and remote `codex/aeos-live-003c` at `0cc8598e2272f6da25de07826b880d37e7ab43c4`. This is a review of those eight differences only; it does not complete review of the dirty local `main` or `003c-review` worktrees.
+
+Findings:
+
+- **Browser network safety regression:** the local `website_inspector.py` change automatically enables Playwright DOM rendering with the default transport. The current remote version keeps rendering opt-in pending network-level SSRF controls. Keep the remote behavior; do not apply the local change.
+- **Evidence/status regression:** the local `business_report.py` treats statuses beyond the explicitly recognized states as usable results and removes field-level registry evidence status and verification caveats. The current remote version accepts only `COMPLETED_WITH_RESULTS` and `COMPLETED_NO_RESULTS` for result reporting, and preserves evidence distinctions. Keep the remote version.
+- **Privacy:** the local `test_business_profile.py` substitutes a real pilot business and identifiable business/person details for synthetic test inputs, and references a local real-business profile artifact. Do not publish those test values or the profile. Public tests must use fictional, clearly synthetic data.
+- The remaining differences among the eight files were limited to formatting, a trade-specific reference URL, and a cast simplification; they do not justify carrying the local patch.
+
+Disposition: do not apply or publish `aeos-003c-local.patch` wholesale. No local Windows worktree was changed during this review, and no tests were run because this was a targeted diff review, not a code modification. A complete semantic review of all differing local `main`, `003c-review`, and `003c` content remains open; ignored data and full local-history secret scanning also remain open.
+
 ## Final reconciliation package (2026-11-20)
 
 The operator attached the ZIP and its three key files. The patch and both local 003c files were reviewed.
@@ -173,7 +186,7 @@ The six-checkout inventory is now current as of 2026-11-20. The Overpass note is
 - [x] Refresh remote refs and review the uploaded final 003c package. Confirm the 003b commit is already in the remote 003c ancestry; avoid reapplying its patch.
 - [x] Reconcile the 003c implementation path list into the development branch through PRs #16/#17; merge a sanitized Overpass note through PR #31; classify the HZ profile as local/private because it contains real identifiers.
 - [x] Refresh remote refs and collect the six-checkout local inventory on 2026-11-20. Main, review, and 003c remain dirty; 003c followup, 003b, and Commercial Lead Engine were clean.
-- [ ] Semantically review differing local `main`, review, and 003c files against their merged remote counterparts; SHA matches are classified, but differing versions remain unresolved. Preserve all dirty worktrees.
+- [x] Semantically review the eight differing files in uploaded `aeos-003c-local.patch`; reject a browser-rendering regression, weaker evidence/status reporting, and real-person/business data in tests. Preserve all dirty worktrees.\n- [ ] Semantically review the remaining differing local `main`, review, and 003c files against remote; this targeted spot-check does not resolve them.
 - [x] Fetch the separate Commercial Lead Engine checkout and confirm the local intent-evaluation branch is clean against its upstream ref.
 - [x] Reconcile and merge AEOS PRs #17 and #16 into the 003c development line in dependency order; merge the sanitized research note as PR #31. These merges do not target `main`.
 - [ ] Review open AEOS PRs #1 and #2 against the current 003c base; PR #1 remains draft and PR #2 was reported non-mergeable. Do not merge either without refreshing its base and reviewing the diff.
