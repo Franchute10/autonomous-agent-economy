@@ -376,7 +376,11 @@ def _playwright_browser_cache_environment() -> Iterator[None]:
         if profile
         else Path.home() / "AppData" / "Local" / "ms-playwright"
     )
-    if _is_windows_environment() and not original_browser_path and browser_cache.is_dir():
+    if (
+        _is_windows_environment()
+        and not original_browser_path
+        and browser_cache.is_dir()
+    ):
         os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(browser_cache)
     try:
         yield
