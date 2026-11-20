@@ -9,8 +9,8 @@ The repository has multiple active development lines and experimental pilots. Th
 For an accurate project handoff, read in this order:
 
 1. [Project readiness snapshot](docs/PROJECT_READINESS.md) — current verified state, blockers, open PRs, and next work.
-2. [Project handbook](PROJECT_HANDBOOK.md) — product intent, boundaries, architecture decisions, and history. Check dated status sections against the readiness snapshot.
-3. [AI and contributor instructions](AGENTS.md).
+2. [AI and contributor instructions](AGENTS.md) — operating rules for people and coding agents.
+3. [Project handbook](PROJECT_HANDBOOK.md) — product intent, boundaries, architecture decisions, and history. Check dated status sections against the readiness snapshot.
 4. [Minimum Viable Technical Architecture v0.1](docs/architecture/AEOS_Minimum_Viable_Technical_Architecture_v0.1.md).
 5. [ADR index](docs/adr/README.md), then the runbook and PR for the task being reviewed.
 
