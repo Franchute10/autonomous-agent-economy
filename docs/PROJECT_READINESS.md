@@ -103,6 +103,22 @@ Ignored paths previously reported include `.aeos-private/`, `.venv/`, `artifacts
 
 This refresh closes the **remote-ref collection** step only. It does not reconcile local commits, inspect content of all local diffs, determine whether data deletions are intentional, authorize cleanup, or establish that every local edit is represented by a remote PR. The immediate next operator task is a read-only, file-level comparison of the three local main commits and residual 003c files against fetched remote branches. Do not run `git pull`, `reset`, `restore`, `clean`, or broad staging until that comparison is recorded.
 
+## Results from uploaded local-diff bundle
+
+**Reviewed:** 2026-11-20. The operator supplied the tracked patch, untracked manifest, and archive of reviewable untracked files.
+
+- The patch was generated with git diff origin/main -- .; it is a comparison of the entire local working tree against the fetched remote main, not a patch containing only unstaged edits. It includes the old local branch's commits, current working-tree changes, and remote documentation/code absent from that branch. Its 77-file / 23,402-insertion / 482-deletion stat must not be read as the size of new uncommitted work or applied to another worktree.
+- The local main commits are not present by SHA in GitHub. Their LIVE feature set substantially overlaps the remote 003c development line. Do not cherry-pick those commits into the current remote branches or push the old main branch.
+- Several untracked tenancy files match the remote 003c followup branch exactly. Other local copies are older than the branch: remote storage requires tenant-manager attestation for evidence-bearing opportunity records, parses profile documents through the current profile contract, and marks synthetic records explicitly. Use the remote version as the candidate source after reviewing the PR stack; do not overwrite it with the local copy.
+- The local playwright_dom_capture.py module and its tests are not present on the remote followup branch. The module checks public DNS results before browser navigation but does not pin the browser's actual network connection to those results. Keep it out of integration until network-level egress controls and SSRF regression coverage are designed. The existing remote pilot keeps automatic browser rendering disabled.
+- The untracked business profile and tenant manifest describe a real organization and are marked non-fictional. Keep them outside the public repository in ignored private tenant configuration unless publication is separately approved.
+- The Paddle Sandbox example is explicitly non-fulfilling: its README says a verified server-side webhook and delivery path are still needed. Keep it labelled as test-only; it does not establish a working paid product.
+- The linkedin-leadgen/ scripts, review, and assets are Lumen marketing materials, outside AEOS's repository boundary. Keep them out of AEOS; relocate them to the appropriate Lumen workspace/repository after checking that repository's current state.
+- The uploaded synthetic cleaning fixtures are older than the remote fixtures. The remote examples add explicit synthetic-record markers and remove contact-like placeholder URLs; prefer the remote versions.
+- A targeted pattern scan of the uploaded text found no provider credential-shaped tokens. It is not a full repository secret scan. It did identify fixed disposable PostgreSQL test passwords in the untracked CI workflow; these are test-only values, not production credentials. A Tavily credential was previously pasted into the conversation and still needs rotation.
+
+The upload review classifies the local material but does not authorize deleting worktrees, rewriting local history, or publishing the real-tenant and Lumen files. The full local history still needs an owner-approved disposition for the real-tenant records in the three local main commits. No file cleanup or history rewrite has been performed.
+
 ## Ordered backlog
 
 ### P0 — Close project-control gaps
