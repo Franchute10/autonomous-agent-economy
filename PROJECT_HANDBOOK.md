@@ -250,3 +250,15 @@ El operador volvió a ejecutar `git status`, comparó archivos no Python con `or
 4. Reconciliar los commits locales con 003c por comportamientos y pruebas, no trasladando los commits completos. Solo preparar un PR de código cuando haya una brecha concreta, diff pequeño y pruebas sobre la rama destino.
 
 La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) es el registro operativo de esta conciliación. No ejecutar `pull`, merge, rebase, reset, clean, restore ni staging masivo en el worktree divergente.
+
+## 12. Clasificación de rutas locales y protección de credenciales (2026-11-20)
+
+Se compararon los nombres de 23 archivos no rastreados de interés con los árboles remotos; no se leyeron sus contenidos locales.
+
+- 16 de las 23 rutas ya existen en `codex/aeos-live-003c` y cubren la fundación multiempresa, migración, almacenamiento y pruebas. La coincidencia de rutas no confirma que los blobs locales sean idénticos; no añadirlos en bloque.
+- Tres rutas AEOS no están en 003c: el README local de la muestra Sandbox y el adaptador/cobertura de captura DOM con Playwright. Son candidatos a revisión individual; el adaptador requiere inspección del código, compatibilidad con la política SSRF del inspector y pruebas antes de integrarlo.
+- Cuatro archivos locales adicionales son materiales/scripts de contenido comercial fuera del núcleo AEOS. No incorporarlos al repositorio AEOS; decidir su destino en el proyecto de marketing correspondiente.
+- El `pyproject.toml` local declara un extra opcional de Playwright que no aparece en 003c. Mantenerlo fuera de la rama hasta revisar conjuntamente el adaptador y sus pruebas.
+- El `.gitignore` de `main` no cubría el directorio privado local ni la configuración local Sandbox. Este cambio añade reglas de exclusión para ambos patrones, sin publicar credenciales.
+
+La próxima evidencia necesaria para evaluar el candidato Playwright es su diff completo más el diff de `pyproject.toml`. No enviar configuración local ni claves. El resto de la fundación multiempresa se considera ya representada por rutas en 003c, sujeto a comparar contenido solo si se descubre un comportamiento faltante.
