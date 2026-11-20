@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (includes uploaded-bundle review, the followup worktree fast-forward to `e456832`, and current PR/CI checks)  
+**Snapshot:** 2026-11-20 (includes the refreshed worktree inventory, final-reconciliation commit ancestry check, and current PR state)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -44,7 +44,7 @@ Keep the projects distinct:
 
 ### AEOS main
 
-Verified at commit `cd7e220e20fcce020b505c5438ee28037dc16ce8` on 2026-11-20. The two latest commits on main (#23 and #24) update project-control documentation and local-diff findings.
+Verified at commit `e5bb8099481358019ad70f08763254bb16074407` on 2026-11-20. Main includes the latest project-control and worktree-inventory documentation updates.
 
 - The current README, AGENTS.md, and this readiness file establish a consistent entry point and reading order. The handbook remains the durable product and architecture history; date-specific statements in it should be checked against this snapshot.
 - The repository packages the experimental Python core and configures tests, Ruff, and mypy.
@@ -93,15 +93,15 @@ Rules:
 | AEOS main checkout | `main` / `9847fce29e3ee9f83dacc02e8ee53ba8c3b5cbcf` | 3 commits ahead and 17 behind the then-cached `origin/main`; 58 tracked files changed (1,362 insertions, 3,111 deletions), including data deletions; 46 untracked paths. The three local commits (`f45411f`, `40e1e9d`, `9847fce`) were not found by SHA in GitHub. The inventory was captured against the previously fetched `cd7e220`; main has since advanced with documentation-only PR #25 to `02ac5ba`, so the local count is now stale. | Preserve. Do not pull, reset, clean, stage broadly, or push this history. Uploaded content was classified; private-tenant records and local history still need a disposition decision. |
 | AEOS 003c followup | `codex/aeos-003c-followup-20261120` / `e4568322e4162ba0f8888c8d9f5c0ac841ac6894` | Clean and exactly matched its upstream after the operator ran `git pull --ff-only`. | Reconciled for this branch. Its changes remain a proposal in PR #17; they are not merged to main. |
 | AEOS 003c review | `codex/aeos-003c-review-20261120` / `65a4b6c8d540a9c22a71f90b38e7a07f0fe4e136` | 7 commits behind its upstream; 19 tracked files modified, five untracked files, no staged diff reported. The changes are unstaged. | Preserve. Content overlaps the later 003c followup proposal. Do not merge or discard this residual copy before comparing its five untracked files and current diff against PR #17. |
-| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913cece73702c78ed6839a08b6be3e634abc0` | Clean; one local commit ahead and 17 behind its then-cached `origin/main`. No local diff was reported. | Preserve its unique commit. Compare ancestry/content before integration; refresh upstream state first. |
+| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913cece73702c78ed6839a08b6be3e634abc0` | The local branch had one commit ahead of its then-cached `origin/main`; the commit SHA is present in GitHub and is an ancestor of `codex/aeos-live-003c` at `d56b48d`. The checkpoint branch ref itself was not found on origin. | The 003b code commit is already in the remote 003c development history. Do not apply `003b-a23913c.patch` again or treat the commit as unique local work. Preserve/refresh the local checkout before any cleanup. |
 | AEOS LIVE 003c | `codex/aeos-live-003c` / `763d9398baf3e14e8f083886c463e50a90f59be4` | 18 commits behind upstream; 20 tracked files modified and 11 untracked files; no staged diff reported. Its tracked changes substantially overlap the 003c review/followup work. | Preserve. Compare unique residual files, including the HZ profile and overpass-resilience note, against remote branches before moving or deleting anything. |
 | Commercial Lead Engine | Last known `codex/intent-evidence-evaluation` / `a647263` | Last separately reported clean and synchronized at inventory time; this AEOS worktree listing does not refresh or verify it. | Keep separate from AEOS. Refresh that repository independently; do not push a mismatched local clone. |
 
-The current remote branch comparison confirms the development line is not the same as `main`: `codex/aeos-live-003c` diverges from `main` (24 commits ahead and 8 behind as of `main` `02ac5ba`). It contains broad LIVE, tenancy, offer, and beta work. PR #16 proposes manual capture; PR #17 proposes website/market pilot hardening. These are overlapping implementation lines, not evidence that local data or every file is safely duplicated.
+The current remote branch comparison confirms the development line is not the same as `main`: `codex/aeos-live-003c` diverges from `main` (24 commits ahead and 9 behind as of `main` `e5bb809`). The 003b commit `a23913c` is already in that development line (33 commits ahead, 0 behind when comparing `a23913c` to `d56b48d`). It contains broad LIVE, tenancy, offer, and beta work. PR #16 proposes manual capture; PR #17 proposes website/market pilot hardening. These are overlapping implementation lines, not evidence that local data or every file is safely duplicated.
 
 Ignored paths previously reported include `.aeos-private/`, `.venv/`, `artifacts/`, pytest temporary output, and tool caches. Their contents remain uninspected and must be treated as local data until classified. The uploaded bundle received a targeted content review, but no full current secret scan of the repositories or ignored paths was performed.
 
-The uploaded-bundle review and the 003c-followup fast-forward are complete. The latest PowerShell inventory confirms the remaining AEOS local state: the main checkout is heavily modified and diverged; the 003c review and 003c worktrees contain overlapping residual diffs; 003b is clean but has one unique local commit. No cleanup or history rewrite has been performed. Next, compare the remaining local diffs to the current remote proposals using explicit file lists, then record what to preserve or quarantine. Do not run `git pull`, `reset`, `restore`, `clean`, broad staging, or history rewrites on the dirty worktrees until that comparison and disposition are recorded.
+The earlier uploaded-bundle review and the 003c-followup fast-forward are complete. The latest reported PowerShell state still shows the main checkout heavily modified and diverged, and the 003c review/003c worktrees contain overlapping residual diffs. The 003b commit is confirmed in the remote 003c ancestry, so its exported patch is redundant. The final-reconciliation ZIP was created on the operator's laptop but was not attached to this review; its HZ profile fixture remains uninspected. No cleanup or history rewrite has been performed. Keep that fixture private until its content and synthetic-data status are reviewed. Do not run `git pull`, `reset`, `restore`, `clean`, broad staging, or history rewrites on the dirty worktrees until that comparison and disposition are recorded.
 
 ## Results from uploaded local-diff bundle
 
@@ -119,6 +119,16 @@ The uploaded-bundle review and the 003c-followup fast-forward are complete. The 
 
 The upload review classifies the local material but does not authorize deleting worktrees, rewriting local history, or publishing the real-tenant and Lumen files. The full local history still needs an owner-approved disposition for the real-tenant records in the three local main commits. No file cleanup or history rewrite has been performed.
 
+## Final reconciliation package (2026-11-20)
+
+The operator created `aeos-final-reconciliation.zip` containing `003b-a23913c.patch` and two files copied from the local 003c worktree. The archive itself was not attached to this review, so only the available commit metadata and the already supplied overpass-resilience note could be inspected.
+
+- `003b-a23913c.patch`: redundant for the current remote development line. Commit `a23913cece73702c78ed6839a08b6be3e634abc0` exists in GitHub and is an ancestor of `codex/aeos-live-003c` at `d56b48d53b1354d53c3e640247d2208fe45753fe`. Do not apply the patch again.
+- `docs/research/AEOS-LIVE-003C-overpass-resilience.md`: research note reviewed from the previously supplied local copy. It records historical public Overpass timeout observations and a no-retry decision. Keep it as dated research evidence only; revalidate the endpoint and label observations before using it as current operating guidance or publishing it as a canonical claim.
+- `tests/unit/live/fixtures/profiles/hz-air-conditioning-services.json`: listed in the ZIP creation transcript, but its contents were not attached and are not present in this review workspace. Do not add it to the public repository until reviewed for real business/tenant data and converted to clearly synthetic data or kept private.
+
+This package review does not reconcile or authorize cleanup of the remaining dirty Windows worktrees. The full ZIP need not be resent; only the HZ fixture is needed to finish its content review.
+
 ## Ordered backlog
 
 ### P0 — Close project-control gaps
@@ -128,7 +138,7 @@ The upload review classifies the local material but does not authorize deleting 
 - [x] Collect the initial Windows inventory and inspect/classify the uploaded main diff and untracked-file bundle.
 - [x] Refresh remote refs and fast-forward the clean 003c followup worktree to `e456832`.
 - [x] Refresh the AEOS worktree inventory; the 003c followup is clean, while main/review/003c remain dirty and 003b retains one local commit.
-- [ ] Compare the remaining local main/review/003b/003c changes against current remote branches and document keep/quarantine decisions before integration or cleanup.
+- [ ] Finish the remaining local main/review/003c diff comparison and inspect the HZ profile fixture; document keep/quarantine decisions before integration or cleanup. The 003b commit ancestry and patch redundancy are now verified.
 - [ ] Refresh the separate Commercial Lead Engine checkout independently.
 - [ ] Review and reconcile the AEOS PR stack. Confirm the correct ancestry, inspect combined diff scope, and merge in dependency order only after local worktree reconciliation.
 - [ ] Reconcile the Commercial Lead Engine local checkout with PR #1/#2; do not push the mismatched local clone.
