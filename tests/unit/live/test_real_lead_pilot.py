@@ -645,4 +645,3 @@ def test_fictional_default_storage_uses_synthetic_namespace() -> None:
     profile = real_lead_pilot.parse_business_profile_document(profile_payload)
     storage = real_lead_pilot._profile_storage_directory(profile)
     assert storage.name.startswith("synthetic-")
-
