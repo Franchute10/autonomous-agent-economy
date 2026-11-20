@@ -262,3 +262,23 @@ Se compararon los nombres de 23 archivos no rastreados de interés con los árbo
 - El `.gitignore` de `main` no cubría el directorio privado local ni la configuración local Sandbox. Este cambio añade reglas de exclusión para ambos patrones, sin publicar credenciales.
 
 La próxima evidencia necesaria para evaluar el candidato Playwright es su diff completo más el diff de `pyproject.toml`. No enviar configuración local ni claves. El resto de la fundación multiempresa se considera ya representada por rutas en 003c, sujeto a comparar contenido solo si se descubre un comportamiento faltante.
+
+## 13. Revisión del candidato Playwright DOM (2026-11-20)
+
+Se revisaron los tres archivos locales adjuntos: adaptador de captura DOM, pruebas y README Sandbox. La revisión fue estática; no se ejecutó Playwright, Chromium ni la suite. No se modificó ni integró el código local.
+
+### Decisión: REVISE antes de integrar
+
+La captura DOM podría complementar el inspector HTML y ayudar a separar ausencias confirmadas de campos que aparecen después de la hidratación. El adaptador actual es una utilidad aislada: no está conectado a `WebsiteInspector`, a los informes ni a la beta pública.
+
+No integrar esta versión todavía. Antes de exponer un navegador a URLs suministradas por usuarios, el diseño debe igualar o reforzar los límites del inspector actual: validación de destino/redirecciones con fijación de IP, sanitización de URLs en resultados y evidencia, presupuesto de respuesta/solicitudes, y aislamiento de red del navegador. También debe controlar protocolos y conexiones fuera del enrutamiento HTTP configurado. Las comprobaciones actuales de método, origen, formularios y service workers son controles útiles, pero no bastan para sustituir esas garantías.
+
+La mayoría de las pruebas son offline. Las pruebas con navegador real hacen `skip` si no están instalados Playwright o Chromium; CI tendría que instalar Chromium y exigir que esos casos se ejecuten. Añadir casos para revalidación DNS, redirecciones, parámetros sensibles, límites de respuesta y canales de red no cubiertos por el handler.
+
+El README Sandbox describe un Checkout estático que no entrega el producto. Es distinto de la beta pública actual, cuya entrega depende de webhook verificado. Mantenerlo separado como ejemplo solo si se revisan también los demás archivos de esa carpeta y se evita presentarlo como flujo de entrega vigente.
+
+### Próximo trabajo permitido
+
+Tratar la captura DOM como fallback opcional después del análisis HTML, conservando estados explícitos `DOM_CAPTURED`, `PARTIAL` y `HTML_ONLY`. Preparar un diff pequeño que cierre los límites anteriores, conectarlo mediante una interfaz desacoplada y demostrarlo con Chromium obligatorio en CI. No incorporar ni descartar los archivos locales hasta cerrar esa revisión.
+
+El detalle operativo y el estado están en [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4).
