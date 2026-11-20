@@ -9,10 +9,12 @@
 
 ## 1. Instrucción de inicio para cualquier persona o agente
 
-Antes de proponer cambios:
+Antes de proponer cambios, sigue el orden canónico definido en el [README](README.md):
 
-1. Lee este manual completo.
-2. Lee el [README](README.md), la [arquitectura técnica v0.1](docs/architecture/AEOS_Minimum_Viable_Technical_Architecture_v0.1.md), el [índice de ADR](docs/adr/README.md) y los documentos de producto y evaluación que se enlazan abajo.
+1. Lee el [snapshot de readiness](docs/PROJECT_READINESS.md) para confirmar estado actual, ramas y bloqueos.
+2. Lee [AGENTS.md](AGENTS.md) para conocer las reglas de trabajo.
+3. Lee este manual para entender propósito, arquitectura, límites y decisiones históricas.
+4. Continúa con la [arquitectura técnica v0.1](docs/architecture/AEOS_Minimum_Viable_Technical_Architecture_v0.1.md), el [índice de ADR](docs/adr/README.md) y los documentos de producto y evaluación enlazados abajo.
 3. Comprueba la rama, el SHA, los PR abiertos y el estado del equipo de trabajo. Un resultado de chat o un estado local antiguo no prueba el estado actual.
 4. Separa lo **implementado en un commit**, lo **informado por el operador**, lo **propuesto** y lo **verificado contra una fuente externa**.
 5. No programes una nueva capacidad hasta que haya una tarea aprobada con objetivo, alcance, criterios de aceptación y ubicación de entrega.
