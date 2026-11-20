@@ -25,7 +25,7 @@ def test_fixture_captures_public_request_with_traceable_explicit_intent() -> Non
     evidence = cast(dict[str, object], capture["evidence"])
 
     source_url = cast(str, capture["source_url"])
-    assert source_url.startswith("https://www.facebook.com/groups/")
+    assert source_url == "https://www.facebook.com/groups/sarasota-local/posts/100000000000000/"
     assert capture["captured_at"] == "2026-11-09T12:00:00+00:00"
     assert capture["publication_date"] == "2026-11-08"
     assert capture["city"] == "Sarasota"
