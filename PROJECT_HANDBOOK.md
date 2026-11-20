@@ -113,16 +113,18 @@ Esto acredita presencia de entregas de dominio, arquitectura, persistencia y un 
 
 ### Inventario local actualizado por el operador — 2026-11-20
 
-El operador ejecutó `git fetch origin` y reportó el estado de los worktrees de Windows. La comparación local es posterior al fetch, pero el contenido local no se inspeccionó directamente desde esta sesión. GitHub confirmó los commits remotos accesibles, no los cambios sin commit:
+El operador ejecutó `git fetch origin` desde el repo AEOS y volvió a listar los worktrees de Windows. Esta salida es posterior al fetch, pero GitHub no puede ver diffs locales ni archivos sin commit. Los SHAs remotos de esta fotografía son `main=025ba56e9e071c02358c2e27577cb61ab8233890` y `codex/aeos-live-003c=7764fb4b234f34b650b1f22ed5341af4d5a2c974`.
 
-| Repositorio/worktree | Rama y HEAD reportados | Estado local reportado | Comparación remota |
+| Repositorio/worktree | Rama y HEAD reportados | Estado local tras fetch | Relación reportada/verificada |
 |---|---|---|---|
-| AEOS, worktree principal | `main`, `9847fce29e3ee9f83dacc02e8ee53ba8c3b5cbcf` | `ahead 3, behind 2`; 58 archivos rastreados modificados o eliminados, archivos sin seguimiento; sin cambios staged. | GitHub no pudo resolver el SHA local `9847fce`; los 3 commits locales no se pudieron revisar remotamente. En el inventario estaba 2 commits detrás de `origin/main`; tras el avance de `main` por el PR #8, si el HEAD local no cambió, ahora estaría 3 commits detrás. |
-| AEOS, checkpoint 003b | `codex/aeos-live-003b-checkpoint`, `a23913cece73702c78ed6839a08b6be3e634abc0` | Limpio; sin diff unstaged ni staged. | En el inventario seguía a `origin/main`; GitHub confirmaba 1 commit adelante y 2 detrás de `main`. Tras el avance de `main` por el PR #8, si el HEAD local no cambió, estaría 1 commit adelante y 3 detrás. |
-| AEOS LIVE 003c | `codex/aeos-live-003c`, `763d9398baf3e14e8f083886c463e50a90f59be4` | 20 archivos rastreados modificados y 12 rutas sin seguimiento; sin cambios staged al inventario. | En el inventario: 6 commits detrás de la remota. La rama remota recibió después el PR #7 (`7764fb4`); si el HEAD local no cambió, ahora está al menos 7 commits detrás. En GitHub, la rama remota está 23 commits adelante y 4 detrás de `main`. |
-| Commercial Lead Engine | `codex/intent-evidence-evaluation`, `a647263bcde2be074479321928b0cd74fc1c0252` | Limpio; sin diff unstaged ni staged. | Igual a `origin/codex/intent-evidence-evaluation` según el estado local tras fetch. |
+| AEOS, worktree principal | `main`, `9847fce29e3ee9f83dacc02e8ee53ba8c3b5cbcf` | `ahead 3, behind 5`; 58 archivos rastreados cambiados/eliminados y rutas sin seguimiento; sin staged. | GitHub no pudo resolver el SHA local; los 3 commits locales siguen sin revisión remota. |
+| AEOS, checkpoint 003b | `codex/aeos-live-003b-checkpoint`, `a23913cece73702c78ed6839a08b6be3e634abc0` | Limpio, sin diffs staged o unstaged. | `ahead 1, behind 5` de `origin/main`. |
+| AEOS LIVE 003c | `codex/aeos-live-003c`, `763d9398baf3e14e8f083886c463e50a90f59be4` | `behind 7`; 20 archivos rastreados modificados y rutas sin seguimiento; sin staged. | Compare de GitHub: remota 003c está 23 commits adelante y 5 detrás de `main`. |
+| Commercial Lead Engine | `codex/intent-evidence-evaluation`, `a647263bcde2be074479321928b0cd74fc1c0252` | No incluido en esta ejecución de inventario; último estado registrado: limpio y alineado. | Requiere un nuevo inventario en el repositorio propio antes de asumir que sigue actualizado. |
 
-Desde ese inventario, `origin/main` avanzó con el PR #8 de documentación hasta `839ae113569805da9c35ec776775a6e53ccf9e72`. La fila local de `main` y la de 003b siguen siendo una fotografía anterior; actualiza los worktrees con una nueva lectura de relaciones remotas antes de cualquier integración. El inventario no inspecciona el contenido de archivos no rastreados ni certifica su sensibilidad. No se copiaron ni publicaron esos contenidos. La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) lleva la reconciliación. **No hacer pull, merge, rebase, reset, clean ni staging masivo** hasta comparar explícitamente los commits, revisar las diferencias y clasificar los archivos locales.
+El inventario local mostró eliminaciones de datos específicos del piloto y rutas nuevas cuyo contenido no se inspeccionó en esta sesión. Por privacidad, el manual público registra solo conteos y estado; no publica nombres ni contenido de esas rutas. Mantener esos archivos sin commit hasta clasificarlos localmente por propósito y sensibilidad.
+
+El `fetch` solo actualizó referencias remotas. **No hacer pull, merge, rebase, reset, clean, restore ni staging masivo** hasta comparar los 3 commits locales, revisar los diffs y clasificar las rutas no rastreadas. La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) lleva la reconciliación.
 
 ### Lo local que requiere acceso a la laptop
 
