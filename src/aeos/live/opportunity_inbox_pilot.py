@@ -196,9 +196,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(f"Captura manual guardada: {capture['capture_id']}")
             print(f"Acceso: {capture['access_status']}")
-            intent_assessment = cast(
-                dict[str, object], capture["intent_assessment"]
-            )
+            intent_assessment = cast(dict[str, object], capture["intent_assessment"])
             print(
                 "Intención explícita en el texto: "
                 f"{intent_assessment['explicit_intent']}"
