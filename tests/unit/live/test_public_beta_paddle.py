@@ -222,3 +222,13 @@ def test_free_fix_pack_diagnosis_does_not_require_paddle_credentials(
 
     assert pack is not None
     assert pack["pages"]
+
+
+def test_fix_pack_does_not_sell_injected_lead_teasers() -> None:
+    """Only confirmed website findings enter the paid worksheet."""
+    report = EligibleDiagnosisService().diagnose(SITE_URL)
+    report["leads"] = [{"source_url": "https://example.org/synthetic-lead"}]
+    pack = build_fix_pack(report)
+    assert pack is not None
+    assert "synthetic-lead" not in json.dumps(pack)
+    assert "leads" not in pack
