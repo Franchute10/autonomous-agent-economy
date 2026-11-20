@@ -1,6 +1,6 @@
 # AEOS offers: scope and rollout v1
 
-Status: product scope approved for implementation on `codex/aeos-live-003c`.
+Status: USD 5 Sandbox scope; USD 10 remains an unvalidated product proposal.
 This document defines customer-facing boundaries. It does not claim that the
 Market & Leads Pack is already implemented or available for purchase.
 
@@ -10,7 +10,7 @@ Market & Leads Pack is already implemented or available for purchase.
 |---|---:|---|---|
 | Free Review | USD 0 | A limited public website review with evidence and next steps | Available |
 | AEOS Fix Pack | USD 5, one time | A practical, bounded checklist and metadata templates for confirmed website issues | Implemented in Paddle Sandbox |
-| AEOS Market & Leads Pack | USD 10, one time | A sourced local-market snapshot, Porter analysis, and public lead opportunities | Scope defined; implementation pending |
+| AEOS Market & Leads Pack | USD 10, one time | A sourced local-market snapshot, Porter analysis, and public lead opportunities | Experimental proposal; unavailable |
 
 All paid prices are one-time. Taxes and final amounts are calculated and shown by
 Paddle Checkout. Do not advertise the USD 10 tier as purchasable until its
@@ -27,9 +27,9 @@ research workflow, checkout, delivery, and sandbox tests are complete.
 - For confirmed duplicate title or meta-description findings: one editable
   template per affected page, using known business/page facts and explicit
   placeholders where facts are unknown.
-- One public lead opportunity teaser selected from the second- or third-ranked candidate in the full qualified list, with source URL, visible date, fit reason, and public response path. This teaser is included only when at least three candidates pass the qualification rules.
+- No lead teaser is included in the current Fix Pack. The earlier rank-2/rank-3 teaser proposal is deferred until repeatable discovery and human validation are demonstrated.
 - Prioritized implementation checklist and final verification checklist.
-- Downloadable Markdown report after a completed Sandbox/Live transaction, with CMS instructions and a page-specific optional prompt for an LLM/coding agent.
+- Downloadable Markdown report after a verified completed Sandbox transaction (Live is not enabled), with CMS instructions and a page-specific optional prompt for an LLM/coding agent.
 
 ### Not included
 
@@ -38,7 +38,11 @@ research workflow, checkout, delivery, and sandbox tests are complete.
 - Search ranking, traffic, lead, or revenue guarantees.
 - Porter analysis, the complete lead list, outreach, or ongoing monitoring.
 
-## USD 10 — AEOS Market & Leads Pack
+## USD 10 — proposed AEOS Market & Leads Pack (not available)
+
+The sections below are hypotheses for evaluation, not current customer promises.
+Source validation and willingness to pay must precede checkout implementation.
+The USD 5 Fix Pack does not depend on a successful lead search.
 
 ### Customer inputs
 
