@@ -209,9 +209,7 @@ def test_playwright_browser_cache_uses_the_installed_profile_cache(
     monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
 
     with website_inspector._playwright_browser_cache_environment():
-        assert os.environ["PLAYWRIGHT_BROWSERS_PATH"] == str(
-            browser_cache
-        )
+        assert os.environ["PLAYWRIGHT_BROWSERS_PATH"] == str(browser_cache)
     assert "PLAYWRIGHT_BROWSERS_PATH" not in os.environ
 
 
