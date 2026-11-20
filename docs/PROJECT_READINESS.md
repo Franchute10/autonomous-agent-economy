@@ -121,13 +121,13 @@ The upload review classifies the local material but does not authorize deleting 
 
 ## Final reconciliation package (2026-11-20)
 
-The operator created `aeos-final-reconciliation.zip` containing `003b-a23913c.patch` and two files copied from the local 003c worktree. The archive itself was not attached to this review, so only the available commit metadata and the already supplied overpass-resilience note could be inspected.
+The operator attached the ZIP and its three key files. The patch and both local 003c files were reviewed.
 
-- `003b-a23913c.patch`: redundant for the current remote development line. Commit `a23913cece73702c78ed6839a08b6be3e634abc0` exists in GitHub and is an ancestor of `codex/aeos-live-003c` at `d56b48d53b1354d53c3e640247d2208fe45753fe`. Do not apply the patch again.
-- `docs/research/AEOS-LIVE-003C-overpass-resilience.md`: research note reviewed from the previously supplied local copy. It records historical public Overpass timeout observations and a no-retry decision. Keep it as dated research evidence only; revalidate the endpoint and label observations before using it as current operating guidance or publishing it as a canonical claim.
-- `tests/unit/live/fixtures/profiles/hz-air-conditioning-services.json`: listed in the ZIP creation transcript, but its contents were not attached and are not present in this review workspace. Do not add it to the public repository until reviewed for real business/tenant data and converted to clearly synthetic data or kept private.
+- `003b-a23913c.patch`: this is a full commit patch for `a23913cece73702c78ed6839a08b6be3e634abc0`, not an uncommitted diff. GitHub contains the commit, and comparison confirms it is an ancestor of remote `codex/aeos-live-003c` at `d56b48d53b1354d53c3e640247d2208fe45753fe` (33 commits ahead, 0 behind). Its code is in the development branch, not main. Do not apply the patch or duplicate its changes.
+- `tests/unit/live/fixtures/profiles/hz-air-conditioning-services.json`: reviewed. It contains identifying information for a real HVAC business, including a registered address, a named registered agent, a registration identifier, and business social URLs. Do not add this fixture to this public repository. Keep the original local/private; if a public test fixture is needed, replace all identifying values and evidence with clearly synthetic data.
+- `docs/research/AEOS-LIVE-003C-overpass-resilience.md`: reviewed. Its 504 observations are dated 2026-11-09; the note says the validation made no live market calls, and its tests simulate provider responses. The note names real pilot businesses, so do not publish this exact copy. Keep a sanitized, dated research record if needed. The current [OpenStreetMap Wiki instance guidance](https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances) still lists the VK Maps endpoint and says it may be used in projects, but also warns public instances can be overloaded and unreliable and advises commercial use to use self-hosted or paid servers. An unannounced request limit is not an availability commitment or commercial-service endorsement. Keep free public Overpass usage to low-volume experiments subject to the operator's terms; do not rely on it for production.
 
-This package review does not reconcile or authorize cleanup of the remaining dirty Windows worktrees. The full ZIP need not be resent; only the HZ fixture is needed to finish its content review.
+The final ZIP is reviewed. Remaining local reconciliation is limited to the dirty main/review/003c Windows worktrees and the separate Commercial Lead Engine checkout; do not clean or rewrite them until their current diffs and private data are inventoried.
 
 ## Ordered backlog
 
