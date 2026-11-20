@@ -11,6 +11,7 @@ from aeos.application.live.business_url_diagnosis import (
     BusinessURLPlatform,
     build_business_url_diagnosis_report,
     classify_business_url,
+    render_business_url_diagnosis_markdown,
 )
 from aeos.live.domain.evidence import EvidenceKind
 from aeos.live.domain.location_candidate import (
@@ -241,7 +242,7 @@ def _simulated_inspection(
                 for path, dom in rendered_by_path.items()
             }
 
-        renderer = render
+        renderer = cast(DOMRenderer, render)
     elif render_error is not None:
 
         def unavailable_renderer(
@@ -252,7 +253,7 @@ def _simulated_inspection(
                 category=render_error,
             )
 
-        renderer = unavailable_renderer
+        renderer = cast(DOMRenderer, unavailable_renderer)
     return WebsiteInspector(transport=fetch, renderer=renderer).inspect(root)
 
 
@@ -290,8 +291,8 @@ def test_website_diagnosis_has_evidenced_prioritized_findings() -> None:
     assert findings == []
     assert 1 <= len(pending) <= 3
     all_items = [*findings, *pending]
-    assert [item["priority"] for item in findings] == sorted(
-        item["priority"] for item in findings
+    assert [int(item["priority"]) for item in findings] == sorted(
+        int(item["priority"]) for item in findings
     )
     for item in all_items:
         evidence = cast(dict[str, object], item["evidence"])
@@ -318,7 +319,7 @@ def test_website_diagnosis_has_evidenced_prioritized_findings() -> None:
     assert "requieren acceso autorizado" in " ".join(
         cast(list[str], diagnosis["not_reviewed"])
     )
-    markdown = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    markdown = render_business_url_diagnosis_markdown(report)
     assert "HTML_ONLY" in markdown
     assert "DOM renderizado no disponible" in markdown
 
@@ -355,7 +356,7 @@ def test_construction_20261110_report_separates_confirmed_and_pending_fields() -
     diagnosis = cast(dict[str, object], report["url_diagnosis"])
     findings = cast(list[dict[str, object]], diagnosis["findings"])
     pending = cast(list[dict[str, object]], diagnosis["pending_verifications"])
-    rendered = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    rendered = render_business_url_diagnosis_markdown(report)
 
     assert findings == []
     assert len(pending) == 2
@@ -400,7 +401,7 @@ def test_construction_20261110_report_separates_confirmed_and_pending_fields() -
     assert homepage["h1"] == ["Home Remodeling Experts in DFW"]
     homepage_dom = cast(dict[str, object], homepage["rendered_dom"])
     assert homepage_dom["status"] == "PARTIAL"
-    assert "h1" not in homepage_dom["fields_observed"]
+    assert "h1" not in cast(list[str], homepage_dom["fields_observed"])
     website = cast(dict[str, object], report["website_inspection"])
     assert website["inspected_at"] == "2026-11-10T23:35:00+00:00"
     assert "causaron pérdida de posiciones" not in rendered.casefold()
@@ -592,7 +593,7 @@ def test_html_only_does_not_confirm_rendered_absence() -> None:
     page = cast(dict[str, object], cast(list[object], signals["pages"])[0])
     rendered_dom = cast(dict[str, object], page["rendered_dom"])
     findings = cast(list[dict[str, object]], diagnosis["findings"])
-    markdown = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    markdown = render_business_url_diagnosis_markdown(report)
     website = cast(dict[str, object], report["website_inspection"])
     website_pages = cast(list[dict[str, object]], website["paginas_revisadas"])
 
@@ -647,7 +648,7 @@ def test_partial_rendered_dom_reports_state_and_observed_fields() -> None:
     signals = cast(dict[str, object], diagnosis["observed_signals"])
     page = cast(dict[str, object], cast(list[object], signals["pages"])[0])
     rendered_dom = cast(dict[str, object], page["rendered_dom"])
-    markdown = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    markdown = render_business_url_diagnosis_markdown(report)
 
     assert rendered_dom["status"] == "PARTIAL"
     assert rendered_dom["fields_observed"] == ["title", "h1"]
@@ -694,7 +695,7 @@ def test_windows_dns_failure_regression_reports_zero_page_coverage(url: str) -> 
         failure_stage="dns_resolution",
     )
     diagnosis = cast(dict[str, object], report["url_diagnosis"])
-    rendered = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    rendered = render_business_url_diagnosis_markdown(report)
 
     assert diagnosis["findings"] == []
     assert "dns_resolution" in rendered
@@ -730,7 +731,7 @@ def test_zero_findings_report_completed_checks_and_coverage() -> None:
     )
     diagnosis = cast(dict[str, object], report["url_diagnosis"])
     assert diagnosis["findings"] == []
-    markdown = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    markdown = render_business_url_diagnosis_markdown(report)
     assert "No se detectaron problemas" in markdown
     assert "duplicados de títulos y meta descripciones" in markdown
     assert "páginas recibidas: 1" in markdown
@@ -760,7 +761,7 @@ def test_noindex_pages_are_excluded_from_missing_metadata_findings() -> None:
     )
     diagnosis = cast(dict[str, object], report["url_diagnosis"])
     assert diagnosis["findings"] == []
-    markdown = url_diagnosis.render_business_url_diagnosis_markdown(report)
+    markdown = render_business_url_diagnosis_markdown(report)
     assert "0 candidatas potencialmente indexables" in markdown
     assert "1 con noindex" in markdown
 
