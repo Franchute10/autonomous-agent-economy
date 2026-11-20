@@ -161,7 +161,7 @@ def _public_url(value: object) -> str:
             "source_url must be a public HTTP(S) URL without credentials"
         )
     clean = safe_url_for_report(raw)
-    if clean in {None, "[URL omitted]"}:
+    if clean is None or clean == "[URL omitted]":
         raise InvalidLiveContract("source_url could not be normalized safely")
     return clean
 
