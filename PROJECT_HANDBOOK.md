@@ -102,6 +102,7 @@ Esto acredita presencia de entregas de dominio, arquitectura, persistencia y un 
 - Fix Pack: el historial de la conversación contiene una compra de prueba en Paddle Sandbox y un correo de prueba; eso solo demuestra una transacción de prueba reportada, no una venta Live ni que la descarga y el webhook estén verificados de punta a punta en el despliegue público.
 - La documentación del PR #2 señala un riesgo de re-diagnóstico posterior al pago que puede producir un 409 y deja gates de entrega/webhook pendientes. Comprobar esos gates antes de afirmar que el archivo pagado siempre se entrega.
 - Ningún checkout Live, cargo real o deploy de producción está confirmado aquí.
+- Reconciliación 2026-11-20: se corrigió el aislamiento del almacenamiento predeterminado del piloto en el PR #7, fusionado en `codex/aeos-live-003c` (`7764fb4b234f34b650b1f22ed5341af4d5a2c974`). Perfiles reales requieren `organization_id` para rutas predeterminadas; perfiles ficticios usan el espacio `synthetic-`; rutas explícitas permiten ejecuciones locales aisladas. CI del PR pasó en el SHA de revisión. Esto **no** integra la rama LIVE con `main` ni resuelve los worktrees locales sucios.
 
 ### Motor de leads
 
