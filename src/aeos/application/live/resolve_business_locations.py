@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Callable
 
 from aeos.live.domain.market_scope import MarketResearchScope
-from aeos.live.domain.location_candidate import LocationCandidate
+from aeos.live.domain.location_candidate import LocationCandidate, LocationType
 from aeos.live.ports.website import WebsiteInspectionResult
 
 Clock = Callable[[], datetime]
@@ -44,6 +44,11 @@ def resolve_business_locations(
         (
             item
             for item in inspection.locations
+            if item.location_type
+            not in {
+                LocationType.NEIGHBORHOOD_MENTION,
+                LocationType.REGIONAL_SERVICE_AREA,
+            }
             if item.city.casefold() == source_city.casefold()
             and (
                 selected_state is None

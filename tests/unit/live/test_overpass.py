@@ -448,9 +448,13 @@ def test_empty_provider_result_is_valid_and_assessment_is_insufficient_data() ->
     assert assessment.best_next_move is None
 
 
-@pytest.mark.parametrize("status", (403, 429, 503))
+@pytest.mark.parametrize("status", (403, 429, 502, 503, 504))
 def test_provider_failure_is_not_retried(status: int) -> None:
+    calls = 0
+
     def fail(query: str, endpoint: str, timeout: int, max_bytes: int) -> bytes:
+        nonlocal calls
+        calls += 1
         raise OverpassRequestError("provider failure", status_code=status)
 
     adapter = OverpassMarketDiscovery(transport=fail)
@@ -460,6 +464,7 @@ def test_provider_failure_is_not_retried(status: int) -> None:
         adapter.discover_competitors(business)
     with pytest.raises(OverpassRequestError):
         adapter.discover_suppliers(business)
+    assert calls == 1
     assert adapter.request_count == 1
 
 
@@ -692,7 +697,13 @@ def test_timeout_waiting_for_http_headers_does_not_claim_server_receipt(
 
 
 @pytest.mark.parametrize(
-    ("status", "category"), ((429, "http_status_error"), (503, "http_status_error"))
+    ("status", "category"),
+    (
+        (429, "http_status_error"),
+        (502, "http_status_error"),
+        (503, "http_status_error"),
+        (504, "http_status_error"),
+    ),
 )
 def test_http_error_status_records_server_response(
     monkeypatch: pytest.MonkeyPatch,
@@ -711,6 +722,25 @@ def test_http_error_status_records_server_response(
     assert raised.value.exception_type == "HTTPStatusError"
     assert raised.value.http_status == status
     assert raised.value.request_reached_http_server is True
+
+
+@pytest.mark.parametrize("status", (502, 503, 504))
+def test_transient_http_status_uses_one_attempt(
+    monkeypatch: pytest.MonkeyPatch, status: int
+) -> None:
+    connection = _FakeHTTPSConnection(
+        response=_FakeResponse(status=status, reason="temporary provider failure")
+    )
+    _install_connection(monkeypatch, connection)
+    adapter = OverpassMarketDiscovery(endpoint="https://example.test/interpreter")
+
+    with pytest.raises(OverpassRequestError) as raised:
+        adapter.discover_all()
+
+    assert raised.value.http_status == status
+    assert adapter.request_count == 1
+    assert adapter.last_http_status == status
+    assert connection.request_calls == 1
 
 
 def test_invalid_json_diagnostic_keeps_status_and_server_reachability() -> None:

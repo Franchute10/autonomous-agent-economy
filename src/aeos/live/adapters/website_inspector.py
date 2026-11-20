@@ -1,19 +1,24 @@
 """Bounded, same-site public website inspection with SSRF safeguards."""
 
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from hashlib import sha256
 from html.parser import HTMLParser
 from http.client import HTTPMessage
+from importlib import import_module
 import ipaddress
+import os
+from pathlib import Path
 from typing import IO
 import json
 import re
 import socket
-from typing import cast
+import time
+from typing import Any, Protocol, cast
 from urllib.error import HTTPError, URLError
-from urllib.parse import urldefrag, urljoin, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urldefrag, urljoin, urlsplit, urlunsplit
 from urllib.robotparser import RobotFileParser
 from urllib.request import (
     HTTPRedirectHandler,
@@ -42,6 +47,8 @@ from aeos.live.ports.website import WebsiteInspectionResult, WebsiteSignal
 MAX_PAGES = 20
 MAX_RESPONSE_BYTES = 2_000_000
 DEFAULT_TIMEOUT_SECONDS = 10
+MAX_RENDERED_DOM_SECONDS = 20
+MAX_RENDERED_DOM_REQUESTS = 1000
 MAX_SITEMAPS = 5
 MAX_SITEMAP_URLS = 500
 USER_AGENT = "AEOSLiveWebsiteInspector/1.0"
@@ -57,7 +64,7 @@ _STATE_NAMES = {
     "CT": "Connecticut",
     "DE": "Delaware",
     "DC": "District of Columbia",
-    "FL": "Example Region",
+    "FL": "Florida",
     "GA": "Georgia",
     "HI": "Hawaii",
     "ID": "Idaho",
@@ -105,7 +112,81 @@ _STATE_ALIASES = {
     for abbreviation, name in _STATE_NAMES.items()
     for alias in (abbreviation, name)
 }
+_NEIGHBORHOOD_NAMES = frozenset(
+    {
+        "los rios",
+        "treyburn",
+        "cross bend",
+        "timber brook",
+        "hunters glen",
+        "carriage hill",
+        "wind meadow",
+        "madison estates",
+        "dallas north estates",
+        "park forest",
+    }
+)
+_GENERIC_PLACE_WORDS = frozenset(
+    {
+        "area",
+        "areas",
+        "call",
+        "contact",
+        "estimate",
+        "free",
+        "gallery",
+        "galleries",
+        "get",
+        "home",
+        "learn",
+        "links",
+        "more",
+        "our",
+        "page",
+        "pages",
+        "project",
+        "projects",
+        "quick",
+        "service",
+        "services",
+        "serve",
+        "serves",
+        "serving",
+        "testimonials",
+        "the",
+        "touch",
+        "welcome",
+        "we",
+    }
+)
 _SERVICE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "Full home remodeling",
+        re.compile(r"\bfull\s+(?:home|house)\s+remodel(?:ing|s)?\b", re.I),
+    ),
+    (
+        "Home remodeling",
+        re.compile(
+            r"\b(?:(?:home|house)\s+remodel(?:ing|s)?|remodeling\s+services?)\b",
+            re.I,
+        ),
+    ),
+    (
+        "Kitchen remodeling",
+        re.compile(r"\bkitchen\s+(?:remodeling|renovations?)\b", re.I),
+    ),
+    (
+        "Bathroom remodeling",
+        re.compile(r"\bbathroom\s+(?:remodeling|renovations?)\b", re.I),
+    ),
+    ("Room additions", re.compile(r"\broom\s+additions?\b", re.I)),
+    ("Home additions", re.compile(r"\bhome\s+additions?\b", re.I)),
+    ("New home construction", re.compile(r"\bnew\s+home\s+construction\b", re.I)),
+    ("Pools", re.compile(r"\bpools?(?:\s+construction)?\b", re.I)),
+    (
+        "Investor flip projects",
+        re.compile(r"\binvestors?\s+flips?(?:\s+projects?)?\b", re.I),
+    ),
     (
         "Residential cleaning",
         re.compile(
@@ -226,10 +307,439 @@ class FetchResponse:
     status_code: int
     final_url: str
     content_type: str | None = None
+    x_robots_tag: str | None = None
 
 
 Transport = Callable[[str, int, int, str], FetchResponse]
 Clock = Callable[[], datetime]
+
+
+@dataclass(frozen=True, slots=True)
+class RenderedDOM:
+    title: str | None
+    meta_description: str | None
+    h1_headings: tuple[str, ...] = ()
+    h2_headings: tuple[str, ...] = ()
+    link_texts: tuple[str, ...] = ()
+    link_urls: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class RenderedDOMOutcome:
+    dom: RenderedDOM | None
+    error_category: str | None = None
+    error_message: str | None = None
+
+
+def _rendered_dom_fields(dom: RenderedDOM) -> tuple[str, ...]:
+    fields: list[str] = []
+    if dom.title:
+        fields.append("title")
+    if dom.meta_description:
+        fields.append("meta_description")
+    if dom.h1_headings:
+        fields.append("h1")
+    if dom.h2_headings:
+        fields.append("h2")
+    if dom.link_texts or dom.link_urls:
+        fields.append("links")
+    return tuple(fields)
+
+
+def _is_navigation_timeout(error: BaseException) -> bool:
+    return (
+        "timeout" in type(error).__name__.casefold()
+        or "timed out" in str(error).casefold()
+    )
+
+
+class DOMRenderer(Protocol):
+    def __call__(
+        self,
+        urls: tuple[str, ...],
+        root_host: str,
+        timeout_seconds: int,
+    ) -> Mapping[str, RenderedDOMOutcome]: ...
+
+
+@contextmanager
+def _playwright_browser_cache_environment() -> Iterator[None]:
+    """Temporarily select the normal profile cache when LOCALAPPDATA is sandboxed."""
+    original_browser_path = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+    profile = os.environ.get("USERPROFILE")
+    browser_cache = (
+        Path(profile) / "AppData" / "Local" / "ms-playwright"
+        if profile
+        else Path.home() / "AppData" / "Local" / "ms-playwright"
+    )
+    if os.name == "nt" and not original_browser_path and browser_cache.is_dir():
+        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(browser_cache)
+    try:
+        yield
+    finally:
+        if original_browser_path is None:
+            os.environ.pop("PLAYWRIGHT_BROWSERS_PATH", None)
+        else:
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = original_browser_path
+
+
+def _dom_request_block_reason(
+    *,
+    url: str,
+    root_host: str,
+    method: str,
+    resource_type: str,
+    is_navigation: bool,
+) -> str | None:
+    if method.upper() != "GET":
+        return "non_get_request_blocked"
+    try:
+        safe_url = _validate_url(url, resolve_host=False)
+    except WebsiteInspectionError as error:
+        return error.category
+    if not _same_site(safe_url, root_host):
+        if is_navigation:
+            return "external_navigation_blocked"
+        if resource_type in {"xhr", "fetch", "websocket", "eventsource"}:
+            return "external_data_request_blocked"
+        query_parameters = parse_qsl(urlsplit(safe_url).query, keep_blank_values=True)
+        safe_query_values = {
+            "v": r"[A-Za-z0-9._-]{1,40}",
+            "ver": r"[A-Za-z0-9._-]{1,40}",
+            "version": r"[A-Za-z0-9._-]{1,40}",
+            "rev": r"[A-Za-z0-9._-]{1,40}",
+            "family": r"[A-Za-z0-9 ._+:;,@-]{1,160}",
+            "display": r"(?:swap|block|fallback|optional)",
+        }
+        safe_query = all(
+            key.casefold() in safe_query_values
+            and re.fullmatch(safe_query_values[key.casefold()], value) is not None
+            for key, value in query_parameters
+        )
+        if resource_type not in {"script", "stylesheet", "font"} or not safe_query:
+            return "external_resources_blocked"
+    return None
+
+
+class PlaywrightDOMRenderer:
+    """Capture public same-site DOM with a bounded, non-interactive browser pass."""
+
+    def __call__(
+        self,
+        urls: tuple[str, ...],
+        root_host: str,
+        timeout_seconds: int,
+    ) -> Mapping[str, RenderedDOMOutcome]:
+        try:
+            sync_playwright: Any = getattr(
+                import_module("playwright.sync_api"), "sync_playwright"
+            )
+        except ImportError as error:
+            raise WebsiteInspectionError(
+                f"Playwright is not installed: {type(error).__name__}: {error}",
+                category="browser_unavailable",
+            ) from error
+
+        outcomes: dict[str, RenderedDOMOutcome] = {}
+        deadline = time.monotonic() + min(
+            max(timeout_seconds * 2, 1), MAX_RENDERED_DOM_SECONDS
+        )
+        try:
+            with (
+                _playwright_browser_cache_environment(),
+                sync_playwright() as playwright,
+            ):
+                try:
+                    browser = playwright.chromium.launch(
+                        headless=True,
+                        timeout=min(timeout_seconds * 1000, 5000),
+                    )
+                except Exception as error:
+                    detail = f"{type(error).__name__}: {error}"
+                    raise WebsiteInspectionError(
+                        f"The local Playwright browser is unavailable: {detail}",
+                        category="browser_unavailable",
+                    ) from error
+                try:
+                    context = browser.new_context(
+                        java_script_enabled=True,
+                        service_workers="block",
+                        user_agent=USER_AGENT,
+                        accept_downloads=False,
+                    )
+                    if hasattr(context, "route_web_socket"):
+                        context.route_web_socket(
+                            "**/*",
+                            lambda socket_route: socket_route.close(
+                                code=1008,
+                                reason="AEOS blocks WebSocket traffic",
+                            ),
+                        )
+                    requests_seen = 0
+                    current_url: str | None = None
+                    blocked_resources: dict[str, set[str]] = {}
+                    request_budget_exhausted: set[str] = set()
+
+                    def route_request(route: Any) -> None:
+                        nonlocal current_url, requests_seen
+                        request = route.request
+                        requests_seen += 1
+                        if requests_seen > MAX_RENDERED_DOM_REQUESTS:
+                            if current_url is not None:
+                                request_budget_exhausted.add(current_url)
+                                blocked_resources.setdefault(current_url, set()).add(
+                                    "request_budget:render_request_budget_exhausted"
+                                )
+                            route.abort()
+                            return
+                        reason = _dom_request_block_reason(
+                            url=request.url,
+                            root_host=root_host,
+                            method=request.method,
+                            resource_type=request.resource_type,
+                            is_navigation=request.is_navigation_request(),
+                        )
+                        if reason:
+                            if current_url is not None:
+                                resource_label = f"{request.resource_type}:{reason}"
+                                blocked_resources.setdefault(current_url, set()).add(
+                                    resource_label
+                                )
+                            route.abort()
+                            return
+                        headers = {
+                            name: value
+                            for name, value in request.headers.items()
+                            if name.casefold()
+                            not in {
+                                "authorization",
+                                "cookie",
+                                "origin",
+                                "proxy-authorization",
+                                "referer",
+                            }
+                        }
+                        route.continue_(headers=headers)
+
+                    context.route("**/*", route_request)
+                    context.add_init_script(
+                        """(() => {
+                          const stopForm = event => {
+                            event.preventDefault();
+                            event.stopImmediatePropagation();
+                          };
+                          document.addEventListener('submit', stopForm, true);
+                          HTMLFormElement.prototype.submit = function () {};
+                          HTMLFormElement.prototype.requestSubmit = function () {};
+                        })();"""
+                    )
+                    page = context.new_page()
+                    page.set_default_timeout(1500)
+                    page.set_default_navigation_timeout(timeout_seconds * 1000)
+                    for url in urls[:MAX_PAGES]:
+                        current_url = url
+                        remaining_ms = int((deadline - time.monotonic()) * 1000)
+                        if remaining_ms <= 0:
+                            outcomes[url] = RenderedDOMOutcome(
+                                None,
+                                "render_time_budget_exhausted",
+                                "The site-wide DOM rendering time budget was exhausted.",
+                            )
+                            continue
+                        previous_page_url = page.url
+                        response: Any = None
+                        navigation_error: Exception | None = None
+                        try:
+                            response = page.goto(
+                                url,
+                                wait_until="domcontentloaded",
+                                timeout=min(timeout_seconds * 1000, remaining_ms),
+                            )
+                        except Exception as error:
+                            navigation_error = error
+
+                        remaining_ms = max(0, int((deadline - time.monotonic()) * 1000))
+                        hydration_wait_ms = min(350, remaining_ms)
+                        if hydration_wait_ms:
+                            try:
+                                page.wait_for_timeout(hydration_wait_ms)
+                            except Exception:
+                                pass
+
+                        try:
+                            page_url = page.url
+                            if (
+                                navigation_error is not None
+                                and page_url == previous_page_url
+                                and page_url != url
+                            ):
+                                raise WebsiteInspectionError(
+                                    "Navigation did not commit a new document.",
+                                    category="render_timeout"
+                                    if _is_navigation_timeout(navigation_error)
+                                    else "render_failed",
+                                )
+                            raw = page.evaluate(
+                                """() => {
+                                  if (!document.documentElement) {
+                                    return {document_available: false};
+                                  }
+                                  const visible = (element) => {
+                                    if (element.getClientRects().length === 0) return false;
+                                    let current = element;
+                                    while (current instanceof Element) {
+                                      const style = getComputedStyle(current);
+                                      if (current.hidden || style.display === 'none' ||
+                                          style.visibility === 'hidden' ||
+                                          style.visibility === 'collapse' ||
+                                          style.opacity === '0') return false;
+                                      current = current.parentElement;
+                                    }
+                                    return true;
+                                  };
+                                  const text = (element) =>
+                                    (element.innerText || element.textContent || '')
+                                      .replace(/\\s+/g, ' ').trim();
+                                  const description = document.querySelector(
+                                    'meta[name="description" i]'
+                                  );
+                                  const links = Array.from(
+                                    document.querySelectorAll('a[href]')
+                                  ).filter(visible);
+                                  return {
+                                    document_available: true,
+                                    ready_state: document.readyState,
+                                    title: document.title.trim() || null,
+                                    meta_description: description?.content.trim() || null,
+                                    h1_headings: Array.from(
+                                      document.querySelectorAll('h1')
+                                    ).filter(visible).map(text).filter(Boolean),
+                                    h2_headings: Array.from(
+                                      document.querySelectorAll('h2')
+                                    ).filter(visible).map(text).filter(Boolean),
+                                    link_texts: links.map(text).filter(Boolean).slice(0, 1000),
+                                    link_urls: links.map((link) => link.href)
+                                      .filter(Boolean).slice(0, 1000)
+                                  };
+                                }"""
+                            )
+                            if (
+                                not isinstance(raw, dict)
+                                or raw.get("document_available") is not True
+                                or page_url == "about:blank"
+                            ):
+                                raise WebsiteInspectionError(
+                                    "No readable document was available after navigation.",
+                                    category="render_timeout"
+                                    if navigation_error
+                                    and _is_navigation_timeout(navigation_error)
+                                    else "render_unreadable",
+                                )
+                            rendered = RenderedDOM(
+                                title=_optional_text(raw.get("title")),
+                                meta_description=_optional_text(
+                                    raw.get("meta_description")
+                                ),
+                                h1_headings=_unique_texts(raw.get("h1_headings")),
+                                h2_headings=_unique_texts(raw.get("h2_headings")),
+                                link_texts=_unique_texts(raw.get("link_texts")),
+                                link_urls=_unique_texts(raw.get("link_urls")),
+                            )
+                            observed_fields = _rendered_dom_fields(rendered)
+                            blocked_resources_for_page = sorted(
+                                blocked_resources.get(url, set())
+                            )
+                            blocked_message = (
+                                "Blocked requests (warnings): "
+                                + ", ".join(blocked_resources_for_page)
+                                if blocked_resources_for_page
+                                else None
+                            )
+                            warning_category: str | None = None
+                            warning_messages: list[str] = []
+                            if navigation_error is not None:
+                                warning_category = (
+                                    "render_timeout"
+                                    if _is_navigation_timeout(navigation_error)
+                                    else "render_failed"
+                                )
+                                warning_messages.append(
+                                    "Partial DOM was readable after navigation "
+                                    f"ended with {type(navigation_error).__name__}; "
+                                    "fields observed: "
+                                    + (", ".join(observed_fields) or "none")
+                                    + "."
+                                )
+                            elif response is not None and response.status != 200:
+                                warning_category = "render_http_error"
+                                warning_messages.append(
+                                    f"DOM navigation returned HTTP {response.status}; "
+                                    "readable fields were retained."
+                                )
+                            elif url in request_budget_exhausted:
+                                warning_category = "render_request_budget_exhausted"
+                                warning_messages.append(
+                                    "The browser request budget was exhausted after "
+                                    "a readable DOM was captured."
+                                )
+                            elif blocked_message:
+                                warning_category = "external_resources_blocked"
+                            if not observed_fields and warning_category is None:
+                                warning_category = "render_empty"
+                                warning_messages.append(
+                                    "A document was readable but contained no non-empty "
+                                    "requested fields."
+                                )
+                            if blocked_message:
+                                warning_messages.append(blocked_message)
+                            outcomes[url] = RenderedDOMOutcome(
+                                rendered,
+                                warning_category,
+                                " ".join(warning_messages) or None,
+                            )
+                        except Exception as error:
+                            blocked_types = blocked_resources.get(url, set())
+                            category = getattr(error, "category", None) or (
+                                "external_navigation_blocked"
+                                if any(
+                                    item.startswith(
+                                        "document:external_navigation_blocked"
+                                    )
+                                    for item in blocked_types
+                                )
+                                else "render_timeout"
+                                if _is_navigation_timeout(error)
+                                else "render_failed"
+                            )
+                            detail = f"{type(error).__name__}: {error}"
+                            all_blocked_resources = blocked_resources.get(url, set())
+                            if all_blocked_resources:
+                                detail += " Blocked requests (warnings): " + ", ".join(
+                                    sorted(all_blocked_resources)
+                                )
+                            outcomes[url] = RenderedDOMOutcome(None, category, detail)
+                    context.close()
+                finally:
+                    browser.close()
+        except WebsiteInspectionError:
+            raise
+        except Exception as error:
+            if not outcomes:
+                raise WebsiteInspectionError(
+                    "The local Playwright browser is unavailable: "
+                    f"{type(error).__name__}: {error}",
+                    category="browser_unavailable",
+                ) from error
+        for url in urls:
+            outcomes.setdefault(
+                url,
+                RenderedDOMOutcome(
+                    None,
+                    "render_unavailable",
+                    "No DOM capture outcome was returned for this URL.",
+                ),
+            )
+        return outcomes
 
 
 def _canonical_host(host: str) -> str:
@@ -364,6 +874,7 @@ def _http_get(url: str, timeout: int, byte_limit: int, root_host: str) -> FetchR
                 status_code=response.status,
                 final_url=response.geturl(),
                 content_type=response.headers.get("Content-Type"),
+                x_robots_tag=response.headers.get("X-Robots-Tag"),
             )
     except WebsiteInspectionError:
         raise
@@ -405,10 +916,14 @@ class _DocumentParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.title: list[str] = []
         self.description: str | None = None
+        self.robots_directives: list[str] = []
         self.h1: list[str] = []
         self.h2: list[str] = []
         self.text: list[str] = []
         self.links: list[str] = []
+        self.link_texts: list[str] = []
+        self._link_depth = 0
+        self._link_text: list[str] = []
         self.jsonld: list[str] = []
         self.emails: list[str] = []
         self.phones: list[str] = []
@@ -446,9 +961,18 @@ class _DocumentParser(HTMLParser):
             content = attrs_map.get("content", "").strip()
             if name == "description" and content:
                 self.description = content
+            if name in {"robots", "googlebot", "bingbot"} and content:
+                self.robots_directives.extend(
+                    directive.strip().casefold()
+                    for directive in content.split(",")
+                    if directive.strip()
+                )
             if prop == "og:site_name" and content:
                 self.site_name = content
         elif tag == "a":
+            if self._link_depth == 0:
+                self._link_text = []
+            self._link_depth += 1
             href = attrs_map.get("href")
             if href:
                 self.links.append(href)
@@ -466,7 +990,14 @@ class _DocumentParser(HTMLParser):
                     self.jsonld.append("".join(self._script_text))
                 self._script_jsonld = False
             return
-        if tag == "title":
+        if tag == "a" and self._link_depth:
+            self._link_depth -= 1
+            if self._link_depth == 0:
+                link_text = _normalize_space("".join(self._link_text))
+                if link_text:
+                    self.link_texts.append(link_text)
+                self._link_text = []
+        elif tag == "title":
             self._title_open = False
         elif tag in {"h1", "h2"} and self._heading == int(tag[1]):
             heading = _normalize_space("".join(self._heading_text))
@@ -484,6 +1015,8 @@ class _DocumentParser(HTMLParser):
             self.title.append(data)
         if self._heading is not None:
             self._heading_text.append(data)
+        if self._link_depth:
+            self._link_text.append(data)
         stripped = data.strip()
         if stripped:
             self.text.append(stripped)
@@ -491,6 +1024,24 @@ class _DocumentParser(HTMLParser):
 
 def _normalize_space(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
+
+
+def _optional_text(value: object) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return _normalize_space(value)
+    return None
+
+
+def _unique_texts(value: object) -> tuple[str, ...]:
+    if not isinstance(value, list | tuple):
+        return ()
+    return tuple(
+        dict.fromkeys(
+            normalized
+            for item in value
+            if isinstance(item, str) and (normalized := _normalize_space(item))
+        )
+    )
 
 
 def _relevant_score(url: str) -> int:
@@ -582,7 +1133,42 @@ def _address_parts(
 
 
 def _normalized_state(value: str | None) -> str | None:
-    return _STATE_ALIASES.get(value.casefold(), value) if value else None
+    if not value:
+        return None
+    normalized = _STATE_ALIASES.get(value.casefold(), value)
+    if normalized.casefold() in {
+        "example region",
+        "sample region",
+        "test region",
+        "united states",
+        "usa",
+        "us",
+    }:
+        return None
+    return normalized
+
+
+def _is_neighborhood_name(value: str) -> bool:
+    return _normalize_space(value).casefold() in _NEIGHBORHOOD_NAMES
+
+
+def _is_usable_place_name(value: str) -> bool:
+    normalized = _normalize_space(value).strip(" -:;,.()")
+    if len(normalized) < 4:
+        return False
+    if not re.fullmatch(
+        r"[A-Za-z][A-Za-z'’.-]*(?:\s+[A-Za-z][A-Za-z'’.-]*){0,3}",
+        normalized,
+    ):
+        return False
+    words = {word.casefold() for word in normalized.split()}
+    if any(len(word) < 2 for word in words):
+        return False
+    if words & _GENERIC_PLACE_WORDS:
+        return False
+    if any(word in _STATE_ALIASES and len(word) <= 2 for word in words):
+        return False
+    return True
 
 
 def _text_addresses(
@@ -596,7 +1182,9 @@ def _text_addresses(
         "Circle|Cir|Way|Parkway|Pkwy|Terrace|Ter|Place|Pl|Highway|Hwy"
     )
     pattern = re.compile(
-        rf"(?P<street>\b\d{{1,6}}\s+(?:[A-Z0-9.'#-]+\s+){{1,7}}(?:{suffixes})\.?)[, ]+"
+        rf"(?P<street>\b\d{{1,6}}\s+(?:[A-Z0-9.'#-]+\s+){{1,7}}(?:{suffixes})\.?"
+        rf"(?:\s+(?:N|S|E|W|North|South|East|West))?"
+        rf"(?:\s+(?:Apt|Apartment|Suite|Ste|Unit|#)\s*[A-Z0-9-]+)?)[, ]+"
         rf"(?P<city>[A-Z][A-Za-z'’.\-]+(?:\s+[A-Z][A-Za-z'’.\-]+){{0,3}}),\s*"
         rf"(?P<state>{state_regex})(?:\s+(?P<zip>\d{{5}}(?:-\d{{4}})?))?\b",
         re.I,
@@ -701,16 +1289,14 @@ def _service_matches(text: str) -> Iterable[tuple[str, re.Match[str]]]:
             for other_service, other_match in matches
         ):
             continue
+        if service == "Home remodeling" and any(
+            other_service == "Full home remodeling"
+            and other_match.start() <= match.start()
+            and match.end() <= other_match.end()
+            for other_service, other_match in matches
+        ):
+            continue
         yield service, match
-
-
-def _service_page_slug(url: str) -> str | None:
-    path = urlsplit(url).path
-    match = re.match(r"^/services/(.+?)/?$", path, re.I)
-    if not match:
-        return None
-    slug = _normalize_space(re.sub(r"[-_]+", " ", match.group(1))).strip()
-    return slug or None
 
 
 def _service_is_negated(text: str, start: int, end: int) -> bool:
@@ -738,52 +1324,82 @@ def _place_locations_in_text(
         rf"\b(?P<city>[A-Z][A-Za-z'’.\-]+(?:\s+[A-Z][A-Za-z'’.\-]+){{0,3}}),\s*(?P<state>(?i:{state_regex}))(?:\s+(?P<zip>\d{{5}}(?:-\d{{4}})?))?\b"
     )
     for match in pattern.finditer(text):
-        state = _STATE_ALIASES[match.group("state").casefold()]
-        yield match.group("city"), state, match.group("zip"), match.start(), match.end()
+        city = _normalize_space(match.group("city"))
+        if not _is_usable_place_name(city) or _is_neighborhood_name(city):
+            continue
+        state = _normalized_state(match.group("state"))
+        yield city, state, match.group("zip"), match.start(), match.end()
 
 
 def _explicit_service_area_places(
     text: str,
-) -> Iterable[tuple[str, str | None, int, int]]:
+) -> Iterable[tuple[str, str | None, int, int, LocationType]]:
     lead = re.compile(
-        r"\b(?:we\s+serv(?:e|es)|serving|areas?\s+(?:we\s+)?serve|we\s+cover|cover(?:ing|s)|service\s+areas?(?:\s+(?:include|includes|cover|covers|are|is|in))?)\s*(?::\s*|\s+in\s+|\s+|$)([^.!?\n]{2,180})",
+        r"\b(?:(?:areas?|cities?)\s+we\s+serve|we\s+serve|we\s+cover|"
+        r"service\s+areas?\s+(?:include|are|cover(?:ed)?))\b\s*:?\s*"
+        r"(?P<places>[^.!?\n]{2,360})",
         re.I,
     )
+    state_expression = "|".join(
+        sorted((re.escape(item) for item in _STATE_ALIASES), key=len, reverse=True)
+    )
+    state_pattern = re.compile(
+        rf"(?<![A-Za-z])(?P<state>{state_expression})(?![A-Za-z])", re.I
+    )
     for match in lead.finditer(text):
-        value = match.group(1)
+        value = match.group("places")
         value = re.split(
-            r"\b(?:contact|call|learn more|for more|to book)\b",
+            r"\b(?:welcome to|quick links|contact us|free estimate|"
+            r"project gallery|our services)\b",
             value,
             maxsplit=1,
             flags=re.I,
         )[0]
-        state_match = re.search(
-            rf"\b({'|'.join(_STATE_ALIASES.keys())})\b", value, re.I
-        )
-        state = _STATE_ALIASES[state_match.group(1).casefold()] if state_match else None
-        without_state = re.sub(
-            rf"\b(?:{'|'.join(_STATE_ALIASES.keys())})\b", "", value, flags=re.I
-        )
+        state_match = state_pattern.search(value)
+        state = _normalized_state(state_match.group("state")) if state_match else None
+        without_state = state_pattern.sub(" ", value)
         segments = re.split(r"\s*(?:,|\band\b|&|/|\|)\s*", without_state)
         for segment in segments:
             candidate = re.sub(
-                r"^(?:in|around|throughout|the)\s+", "", segment, flags=re.I
-            )
-            candidate = re.sub(
-                r"\b(?:area|areas|county|counties|Example Region|FL)\b",
-                "",
-                candidate,
-                flags=re.I,
+                r"^(?:in|around|throughout|the|all)\s+", "", segment, flags=re.I
             )
             candidate = _normalize_space(candidate).strip(" -:;,.()")
-            if candidate and re.fullmatch(
-                r"[A-Z][A-Za-z'’.\-]*(?:\s+[A-Z][A-Za-z'’.\-]*){0,3}", candidate
-            ):
-                yield candidate, state, match.start(1), match.end(1)
+            if not _is_usable_place_name(candidate):
+                continue
+            location_type = (
+                LocationType.NEIGHBORHOOD_MENTION
+                if _is_neighborhood_name(candidate)
+                else LocationType.EXPLICITLY_SERVED_CITY
+            )
+            yield (
+                candidate,
+                state,
+                match.start("places"),
+                match.end("places"),
+                location_type,
+            )
+
+
+def _regional_service_areas_in_text(
+    text: str,
+) -> Iterable[tuple[str, int, int]]:
+    region_pattern = re.compile(
+        r"\b(?P<region>DFW\s+Metro\s+Area|DFW\s+Metroplex|"
+        r"Dallas[- ]Fort Worth\s+Metro(?:politan)?\s+Area)\b",
+        re.I,
+    )
+    for match in region_pattern.finditer(text):
+        prefix = text[max(0, match.start() - 80) : match.start()]
+        if re.search(
+            r"\b(?:serving|we\s+serve|areas?\s+we\s+serve|service\s+areas?)\b",
+            prefix,
+            re.I,
+        ):
+            yield _normalize_space(match.group("region")), match.start(), match.end()
 
 
 class WebsiteInspector:
-    """Inspect a public site using only bounded GET requests on its own host."""
+    """Inspect a public site with bounded HTTP and optional local DOM rendering."""
 
     def __init__(
         self,
@@ -792,6 +1408,7 @@ class WebsiteInspector:
         max_response_bytes: int = MAX_RESPONSE_BYTES,
         max_pages: int = MAX_PAGES,
         transport: Transport | None = None,
+        renderer: DOMRenderer | None = None,
         clock: Clock | None = None,
     ) -> None:
         if timeout_seconds < 1:
@@ -806,6 +1423,8 @@ class WebsiteInspector:
         self.max_response_bytes = max_response_bytes
         self.max_pages = max_pages
         self._transport = transport
+        # Keep browser rendering opt-in until network-level SSRF controls exist.
+        self._renderer = renderer
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         self._request_count = 0
 
@@ -993,6 +1612,84 @@ class WebsiteInspector:
                 f"Page crawl stopped at the {self.max_pages}-page limit."
             )
 
+        rendered_pages: Mapping[str, RenderedDOMOutcome] = {}
+        if self._renderer is not None:
+            try:
+                rendered_pages = self._renderer(
+                    tuple(item[0] for item in pages_raw),
+                    root_host,
+                    self.timeout_seconds,
+                )
+            except WebsiteInspectionError as error:
+                rendered_pages = {
+                    item[0]: RenderedDOMOutcome(
+                        None,
+                        error.category,
+                        str(error),
+                    )
+                    for item in pages_raw
+                }
+            except Exception as error:
+                rendered_pages = {
+                    item[0]: RenderedDOMOutcome(
+                        None,
+                        "render_failed",
+                        f"{type(error).__name__}: {error}",
+                    )
+                    for item in pages_raw
+                }
+            rendered_pages = {
+                item[0]: rendered_pages.get(
+                    item[0],
+                    RenderedDOMOutcome(
+                        None,
+                        "render_unavailable",
+                        "No DOM capture outcome was returned for this URL.",
+                    ),
+                )
+                for item in pages_raw
+            }
+            successful_render_count = sum(
+                outcome.dom is not None for outcome in rendered_pages.values()
+            )
+            if successful_render_count:
+                limitations.append(
+                    "DOM capturado con Playwright sin interacciones; los recursos de otros dominios y las solicitudes HTTP distintas de GET se bloquearon."
+                )
+                failed_render_count = len(rendered_pages) - successful_render_count
+                if failed_render_count:
+                    categories = sorted(
+                        {
+                            outcome.error_category
+                            for outcome in rendered_pages.values()
+                            if outcome.dom is None and outcome.error_category
+                        }
+                    )
+                    limitations.append(
+                        f"DOM no disponible para {failed_render_count} páginas ({', '.join(categories) or 'fallo de renderizado'}); se informa HTML_ONLY por URL."
+                    )
+            elif pages_raw:
+                categories = sorted(
+                    {
+                        outcome.error_category
+                        for outcome in rendered_pages.values()
+                        if outcome.error_category
+                    }
+                )
+                reason = ", ".join(categories) or "browser_unavailable"
+                limitations.append(
+                    f"DOM renderizado no disponible ({reason}); las páginas quedaron como HTML_ONLY."
+                )
+            render_errors = [
+                f"{url}: {outcome.error_category}: {outcome.error_message}"
+                for url, outcome in rendered_pages.items()
+                if outcome.error_message
+            ]
+            if render_errors:
+                limitations.append(
+                    "Detalle de errores de captura DOM: " + " | ".join(render_errors)
+                )
+
         return self._build_result(
             requested_url=requested_url,
             final_url=final_url,
@@ -1001,6 +1698,7 @@ class WebsiteInspector:
             robots_sitemaps=tuple(robots_sitemaps),
             robots_restrictions=tuple(robots_restrictions),
             sitemap_urls=tuple(sitemap_urls),
+            rendered_pages=rendered_pages,
             limitations=tuple(dict.fromkeys(limitations)),
         )
 
@@ -1028,6 +1726,7 @@ class WebsiteInspector:
         robots_sitemaps: tuple[str, ...],
         robots_restrictions: tuple[str, ...],
         sitemap_urls: tuple[str, ...],
+        rendered_pages: Mapping[str, RenderedDOMOutcome],
         limitations: tuple[str, ...],
     ) -> WebsiteInspectionResult:
         retrieved_at = self._clock().astimezone(timezone.utc)
@@ -1040,6 +1739,8 @@ class WebsiteInspector:
             title_text = re.sub(r"<[^>]*>", "", "".join(parser.title))
             title = _normalize_space(title_text) or None
             text = _normalize_space(" ".join(parser.text))[:_MAX_TEXT_CHARS]
+            rendered = rendered_pages.get(url, RenderedDOMOutcome(None))
+            rendered_dom = rendered.dom
             pages.append(
                 WebsitePage(
                     url=url,
@@ -1049,6 +1750,31 @@ class WebsiteInspector:
                     h1_headings=tuple(dict.fromkeys(parser.h1)),
                     h2_headings=tuple(dict.fromkeys(parser.h2)),
                     main_text=text,
+                    link_texts=tuple(dict.fromkeys(parser.link_texts)),
+                    link_urls=_page_link_urls(url, parser.links),
+                    robots_directives=tuple(dict.fromkeys(parser.robots_directives)),
+                    x_robots_tag=response.x_robots_tag,
+                    inspection_method=(
+                        "HTTP_AND_RENDERED_DOM"
+                        if rendered_dom is not None
+                        else "HTML_ONLY"
+                    ),
+                    rendered_title=rendered_dom.title if rendered_dom else None,
+                    rendered_meta_description=(
+                        rendered_dom.meta_description if rendered_dom else None
+                    ),
+                    rendered_h1_headings=(
+                        rendered_dom.h1_headings if rendered_dom else ()
+                    ),
+                    rendered_h2_headings=(
+                        rendered_dom.h2_headings if rendered_dom else ()
+                    ),
+                    rendered_link_texts=(
+                        rendered_dom.link_texts if rendered_dom else ()
+                    ),
+                    rendered_link_urls=(rendered_dom.link_urls if rendered_dom else ()),
+                    rendered_dom_error=rendered.error_category,
+                    rendered_dom_error_message=rendered.error_message,
                 )
             )
             all_jsonld.extend((url, obj) for obj in _jsonld_objects(parser.jsonld))
@@ -1066,6 +1792,16 @@ class WebsiteInspector:
 
         home_parser = pages_raw[0][2]
         objects = [obj for _, obj in all_jsonld]
+        structured_data_types = tuple(
+            sorted(
+                {
+                    schema_type
+                    for obj in objects
+                    for schema_type in _schema_type_names(obj)
+                },
+                key=str.casefold,
+            )
+        )
         business_object = next(
             (
                 obj
@@ -1358,7 +2094,11 @@ class WebsiteInspector:
                             city=city,
                             state=state,
                             postal_code=postal,
-                            location_type=LocationType.SERVICE_AREA,
+                            location_type=(
+                                LocationType.NEIGHBORHOOD_MENTION
+                                if _is_neighborhood_name(city)
+                                else LocationType.SERVICE_AREA
+                            ),
                             source_url=source_url,
                             supporting_text=excerpt,
                             evidence_classification=EvidenceKind.REPORTED,
@@ -1414,6 +2154,17 @@ class WebsiteInspector:
                 )
                 is not None
             )
+            for link_text in page.link_texts:
+                for service, _ in _service_matches(link_text):
+                    add_service_candidate(
+                        service=service,
+                        source_url=page.url,
+                        supporting_text="Navigation link: " + link_text,
+                        field="anchor_text",
+                        kind=EvidenceKind.REPORTED,
+                        confidence=0.86,
+                        verification_status=VerificationStatus.WEBSITE_REPORTED,
+                    )
             explicit_fields: tuple[tuple[str, str | None, str], ...] = (
                 ("page_title", page.title, "Page title: "),
                 ("meta_description", page.meta_description, "Meta description: "),
@@ -1438,7 +2189,7 @@ class WebsiteInspector:
 
             page_path = urlsplit(page.url).path.rstrip("/").casefold()
             is_service_page = (
-                _service_page_slug(page.url) is not None or page_path == "/services"
+                re.match(r"^/(?:our-)?services(?:/|$)", page_path, re.I) is not None
             )
             for service, match in _service_matches(page.main_text):
                 if not is_service_page and not _SERVICE_OFFER_CONTEXT.search(
@@ -1457,31 +2208,34 @@ class WebsiteInspector:
                     verification_status=VerificationStatus.WEBSITE_REPORTED,
                 )
 
-            slug = _service_page_slug(page.url)
-            if slug:
-                for service, _ in _service_matches(slug):
-                    add_service_candidate(
-                        service=service,
-                        source_url=page.url,
-                        supporting_text=f"Service-page URL slug: {slug}",
-                        field="service_page_slug",
-                        kind=EvidenceKind.INFERRED,
-                        confidence=0.66,
-                        verification_status=VerificationStatus.UNVERIFIED,
-                        assumptions=(
-                            "The service route slug names a service; rendered page content was unavailable to the HTTP inspector.",
-                        ),
-                    )
+            is_contact_page = any(
+                word in page.url.casefold() for word in ("contact", "location", "about")
+            )
+            contact_addresses = (
+                tuple(_text_addresses(page.main_text)) if is_contact_page else ()
+            )
+            address_spans = tuple(
+                (address[4], address[5]) for address in contact_addresses
+            )
             for city, state, postal, start, end in _place_locations_in_text(
                 page.main_text
             ):
-                excerpt = _sentence_for(page.main_text, start, end)
+                if any(
+                    start < address_end and address_start < end
+                    for address_start, address_end in address_spans
+                ):
+                    continue
+                excerpt = _normalize_space(
+                    page.main_text[
+                        max(0, start - 80) : min(len(page.main_text), end + 80)
+                    ]
+                )
                 evidence_id = add_evidence(
                     field="geographic_reference",
                     value=city,
                     source_url=page.url,
                     excerpt=excerpt,
-                    kind=EvidenceKind.OBSERVED,
+                    kind=EvidenceKind.REPORTED,
                     confidence=0.55,
                 )
                 locations.append(
@@ -1490,18 +2244,22 @@ class WebsiteInspector:
                         state=state,
                         postal_code=postal,
                         location_type=LocationType.CITY_MENTION,
-                        source_url=source_url,
+                        source_url=page.url,
                         supporting_text=excerpt,
-                        evidence_classification=EvidenceKind.OBSERVED,
+                        evidence_classification=EvidenceKind.REPORTED,
                         confidence=0.55,
-                        verification_status=VerificationStatus.UNVERIFIED,
+                        verification_status=VerificationStatus.WEBSITE_REPORTED,
                         evidence_id=evidence_id,
                     )
                 )
-            for city, state, start, end in _explicit_service_area_places(
+            for city, state, start, end, location_type in _explicit_service_area_places(
                 page.main_text
             ):
-                excerpt = _sentence_for(page.main_text, start, end)
+                excerpt = _normalize_space(
+                    page.main_text[
+                        max(0, start - 50) : min(len(page.main_text), end + 50)
+                    ]
+                )
                 evidence_id = add_evidence(
                     field="explicit_service_area",
                     value=city,
@@ -1515,8 +2273,8 @@ class WebsiteInspector:
                         city=city,
                         state=state,
                         postal_code=None,
-                        location_type=LocationType.EXPLICITLY_SERVED_CITY,
-                        source_url=source_url,
+                        location_type=location_type,
+                        source_url=page.url,
                         supporting_text=excerpt,
                         evidence_classification=EvidenceKind.REPORTED,
                         confidence=0.88,
@@ -1524,12 +2282,44 @@ class WebsiteInspector:
                         evidence_id=evidence_id,
                     )
                 )
-            if any(
-                word in page.url.casefold() for word in ("contact", "location", "about")
-            ):
-                for street_address, city, state, postal, start, end in _text_addresses(
-                    page.main_text
-                ):
+            for source_text in (*page.h1_headings, *page.h2_headings, page.main_text):
+                for region, start, end in _regional_service_areas_in_text(source_text):
+                    excerpt = _normalize_space(
+                        source_text[
+                            max(0, start - 60) : min(len(source_text), end + 40)
+                        ]
+                    )
+                    evidence_id = add_evidence(
+                        field="regional_service_area",
+                        value=region,
+                        source_url=page.url,
+                        excerpt=excerpt,
+                        kind=EvidenceKind.REPORTED,
+                        confidence=0.88,
+                    )
+                    locations.append(
+                        LocationCandidate(
+                            city=region,
+                            state=None,
+                            postal_code=None,
+                            location_type=LocationType.REGIONAL_SERVICE_AREA,
+                            source_url=page.url,
+                            supporting_text=excerpt,
+                            evidence_classification=EvidenceKind.REPORTED,
+                            confidence=0.88,
+                            verification_status=VerificationStatus.WEBSITE_REPORTED,
+                            evidence_id=evidence_id,
+                        )
+                    )
+            if is_contact_page:
+                for (
+                    street_address,
+                    city,
+                    state,
+                    postal,
+                    start,
+                    end,
+                ) in contact_addresses:
                     excerpt = _sentence_for(page.main_text, start, end)
                     evidence_id = add_evidence(
                         field="visible_business_address",
@@ -1545,11 +2335,11 @@ class WebsiteInspector:
                             state=state,
                             postal_code=postal,
                             location_type=LocationType.BUSINESS_ADDRESS,
-                            source_url=source_url,
+                            source_url=page.url,
                             supporting_text=excerpt,
                             evidence_classification=EvidenceKind.OBSERVED,
                             confidence=0.82,
-                            verification_status=VerificationStatus.WEBSITE_OBSERVED,
+                            verification_status=VerificationStatus.WEBSITE_REPORTED,
                             evidence_id=evidence_id,
                         )
                     )
@@ -1588,7 +2378,7 @@ class WebsiteInspector:
                             supporting_text=candidate.supporting_text,
                             evidence_classification=candidate.evidence_classification,
                             confidence=min(candidate.confidence, 0.6),
-                            verification_status=VerificationStatus.UNVERIFIED,
+                            verification_status=VerificationStatus.WEBSITE_REPORTED,
                             evidence_id=candidate.evidence_id,
                         )
                     updated_services.append(candidate)
@@ -1647,6 +2437,7 @@ class WebsiteInspector:
             robots_sitemaps=robots_sitemaps,
             robots_restrictions=robots_restrictions,
             sitemap_urls=sitemap_urls,
+            structured_data_types=structured_data_types,
             limitations=limitations,
         )
         return WebsiteInspectionResult(
@@ -1657,6 +2448,40 @@ class WebsiteInspector:
             locations=tuple(locations),
             services=tuple(services),
         )
+
+
+def _page_link_urls(base_url: str, raw_links: Iterable[str]) -> tuple[str, ...]:
+    links: list[str] = []
+    for raw_link in raw_links:
+        try:
+            candidate = urljoin(base_url, raw_link.strip())
+            parts = urlsplit(candidate)
+            if (
+                parts.scheme.casefold() not in {"http", "https"}
+                or not parts.hostname
+                or parts.username
+                or parts.password
+            ):
+                continue
+            candidate, _ = urldefrag(candidate)
+            candidate = strip_tracking_parameters(candidate)
+        except (AttributeError, TypeError, ValueError):
+            continue
+        if candidate not in links:
+            links.append(candidate)
+        if len(links) >= 100:
+            break
+    return tuple(links)
+
+
+def _schema_type_names(obj: dict[str, object]) -> tuple[str, ...]:
+    value = obj.get("@type")
+    items = value if isinstance(value, list) else [value]
+    return tuple(
+        dict.fromkeys(
+            text.rsplit("/", 1)[-1] for item in items if (text := _text_value(item))
+        )
+    )
 
 
 def _schema_types(obj: dict[str, object]) -> set[str]:

@@ -30,6 +30,7 @@ class ProfileFieldStatus(StrEnum):
     OBSERVED = "OBSERVED"
     UNKNOWN = "UNKNOWN"
     NOT_PROVIDED = "NOT_PROVIDED"
+    NEEDS_CONFIRMATION = "NEEDS_CONFIRMATION"
     INFERRED = "INFERRED"
 
 
@@ -80,6 +81,11 @@ class BusinessProfile:
     owner_confirmed_fields: tuple[str, ...] | None = None
     legal_name: str | None = None
     registration_id: str | None = None
+    legal_entity_status: str | None = None
+    registered_address: str | None = None
+    registered_agent: str | None = None
+    reinstatement_filed_date: str | None = None
+    reported_prior_names: tuple[str, ...] | None = None
     postal_code: str | None = None
     address: str | None = None
     additional_service_areas: tuple[str, ...] | None = None
@@ -88,8 +94,12 @@ class BusinessProfile:
     value_proposition: str | None = None
     differentiators: tuple[str, ...] | None = None
     website_url: str | None = None
+    website_presence: bool | None = None
     google_business_profile_url: str | None = None
+    google_business_profile_present: bool | None = None
     social_media_urls: tuple[str, ...] | None = None
+    instagram_presence: bool | None = None
+    instagram_url: str | None = None
     phone: str | None = None
     business_email: str | None = None
     years_in_operation: int | None = None
@@ -161,7 +171,11 @@ class BusinessProfile:
             has_value = value is not None and value != () and value != ""
             if key == "business_model" and value is BusinessModel.UNKNOWN:
                 has_value = False
-            if status in {ProfileFieldStatus.UNKNOWN, ProfileFieldStatus.NOT_PROVIDED}:
+            if status in {
+                ProfileFieldStatus.UNKNOWN,
+                ProfileFieldStatus.NOT_PROVIDED,
+                ProfileFieldStatus.NEEDS_CONFIRMATION,
+            }:
                 if has_value:
                     raise InvalidLiveContract(
                         f"{key} must be empty when its status is {status.value}"
@@ -260,6 +274,7 @@ class BusinessProfile:
             "products",
             "differentiators",
             "social_media_urls",
+            "reported_prior_names",
             "existing_customer_sources",
             "commercial_challenges",
             "commercial_goals",
@@ -270,6 +285,7 @@ class BusinessProfile:
             unknown_status = self.field_statuses.get(field) in {
                 ProfileFieldStatus.UNKNOWN,
                 ProfileFieldStatus.NOT_PROVIDED,
+                ProfileFieldStatus.NEEDS_CONFIRMATION,
             }
             _text_tuple(
                 getattr(self, field),
@@ -341,11 +357,16 @@ class BusinessProfile:
         for field in (
             "legal_name",
             "registration_id",
+            "legal_entity_status",
+            "registered_address",
+            "registered_agent",
+            "reinstatement_filed_date",
             "postal_code",
             "address",
             "value_proposition",
             "website_url",
             "google_business_profile_url",
+            "instagram_url",
             "phone",
             "business_email",
             "operational_capacity",
@@ -355,6 +376,20 @@ class BusinessProfile:
             _text(value, field, optional=True)
             if isinstance(value, str):
                 object.__setattr__(self, field, value.strip())
+        if self.legal_entity_status is not None:
+            object.__setattr__(
+                self, "legal_entity_status", self.legal_entity_status.upper()
+            )
+        if self.reinstatement_filed_date is not None:
+            try:
+                parsed_date = date.fromisoformat(self.reinstatement_filed_date)
+            except ValueError as error:
+                raise InvalidLiveContract(
+                    "reinstatement_filed_date must be an ISO calendar date"
+                ) from error
+            object.__setattr__(
+                self, "reinstatement_filed_date", parsed_date.isoformat()
+            )
         for field in (
             "years_in_operation",
             "approximate_employees",
@@ -382,6 +417,9 @@ class BusinessProfile:
             "urgent_service_available",
             "legal_business_established",
             "documentation_and_insurance_in_order",
+            "website_presence",
+            "google_business_profile_present",
+            "instagram_presence",
         ):
             value = getattr(self, field)
             if value is not None and not isinstance(value, bool):
@@ -411,6 +449,7 @@ class BusinessProfile:
             "products",
             "differentiators",
             "social_media_urls",
+            "reported_prior_names",
             "existing_customer_sources",
             "commercial_challenges",
             "commercial_goals",
@@ -538,7 +577,11 @@ class BusinessProfile:
                 }
                 or field in metadata_fields
                 or status
-                in {ProfileFieldStatus.UNKNOWN, ProfileFieldStatus.NOT_PROVIDED}
+                in {
+                    ProfileFieldStatus.UNKNOWN,
+                    ProfileFieldStatus.NOT_PROVIDED,
+                    ProfileFieldStatus.NEEDS_CONFIRMATION,
+                }
                 or (
                     explicitly_confirmed is not None
                     and field not in explicitly_confirmed

@@ -16,8 +16,13 @@ from aeos.live.ports.website import WebsiteInspectionResult
 
 
 def _location_dict(item: LocationCandidate) -> dict[str, object]:
+    is_neighborhood = item.location_type is LocationType.NEIGHBORHOOD_MENTION
+    is_region = item.location_type is LocationType.REGIONAL_SERVICE_AREA
     return {
-        "city": item.city,
+        "city": None if is_neighborhood or is_region else item.city,
+        "neighborhood": item.city if is_neighborhood else None,
+        "region": item.city if is_region else None,
+        "place_name": item.city,
         "state": item.state,
         "postal_code": item.postal_code,
         "location_type": item.location_type.value,
@@ -86,6 +91,19 @@ def build_website_report(
         if inspection is not None
         else None
     )
+    city_candidates = (
+        [
+            item
+            for item in inspection.locations
+            if item.location_type
+            not in {
+                LocationType.NEIGHBORHOOD_MENTION,
+                LocationType.REGIONAL_SERVICE_AREA,
+            }
+        ]
+        if inspection
+        else []
+    )
     missing: list[str] = []
     if inspection is None:
         missing.append("No evaluada: la inspección falló antes de recuperar páginas.")
@@ -100,7 +118,7 @@ def build_website_report(
             missing.append(
                 "Dirección empresarial verificable y su función (registrada u operativa)"
             )
-        if not inspection.locations:
+        if not city_candidates:
             missing.append("Ciudades o áreas de servicio identificables en el sitio")
         if not inspection.services:
             missing.append("Servicios detallados en el sitio")
@@ -143,6 +161,78 @@ def build_website_report(
                     "h1": [safe_text_for_report(item) for item in page.h1_headings],
                     "h2": [safe_text_for_report(item) for item in page.h2_headings],
                     "main_text": safe_text_for_report(page.main_text),
+                    "link_texts": [
+                        safe_text_for_report(item) for item in page.link_texts
+                    ],
+                    "link_urls": [
+                        safe_url_for_report(item) or "[URL omitted]"
+                        for item in page.link_urls
+                    ],
+                    "metodo_inspeccion": page.inspection_method,
+                    "title_html": safe_text_for_report(page.title)
+                    if page.title
+                    else None,
+                    "meta_description_html": (
+                        safe_text_for_report(page.meta_description)
+                        if page.meta_description
+                        else None
+                    ),
+                    "h1_html": [
+                        safe_text_for_report(item) for item in page.h1_headings
+                    ],
+                    "dom_renderizado": (
+                        {
+                            "status": page.rendered_dom_status,
+                            "fields_observed": list(page.rendered_dom_fields_observed),
+                            "error_category": page.rendered_dom_error,
+                            "error_message": safe_text_for_report(
+                                page.rendered_dom_error_message
+                            )
+                            if page.rendered_dom_error_message
+                            else None,
+                            "title": safe_text_for_report(page.rendered_title)
+                            if page.rendered_title
+                            else None,
+                            "meta_description": safe_text_for_report(
+                                page.rendered_meta_description
+                            )
+                            if page.rendered_meta_description
+                            else None,
+                            "h1": [
+                                safe_text_for_report(item)
+                                for item in page.rendered_h1_headings
+                            ],
+                            "h2": [
+                                safe_text_for_report(item)
+                                for item in page.rendered_h2_headings
+                            ],
+                            "link_texts": [
+                                safe_text_for_report(item)
+                                for item in page.rendered_link_texts
+                            ],
+                            "link_urls": [
+                                safe_url_for_report(item) or "[URL omitted]"
+                                for item in page.rendered_link_urls
+                            ],
+                        }
+                        if page.inspection_method == "HTTP_AND_RENDERED_DOM"
+                        else {
+                            "status": "HTML_ONLY",
+                            "fields_observed": [],
+                            "error_category": page.rendered_dom_error,
+                            "error_message": safe_text_for_report(
+                                page.rendered_dom_error_message
+                            )
+                            if page.rendered_dom_error_message
+                            else None,
+                        }
+                    ),
+                    "dom_renderizado_error": page.rendered_dom_error,
+                    "dom_renderizado_error_mensaje": safe_text_for_report(
+                        page.rendered_dom_error_message
+                    )
+                    if page.rendered_dom_error_message
+                    else None,
                 }
                 for page in pages
             ],
@@ -169,6 +259,9 @@ def build_website_report(
                 "nota": "Solo se muestran si el sitio las publica; no se calculan ni se usan como centro de búsqueda.",
             },
             "otros_datos_estructurados": {
+                "tipos_schema": (
+                    list(details.structured_data_types) if details else []
+                ),
                 "horario_publicado": list(details.opening_hours) if details else [],
                 "perfiles_mencionados": [
                     safe_url_for_report(item) or "[URL omitted]"
@@ -269,16 +362,22 @@ def render_website_report_markdown(report: dict[str, object]) -> str:
         "",
     ]
     locations = cast(list[dict[str, object]], inspection["candidatos_geograficos"])
+    city_candidates = [
+        item
+        for item in locations
+        if item.get("location_type")
+        not in {"NEIGHBORHOOD_MENTION", "REGIONAL_SERVICE_AREA"}
+    ]
     if locations:
         lines.extend(
             (
-                "| Ciudad | Estado | Tipo | Clasificación | Verificación | Fuente |",
+                "| Lugar | Estado | Tipo | Clasificación | Verificación | Fuente |",
                 "|---|---|---|---|---|---|",
             )
         )
         for item in locations:
             lines.append(
-                f"| {item['city']} | {item['state'] or 'No indicado'} | {item['location_type']} | {item['evidence_classification']} | {item['verification_status']} | [sitio]({item['source_url']}) |"
+                f"| {item.get('place_name', item.get('city'))} | {item['state'] or 'No indicado'} | {item['location_type']} | {item['evidence_classification']} | {item['verification_status']} | [sitio]({item['source_url']}) |"
             )
             lines.append(f"  - Evidencia: {item['supporting_text']}")
     else:
@@ -305,7 +404,7 @@ def render_website_report_markdown(report: dict[str, object]) -> str:
             else "No se identificaron servicios específicos."
         )
     lines.extend(("", "## G. Mercados potenciales", ""))
-    if locations:
+    if city_candidates:
         lines.append(
             "Los candidatos requieren revisión y selección del propietario antes de iniciar investigación comercial."
         )
