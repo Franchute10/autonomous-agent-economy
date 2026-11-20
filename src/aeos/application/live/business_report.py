@@ -32,6 +32,155 @@ def _evidence_dict(item: SourceEvidence) -> dict[str, object]:
     }
 
 
+def _field_status(profile: BusinessProfile, field: str) -> str:
+    status = profile.field_statuses.get(field)
+    return status.value if status is not None else "UNKNOWN"
+
+
+def _digital_presence_actions(
+    profile: BusinessProfile, reported: list[SourceEvidence]
+) -> list[dict[str, object]]:
+    actions: list[dict[str, object]] = []
+    facebook_evidence = [
+        item
+        for item in reported
+        if item.field == "social_media_urls"
+        and "facebook.com" in str(item.value).casefold()
+    ]
+    for item in facebook_evidence:
+        url = item.source_url or str(item.value)
+        actions.append(
+            {
+                "action_id": f"review-reported-facebook-{item.evidence_id}",
+                "title": "Revisar la página de Facebook reportada",
+                "data_status": "REPORTED_NOT_INSPECTED",
+                "evidence_ids": [item.evidence_id],
+                "source_urls": [url],
+                "recommended_action": (
+                    "Revisar con el propietario si la página presenta de forma clara "
+                    "los servicios, la cobertura, el contacto y el paso para solicitar "
+                    "una cotización; actualizar únicamente datos confirmados."
+                ),
+                "validation_method": (
+                    "Registrar la URL y fecha de revisión, y confirmar cada dato con "
+                    "el propietario."
+                ),
+            }
+        )
+
+    if profile.instagram_presence is True and profile.instagram_url is None:
+        evidence_ids = [
+            item.evidence_id
+            for item in reported
+            if item.field == "instagram_presence" and item.value is True
+        ]
+        actions.append(
+            {
+                "action_id": "confirm-instagram-url",
+                "title": "Confirmar la URL de Instagram",
+                "data_status": "NEEDS_CONFIRMATION",
+                "evidence_ids": evidence_ids,
+                "source_urls": [],
+                "recommended_action": (
+                    "Solicitar al propietario la URL oficial de Instagram y asociarla "
+                    "a la empresa solo después de confirmarla."
+                ),
+                "validation_method": (
+                    "Confirmar la URL con el propietario y conservar la fuente y la fecha."
+                ),
+            }
+        )
+
+    if profile.website_url is None:
+        evidence_ids = [
+            item.evidence_id for item in reported if item.field == "website_presence"
+        ]
+        website_reported_present = profile.website_presence is True
+        website_reported_absent = profile.website_presence is False
+        actions.append(
+            {
+                "action_id": "confirm-website-url",
+                "title": (
+                    "Solicitar la URL del sitio web reportado"
+                    if website_reported_present
+                    else "Confirmar la presencia de un sitio web"
+                ),
+                "data_status": (
+                    "REPORTED_PRESENT_URL_MISSING"
+                    if website_reported_present
+                    else "REPORTED_ABSENT_NEEDS_CONFIRMATION"
+                    if website_reported_absent
+                    else "PRESENCE_UNKNOWN"
+                ),
+                "evidence_ids": evidence_ids,
+                "source_urls": [],
+                "recommended_action": (
+                    "Solicitar al propietario la URL pública del sitio que reportó y "
+                    "asociarla al negocio solo después de confirmarla."
+                    if website_reported_present
+                    else "El propietario reportó que no existe un sitio. Confirmar ese "
+                    "dato y, si se confirma, evaluar si conviene publicar una página "
+                    "sencilla con servicios, cobertura, contacto y solicitud de cotización."
+                    if website_reported_absent
+                    else "Preguntar al propietario si existe un sitio público y pedir "
+                    "la URL si la respuesta es sí. No asumir que el sitio no existe."
+                ),
+                "validation_method": (
+                    "Registrar la respuesta y la URL confirmada, si existe; inspeccionar "
+                    "el sitio en una evaluación posterior."
+                ),
+            }
+        )
+
+    if profile.google_business_profile_url is None:
+        evidence_ids = [
+            item.evidence_id
+            for item in reported
+            if item.field == "google_business_profile_present"
+        ]
+        google_profile_reported_present = (
+            profile.google_business_profile_present is True
+        )
+        google_profile_reported_absent = (
+            profile.google_business_profile_present is False
+        )
+        actions.append(
+            {
+                "action_id": "confirm-google-business-profile",
+                "title": (
+                    "Solicitar la URL del Perfil de Negocio de Google reportado"
+                    if google_profile_reported_present
+                    else "Confirmar la presencia del Perfil de Negocio de Google"
+                ),
+                "data_status": (
+                    "REPORTED_PRESENT_URL_MISSING"
+                    if google_profile_reported_present
+                    else "REPORTED_ABSENT_NEEDS_CONFIRMATION"
+                    if google_profile_reported_absent
+                    else "PRESENCE_UNKNOWN"
+                ),
+                "evidence_ids": evidence_ids,
+                "source_urls": [],
+                "recommended_action": (
+                    "Solicitar al propietario la URL pública del perfil reportado y "
+                    "asociarla al negocio solo después de confirmarla."
+                    if google_profile_reported_present
+                    else "El propietario reportó que no existe un perfil. Confirmar ese "
+                    "dato y revisar elegibilidad antes de considerar reclamarlo o crearlo."
+                    if google_profile_reported_absent
+                    else "Preguntar al propietario si existe un perfil público y pedir "
+                    "la URL si la respuesta es sí. No asumir que el perfil no existe."
+                ),
+                "validation_method": (
+                    "Registrar la respuesta y la URL, si se proporciona; cualquier "
+                    "ausencia seguirá siendo reportada hasta verificarla."
+                ),
+            }
+        )
+
+    return actions
+
+
 def _entity_evidence(
     entity: MarketEntity, evidence_by_id: dict[str, SourceEvidence]
 ) -> tuple[SourceEvidence, ...]:
@@ -352,6 +501,11 @@ def build_business_report(
 ) -> dict[str, object]:
     """Build the auditable JSON report from profile, provider, and assessment."""
 
+    search_status = provider.get("status")
+    market_result_available = search_status in {
+        "COMPLETED_WITH_RESULTS",
+        "COMPLETED_NO_RESULTS",
+    }
     evidence_by_id = {item.evidence_id: item for item in assessment.evidence}
     inference_by_entity: dict[str, list[str]] = {}
     for entity in discovery.entities:
@@ -462,26 +616,139 @@ def build_business_report(
     )
 
     limitations = list(discovery.limitations) + list(assessment.limitations)
-    limitations.extend(
-        (
-            "Directory inclusion does not confirm that an organization is a lead, has current demand, or intends to buy.",
-            "The owner-declared service radius is preserved in the profile but cannot be applied as a distance filter without verified business coordinates.",
-            "The Overpass search uses named administrative areas, which may not match the owner's service boundary exactly.",
-            "No underserved-market or revenue claim is inferred from the number of listings returned.",
+    if not market_result_available:
+        limitations = [
+            item
+            for item in limitations
+            if not any(
+                phrase in item.casefold()
+                for phrase in (
+                    "fewer than two comparable competitors",
+                    "competitor list is a discovery sample",
+                    "no rating or review metric had matching observed evidence",
+                )
+            )
+        ]
+    if market_result_available and discovery.entities:
+        limitations.append(
+            "Directory inclusion does not confirm that an organization is a lead, has current demand, or intends to buy."
         )
+    if profile.service_radius is not None:
+        limitations.append(
+            "The owner-declared service radius is preserved in the profile but cannot be applied as a distance filter without verified business coordinates."
+        )
+    if search_status not in {"NOT_RUN", "UNSUPPORTED"}:
+        limitations.append(
+            "The Overpass search uses named administrative areas, which may not match the owner's service boundary exactly."
+        )
+    limitations.append(
+        "No underserved-market or revenue claim is inferred from the number of listings returned."
     )
     if provider_error:
         limitations.append(provider_error)
+    if not market_result_available:
+        limitations.append(
+            "Market discovery did not produce a usable result; competitor counts and market demand are unknown."
+        )
 
     observed = [
         item for item in assessment.evidence if item.kind is EvidenceKind.OBSERVED
     ]
+    profile_reported_ids = {
+        item.evidence_id
+        for item in profile.reported_evidence()
+        if item.kind is EvidenceKind.REPORTED
+    }
     reported = [
         item
         for item in assessment.evidence
         if item.kind is EvidenceKind.REPORTED
-        and item.evidence_id.startswith("profile:")
+        and item.evidence_id in profile_reported_ids
     ]
+    digital_presence_actions = _digital_presence_actions(profile, reported)
+    registry_fields = {
+        "legal_name",
+        "registration_id",
+        "legal_entity_status",
+        "registered_address",
+        "registered_agent",
+        "reinstatement_filed_date",
+        "reported_prior_names",
+    }
+    operational_fields = {
+        "business_name",
+        "industry",
+        "vertical",
+        "description",
+        "city",
+        "state_region",
+        "primary_services",
+        "additional_service_areas",
+        "website_url",
+        "website_presence",
+        "google_business_profile_url",
+        "google_business_profile_present",
+        "social_media_urls",
+        "instagram_presence",
+        "instagram_url",
+    }
+    registry_evidence = [
+        _evidence_dict(item) for item in reported if item.field in registry_fields
+    ]
+    operational_evidence = [
+        _evidence_dict(item) for item in reported if item.field in operational_fields
+    ]
+    assessment_report = assessment_to_dict(assessment)
+    if not market_result_available:
+        assessment_report["market_entities"] = None
+        assessment_report["market_structure_observations"] = None
+        market_position = cast(dict[str, object], assessment_report["market_position"])
+        market_position["comparison_sample_size"] = None
+        market_position["comparable_competitor_ids"] = None
+        market_position["relative_strengths"] = None
+        market_position["relative_weaknesses"] = None
+        market_position["market_gaps"] = None
+        market_position["limitations"] = [
+            item
+            for item in cast(list[str], market_position["limitations"])
+            if not any(
+                phrase in item.casefold()
+                for phrase in (
+                    "fewer than two comparable competitors",
+                    "competitor list is a discovery sample",
+                    "no rating or review metric had matching observed evidence",
+                )
+            )
+        ] + [
+            "Market discovery did not produce a usable result; competitor counts and market demand are unknown."
+        ]
+        assessment_report["limitations"] = [
+            item
+            for item in cast(list[str], assessment_report["limitations"])
+            if not any(
+                phrase in item.casefold()
+                for phrase in (
+                    "fewer than two comparable competitors",
+                    "competitor list is a discovery sample",
+                    "no rating or review metric had matching observed evidence",
+                )
+            )
+        ] + [
+            "Market discovery did not produce a usable result; competitor counts and market demand are unknown."
+        ]
+        coverage = cast(list[dict[str, object]], market_position["data_coverage"])
+        for coverage_item in coverage:
+            if coverage_item["signal"] in {
+                "comparable_competitors",
+                "competitor_rating",
+                "competitor_review_count",
+            }:
+                coverage_item["sample_size"] = None
+                coverage_item["available"] = False
+                coverage_item["notes"] = (
+                    "Market discovery was not available; this run cannot determine "
+                    "competitor counts or comparison coverage."
+                )
     inferred = [
         item for item in assessment.evidence if item.kind is EvidenceKind.INFERRED
     ]
@@ -502,12 +769,30 @@ def build_business_report(
             ]
         )
     )
+    if search_status == "FAILED":
+        discovery_summary = "The market search failed; no entity count or market absence can be inferred from this run."
+        listing_note = "The provider returned no usable market result."
+    elif search_status == "UNSUPPORTED":
+        discovery_summary = "This vertical is unsupported by the configured market mappings, so no provider search was sent."
+        listing_note = "No market absence can be inferred from an unsupported search."
+    elif search_status == "NOT_RUN":
+        discovery_summary = "Market discovery was not run; no entity count or market absence can be inferred from this run."
+        listing_note = "No provider result is available."
+    elif market_result_available:
+        discovery_summary = f"Discovery returned {len(discovery.entities)} named organizations across the mapped categories."
+        listing_note = "These listings support research hypotheses only; they do not establish buying intent or commercial relationships."
+    else:
+        discovery_summary = "The market provider returned an unrecognized status; no entity count or market absence can be inferred from this run."
+        listing_note = "No usable provider result is available."
+    location_context = (
+        f"with a registered address reported in {profile.city}, {profile.state_region}"
+        if profile.registered_address is not None
+        else f"with reported location context in {profile.city}, {profile.state_region}"
+    )
     executive_summary = (
         f"The profile describes {profile.business_name} as a {profile.business_model.value} "
-        f"{profile.vertical.replace('_', ' ').lower()} business serving {profile.city}, "
-        f"{profile.state_region}. Discovery returned {len(discovery.entities)} named "
-        "organizations across the mapped categories. These listings support research "
-        "hypotheses only; they do not establish buying intent or commercial relationships. "
+        f"{profile.vertical.replace('_', ' ').lower()} business {location_context}. "
+        f"{discovery_summary} {listing_note} "
         + (
             "There is not enough verified comparable data for a competitor benchmark."
             if benchmark_status == "INSUFFICIENT_COMPARABLE_DATA"
@@ -527,7 +812,7 @@ def build_business_report(
             "data_notice": (
                 "Fictional demonstration profile. These details do not describe a real business."
                 if profile.is_fictional_example
-                else "Business details in this profile were supplied by the owner and are classified as REPORTED."
+                else "Each profile field retains its own evidence status. REPORTED details were supplied by the owner or user and were not independently verified."
             ),
         },
         "executive_summary": executive_summary,
@@ -537,10 +822,95 @@ def build_business_report(
             "inferred_hypotheses": [_evidence_dict(item) for item in inferred],
             "information_not_found": missing_benchmark_information,
         },
+        "legal_registry": {
+            "business_name": profile.legal_name,
+            "status": profile.legal_entity_status,
+            "registration_id": profile.registration_id,
+            "registered_address": profile.registered_address,
+            "registered_agent": profile.registered_agent,
+            "reinstatement_filed_date": profile.reinstatement_filed_date,
+            "reported_prior_names": [
+                {"name": name, "status": "REPORTED", "continuity_confirmed": False}
+                for name in profile.reported_prior_names or ()
+            ],
+            "data_status": "REPORTED" if registry_evidence else "NOT_PROVIDED",
+            "field_statuses": {
+                field: _field_status(profile, field)
+                for field in (
+                    "legal_name",
+                    "legal_entity_status",
+                    "registration_id",
+                    "registered_address",
+                    "registered_agent",
+                    "reinstatement_filed_date",
+                    "reported_prior_names",
+                )
+            },
+            "verification_note": (
+                "Registry details were supplied by the owner; the referenced page was "
+                "not retrieved during this assessment."
+                if registry_evidence
+                and any(
+                    "sunbiz.org" in str(item.get("source_url", "")).casefold()
+                    for item in registry_evidence
+                )
+                else "Registry details were supplied by the owner but no Sunbiz source "
+                "was supplied; these details were not independently verified."
+                if registry_evidence
+                else "No legal registry details were supplied; this assessment did not query a registry."
+            ),
+            "evidence": registry_evidence,
+        },
+        "operational_profile": {
+            "business_name": profile.business_name,
+            "industry": profile.industry,
+            "vertical": profile.vertical,
+            "primary_services": list(profile.primary_services),
+            "reported_location": {
+                "city": profile.city,
+                "state_region": profile.state_region,
+                "basis": (
+                    "Registered address location; service coverage is recorded separately."
+                    if profile.registered_address is not None
+                    else "Profile location context; service coverage is recorded separately."
+                ),
+            },
+            "reported_service_areas": list(profile.additional_service_areas or ()),
+            "digital_presence": {
+                "facebook_urls": [
+                    str(item.value)
+                    for item in reported
+                    if item.field == "social_media_urls"
+                    and "facebook.com" in str(item.value).casefold()
+                ],
+                "instagram_presence": profile.instagram_presence,
+                "instagram_presence_status": _field_status(
+                    profile, "instagram_presence"
+                ),
+                "instagram_url": profile.instagram_url,
+                "instagram_url_status": _field_status(profile, "instagram_url"),
+                "website_url": profile.website_url,
+                "website_presence": profile.website_presence,
+                "website_presence_status": _field_status(profile, "website_presence"),
+                "website_inspection_status": "NOT_INSPECTED",
+                "google_business_profile_url": profile.google_business_profile_url,
+                "google_business_profile_present": (
+                    profile.google_business_profile_present
+                ),
+                "google_business_profile_status": _field_status(
+                    profile, "google_business_profile_present"
+                ),
+                "google_business_profile_inspection_status": "NOT_INSPECTED",
+            },
+            "data_status": "REPORTED",
+            "evidence": operational_evidence,
+        },
         "market_scope": {
             "country": profile.country,
             "state_region": profile.state_region,
             "city": profile.city,
+            "search_status": search_status,
+            "result_available": market_result_available,
             "declared_service_radius": profile.service_radius,
             "declared_service_radius_unit": (
                 profile.service_radius_unit.value
@@ -548,33 +918,60 @@ def build_business_report(
                 else None
             ),
             "additional_service_areas": list(profile.additional_service_areas or ()),
-            "applied_spatial_method": "Named OSM administrative areas; radius not applied without business coordinates.",
+            "applied_spatial_method": (
+                "Named OSM administrative areas; radius not applied without business coordinates."
+                if market_result_available
+                else "Not applied; no usable market result is available."
+            ),
         },
         "competitive_environment": {
-            "potential_competitors": competitors["potential"],
-            "verified_competitors": competitors["verified"],
-            "same_sector_unqualified": competitors["sector_related_unqualified"],
+            "market_result_available": market_result_available,
+            "result_status": search_status,
+            "potential_competitors": (
+                competitors["potential"] if market_result_available else None
+            ),
+            "verified_competitors": (
+                competitors["verified"] if market_result_available else None
+            ),
+            "same_sector_unqualified": (
+                competitors["sector_related_unqualified"]
+                if market_result_available
+                else None
+            ),
             "counts": {
-                "all_discovered_entities": len(discovery.entities),
-                "potential_competitors": len(competitors["potential"]),
-                "verified_competitors": len(competitors["verified"]),
+                "all_discovered_entities": (
+                    len(discovery.entities) if market_result_available else None
+                ),
+                "potential_competitors": (
+                    len(competitors["potential"]) if market_result_available else None
+                ),
+                "verified_competitors": (
+                    len(competitors["verified"]) if market_result_available else None
+                ),
                 "same_sector_unqualified": len(
                     competitors["sector_related_unqualified"]
-                ),
+                )
+                if market_result_available
+                else None,
             },
         },
-        "potential_customers": customers,
-        "partners_and_channels": partners,
-        "suppliers": suppliers,
+        "potential_customers": customers if market_result_available else None,
+        "partners_and_channels": partners if market_result_available else None,
+        "suppliers": suppliers if market_result_available else None,
         "benchmark": {
             "status": benchmark_status,
-            "comparable_competitor_ids": [
-                item["entity_id"] for item in comparable_records
-            ],
-            "comparison_dimensions": benchmark_metrics,
-            "metrics_compared": [],
+            "market_result_available": market_result_available,
+            "comparable_competitor_ids": (
+                [item["entity_id"] for item in comparable_records]
+                if market_result_available
+                else None
+            ),
+            "comparison_dimensions": benchmark_metrics
+            if market_result_available
+            else None,
+            "metrics_compared": [] if market_result_available else None,
             "metric_note": "No rating or review metric is compared unless equivalent OBSERVED values are available for both the business and at least two verified competitors.",
-            "comparison_rows": comparable_records,
+            "comparison_rows": comparable_records if market_result_available else None,
             "missing_information": missing_benchmark_information,
             "rule": "A company is comparable only when the existing LIVE assessment accepts its supported industry category and matching OBSERVED evidence covers service, target segment, geographic coverage, and business model.",
         },
@@ -582,6 +979,7 @@ def build_business_report(
             "business_assessment_actions": engine_opportunities,
             "entity_research_hypotheses": relationship_opportunities,
         },
+        "digital_presence_actions": digital_presence_actions,
         "best_next_move": best_next_move,
         "limitations": list(dict.fromkeys(limitations)),
         "sources_and_research_date": {
@@ -589,7 +987,7 @@ def build_business_report(
             "provider": provider,
             "sources": source_urls,
         },
-        "assessment": assessment_to_dict(assessment),
+        "assessment": assessment_report,
     }
 
     return cast(dict[str, object], sanitize_report_data(report))
@@ -602,6 +1000,32 @@ def render_business_report_markdown(report: dict[str, object]) -> str:
     competition = cast(dict[str, object], report["competitive_environment"])
     benchmark = cast(dict[str, object], report["benchmark"])
     opportunities = cast(dict[str, list[dict[str, object]]], report["opportunities"])
+    research = cast(dict[str, object], report["sources_and_research_date"])
+    provider = cast(dict[str, object], research["provider"])
+    search_status = provider.get("status")
+    competition_counts: tuple[str, ...]
+    if search_status == "FAILED":
+        competition_counts = (
+            "No se pueden determinar los conteos de competidores porque el proveedor no completó la búsqueda.",
+        )
+    elif search_status == "UNSUPPORTED":
+        competition_counts = (
+            "No hubo búsqueda para este vertical; los conteos de competidores no están disponibles.",
+        )
+    elif search_status == "NOT_RUN":
+        competition_counts = (
+            "No se ejecutó la búsqueda; los conteos de competidores no están disponibles.",
+        )
+    elif search_status in {"COMPLETED_WITH_RESULTS", "COMPLETED_NO_RESULTS"}:
+        competition_counts = (
+            f"- Competidores verificados: {len(cast(list[object], competition['verified_competitors']))}",
+            f"- Competidores potenciales: {len(cast(list[object], competition['potential_competitors']))}",
+            f"- Empresas del sector aún sin evidencia de competencia directa: {len(cast(list[object], competition['same_sector_unqualified']))}",
+        )
+    else:
+        competition_counts = (
+            "El estado de la búsqueda no es reconocido; los conteos de competidores no están disponibles.",
+        )
     lines = [
         "# AEOS LIVE — Informe de inteligencia comercial",
         "",
@@ -614,28 +1038,150 @@ def render_business_report_markdown(report: dict[str, object]) -> str:
         "",
         str(report["executive_summary"]),
         "",
-        "## Perfil declarado por el propietario",
-        "",
-        f"- Oferta principal: {', '.join(cast(list[str], profile['primary_services']))}",
-        f"- Segmentos objetivo: {', '.join(cast(list[str], profile['target_customer_segments']))}",
-        f"- Modelo comercial: {profile['business_model']}",
-        f"- Cobertura declarada: {profile['service_radius']} {profile['service_radius_unit']} desde {profile['city']}",
-        f"- Zonas adicionales: {', '.join(cast(list[str], profile['additional_service_areas'] or [])) or 'No declaradas'}",
-        "Todos estos datos son REPORTED; no se verificaron de manera independiente.",
-        "",
-        "## Entorno competitivo",
-        "",
-        f"- Competidores verificados: {len(cast(list[object], competition['verified_competitors']))}",
-        f"- Competidores potenciales: {len(cast(list[object], competition['potential_competitors']))}",
-        f"- Empresas del sector aún sin evidencia de competencia directa: {len(cast(list[object], competition['same_sector_unqualified']))}",
-        "",
-        "Los listados de directorio no demuestran por sí solos que una organización compita directamente.",
-        "",
-        "## Benchmark",
-        "",
-        f"Estado: **{benchmark['status']}**",
-        "",
     ]
+    legal_registry = cast(dict[str, object], report["legal_registry"])
+    registry_evidence = cast(list[dict[str, object]], legal_registry["evidence"])
+    registry_sources = list(
+        dict.fromkeys(
+            str(item["source_url"])
+            for item in registry_evidence
+            if item.get("source_url") is not None
+        )
+    )
+    lines.extend(
+        (
+            "## Datos registrales",
+            "",
+            f"- Nombre legal: {legal_registry['business_name'] or 'No proporcionado'} ({cast(dict[str, str], legal_registry['field_statuses'])['legal_name']})",
+            f"- Estado registral: {legal_registry['status'] or 'No proporcionado'} ({cast(dict[str, str], legal_registry['field_statuses'])['legal_entity_status']})",
+            f"- Número de registro: {legal_registry['registration_id'] or 'No proporcionado'} ({cast(dict[str, str], legal_registry['field_statuses'])['registration_id']})",
+            f"- Dirección principal registral: {legal_registry['registered_address'] or 'No proporcionada'} ({cast(dict[str, str], legal_registry['field_statuses'])['registered_address']})",
+            f"- Agente registrado: {legal_registry['registered_agent'] or 'No proporcionado'} ({cast(dict[str, str], legal_registry['field_statuses'])['registered_agent']})",
+            f"- Reinstalación presentada: {legal_registry['reinstatement_filed_date'] or 'No proporcionada'} ({cast(dict[str, str], legal_registry['field_statuses'])['reinstatement_filed_date']})",
+            f"- Fuentes registrales: {', '.join(registry_sources) or 'No proporcionadas'}",
+            str(legal_registry["verification_note"]),
+        )
+    )
+    for prior_name in cast(
+        list[dict[str, object]], legal_registry["reported_prior_names"]
+    ):
+        lines.append(
+            f"- Nombre anterior reportado: {prior_name['name']} (continuidad con la LLC no confirmada)"
+        )
+
+    operations = cast(dict[str, object], report["operational_profile"])
+    digital = cast(dict[str, object], operations["digital_presence"])
+    facebook_urls = cast(list[str], digital["facebook_urls"])
+    services = cast(list[str], operations["primary_services"])
+    service_areas = cast(list[str], operations["reported_service_areas"])
+    lines.extend(
+        (
+            "",
+            "## Información operativa reportada",
+            "",
+            f"- Servicios reportados: {', '.join(services) or 'No proporcionados'}",
+            f"- Cobertura reportada: {', '.join(service_areas) or 'No proporcionada'}",
+            f"- Facebook: {', '.join(facebook_urls) or 'URL no proporcionada'} (REPORTED; no inspeccionado)",
+            (
+                "- Instagram: presencia REPORTED; URL NEEDS_CONFIRMATION."
+                if digital["instagram_presence"] is True
+                and digital["instagram_url"] is None
+                else f"- Instagram: presencia {digital['instagram_presence']}; URL {digital['instagram_url'] or 'no proporcionada'}."
+            ),
+            (
+                "- Sitio web: el propietario reporta que no existe; URL no proporcionada y sitio no inspeccionado. La ausencia no está verificada."
+                if digital["website_presence"] is False
+                else "- Sitio web: URL no proporcionada/no inspeccionado; no se infiere que no exista."
+            ),
+            (
+                "- Google Business Profile: el propietario reporta que no existe; URL no proporcionada y perfil no inspeccionado. La ausencia no está verificada."
+                if digital["google_business_profile_present"] is False
+                else "- Google Business Profile: URL no proporcionada/no inspeccionado; no se infiere que no exista."
+            ),
+            "Los datos operativos son REPORTED y no se atribuyen a Sunbiz.",
+        )
+    )
+
+    digital_actions = cast(list[dict[str, object]], report["digital_presence_actions"])
+    lines.extend(("", "## Acciones de presencia digital", ""))
+    if not digital_actions:
+        lines.append(
+            "No hay acciones de presencia digital derivadas de los datos actuales."
+        )
+    for action in digital_actions:
+        lines.extend(
+            (
+                f"### {action['title']}",
+                "",
+                f"Estado de los datos: {action['data_status']}",
+                f"Acción sugerida: {action['recommended_action']}",
+                f"Cómo validarla: {action['validation_method']}",
+                f"Evidencia: {', '.join(cast(list[str], action['source_urls'])) or 'sin URL de origen'}",
+                "",
+            )
+        )
+    if isinstance(search_status, str):
+        lines.extend(
+            (
+                "## Búsqueda de mercado",
+                "",
+                f"- Estado: **{search_status}**",
+                f"- Intentos al proveedor: {provider.get('attempt_count', provider.get('request_count', 'desconocido'))}",
+                f"- Reintentos: {provider.get('retry_count', 0)}",
+            )
+        )
+        result_count = provider.get("result_count")
+        if isinstance(result_count, int):
+            lines.append(f"- Organizaciones devueltas: {result_count}")
+        if search_status == "COMPLETED_NO_RESULTS":
+            lines.append(
+                "La búsqueda terminó correctamente y no devolvió organizaciones con las categorías consultadas."
+            )
+        elif search_status == "FAILED":
+            lines.append(
+                "El proveedor no completó la búsqueda; el resultado del mercado es desconocido."
+            )
+            if provider.get("error"):
+                lines.append(f"- Error del proveedor: {provider['error']}")
+        elif search_status == "UNSUPPORTED" and provider.get("unsupported_reason"):
+            lines.append(str(provider["unsupported_reason"]))
+        elif search_status == "NOT_RUN":
+            lines.append(
+                "No se ejecutó una búsqueda de mercado; los competidores y la demanda son desconocidos."
+            )
+        elif search_status not in {
+            "COMPLETED_WITH_RESULTS",
+            "COMPLETED_NO_RESULTS",
+        }:
+            lines.append(
+                "El proveedor devolvió un estado no reconocido; los resultados de mercado son desconocidos."
+            )
+        lines.append("")
+    lines.extend(
+        (
+            "## Perfil declarado por el propietario",
+            "",
+            f"- Oferta principal: {', '.join(cast(list[str], profile['primary_services'])) or 'No proporcionada'}",
+            f"- Segmentos objetivo: {', '.join(cast(list[str], profile['target_customer_segments'])) or 'No proporcionados'}",
+            f"- Modelo comercial: {profile['business_model']}",
+            f"- Radio de servicio declarado: {profile['service_radius']} {profile['service_radius_unit']}"
+            if profile["service_radius"] is not None
+            else "- Radio de servicio declarado: No proporcionado",
+            f"- Zonas adicionales: {', '.join(cast(list[str], profile['additional_service_areas'] or [])) or 'No declaradas'}",
+            "Los campos marcados REPORTED proceden del propietario; UNKNOWN y NOT_PROVIDED indican información pendiente. No se verificaron de manera independiente.",
+            "",
+            "## Entorno competitivo",
+            "",
+            *competition_counts,
+            "",
+            "Los listados de directorio no demuestran por sí solos que una organización compita directamente.",
+            "",
+            "## Benchmark",
+            "",
+            f"Estado: **{benchmark['status']}**",
+            "",
+        )
+    )
     missing = cast(list[str], benchmark["missing_information"])
     if missing:
         lines.append(
@@ -655,9 +1201,29 @@ def render_business_report_markdown(report: dict[str, object]) -> str:
         records = cast(list[dict[str, object]], report[key])
         lines.extend(("", f"## {heading}", ""))
         if not records:
-            lines.append(
-                "No se encontraron organizaciones con una categoría documentada."
-            )
+            if search_status == "FAILED":
+                lines.append(
+                    "No se puede determinar si hay organizaciones con esta categoría porque el proveedor no completó la búsqueda."
+                )
+            elif search_status == "UNSUPPORTED":
+                lines.append(
+                    "No se buscó este vertical porque no tiene una correspondencia de fuente habilitada."
+                )
+            elif search_status == "NOT_RUN":
+                lines.append(
+                    "No se ejecutó la búsqueda; no se puede determinar si hay organizaciones con esta categoría."
+                )
+            elif search_status not in {
+                "COMPLETED_WITH_RESULTS",
+                "COMPLETED_NO_RESULTS",
+            }:
+                lines.append(
+                    "El estado de la búsqueda no es reconocido; no se puede determinar si hay organizaciones con esta categoría."
+                )
+            else:
+                lines.append(
+                    "No se encontraron organizaciones con una categoría documentada."
+                )
             continue
         for record in records:
             lines.extend(

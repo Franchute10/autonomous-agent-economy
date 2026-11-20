@@ -1,12 +1,16 @@
 """Offline fixtures for the bounded website inspection adapter."""
 
+import os
 from pathlib import Path
+from types import SimpleNamespace
 from urllib.parse import urlsplit
 
 import pytest
 
+import aeos.live.adapters.website_inspector as website_inspector
 from aeos.live.adapters.website_inspector import (
     FetchResponse,
+    PlaywrightDOMRenderer,
     Transport,
     WebsiteInspectionError,
     WebsiteInspector,
@@ -90,13 +94,13 @@ def test_inspects_structured_business_data_services_and_multiple_areas() -> None
     assert result.details.phone == "+1-202-555-0100"
     assert result.details.email == "contact@sample-cleaning.example"
     assert (
-        result.details.address
-        == "100 Example Street, Sample City Four, Example Region, 00000"
+        result.details.address == "100 Example Street, Sample City Four, Florida, 00000"
     )
     assert result.details.latitude == 27.12
     assert result.details.longitude == -82.45
     assert result.details.opening_hours == ("Mo-Fr 08:00-18:00",)
     assert result.details.same_as == ("https://www.facebook.com/sample-cleaning",)
+    assert "CleaningService" in result.details.structured_data_types
     assert {page.title for page in result.pages} >= {
         "Services",
         "Service areas",
@@ -110,7 +114,7 @@ def test_inspects_structured_business_data_services_and_multiple_areas() -> None
     )
     assert (address.city, address.state, address.postal_code) == (
         "Sample City Four",
-        "Example Region",
+        "Florida",
         "00000",
     )
     areas = {
@@ -131,6 +135,7 @@ def test_inspects_structured_business_data_services_and_multiple_areas() -> None
     assert any(item.service == "Office cleaning" for item in result.services)
     assert any(item.service == "Carpet cleaning" for item in result.services)
     assert all(item.evidence_id for item in result.services)
+    assert "https://sample-cleaning.example/services" in result.pages[0].link_urls
     assert all(item.source_url.startswith(BASE) for item in result.locations)
     assert any(item.kind is EvidenceKind.REPORTED for item in result.evidence)
     assert not any(
@@ -149,6 +154,186 @@ def test_does_not_crawl_entire_site_and_respects_robots_restrictions() -> None:
     assert "/private/locations" not in requested
     assert len(result.pages) <= 20
     assert result.details.sitemap_urls
+
+
+def test_playwright_dependency_missing_is_an_explicit_browser_unavailable_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def missing_dependency(module_name: str) -> object:
+        raise ModuleNotFoundError(module_name)
+
+    monkeypatch.setattr(website_inspector, "import_module", missing_dependency)
+
+    with pytest.raises(WebsiteInspectionError) as failure:
+        PlaywrightDOMRenderer()((BASE + "/",), "sample-cleaning.example", 10)
+
+    assert failure.value.category == "browser_unavailable"
+    assert "ModuleNotFoundError" in str(failure.value)
+
+
+def test_playwright_browser_unavailable_keeps_the_complete_launch_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    launch_error = "Chromium executable is missing at C:/cache/chromium/chrome.exe"
+
+    class FakePlaywrightContext:
+        def __enter__(self) -> object:
+            def launch(**kwargs: object) -> object:
+                raise RuntimeError(launch_error)
+
+            return SimpleNamespace(chromium=SimpleNamespace(launch=launch))
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+    monkeypatch.setattr(
+        website_inspector,
+        "import_module",
+        lambda _: SimpleNamespace(sync_playwright=FakePlaywrightContext),
+    )
+    with pytest.raises(WebsiteInspectionError) as failure:
+        PlaywrightDOMRenderer()((BASE + "/",), "sample-cleaning.example", 10)
+
+    assert failure.value.category == "browser_unavailable"
+    assert "RuntimeError" in str(failure.value)
+    assert launch_error in str(failure.value)
+
+
+def test_playwright_browser_cache_uses_the_installed_profile_cache(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    browser_cache = tmp_path / "profile" / "AppData" / "Local" / "ms-playwright"
+    browser_cache.mkdir(parents=True)
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "profile"))
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "sandboxed-local-appdata"))
+    monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
+    monkeypatch.setattr(
+        "aeos.live.adapters.website_inspector._is_windows_environment",
+        lambda: True,
+    )
+
+    with website_inspector._playwright_browser_cache_environment():
+        assert os.environ["PLAYWRIGHT_BROWSERS_PATH"] == str(browser_cache)
+    assert "PLAYWRIGHT_BROWSERS_PATH" not in os.environ
+
+
+def test_dom_request_policy_blocks_data_and_navigation_but_allows_required_get_assets() -> (
+    None
+):
+    root = "sample-cleaning.example"
+
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://cdn.example/static/site.js",
+            root_host=root,
+            method="GET",
+            resource_type="script",
+            is_navigation=False,
+        )
+        is None
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://cdn.example/static/site.js?email=user@example.com",
+            root_host=root,
+            method="GET",
+            resource_type="script",
+            is_navigation=False,
+        )
+        == "external_resources_blocked"
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://cdn.example/static/site.css?version=2",
+            root_host=root,
+            method="GET",
+            resource_type="stylesheet",
+            is_navigation=False,
+        )
+        is None
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url=("https://fonts.example/css2?family=Roboto:wght@400;700&display=swap"),
+            root_host=root,
+            method="GET",
+            resource_type="stylesheet",
+            is_navigation=False,
+        )
+        is None
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://api.example/content",
+            root_host=root,
+            method="GET",
+            resource_type="fetch",
+            is_navigation=False,
+        )
+        == "external_data_request_blocked"
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://outside.example/",
+            root_host=root,
+            method="GET",
+            resource_type="document",
+            is_navigation=True,
+        )
+        == "external_navigation_blocked"
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url=f"https://{root}/submit",
+            root_host=root,
+            method="POST",
+            resource_type="document",
+            is_navigation=True,
+        )
+        == "non_get_request_blocked"
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://tracker.example/pixel?data=page-content",
+            root_host=root,
+            method="GET",
+            resource_type="image",
+            is_navigation=False,
+        )
+        == "external_resources_blocked"
+    )
+    assert (
+        website_inspector._dom_request_block_reason(
+            url="https://cdn.example/fonts/site.woff2?user=123",
+            root_host=root,
+            method="GET",
+            resource_type="font",
+            is_navigation=False,
+        )
+        == "external_resources_blocked"
+    )
+
+
+def test_playwright_set_content_offline_smoke_captures_expected_fields() -> None:
+    playwright_api = pytest.importorskip("playwright.sync_api")
+    html = """<html><head><title>Offline smoke</title>
+    <meta name='description' content='Local description'></head><body>
+    <h1>Local heading</h1><a href='/next'>Local link</a></body></html>"""
+
+    with website_inspector._playwright_browser_cache_environment():
+        with playwright_api.sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                page = browser.new_page()
+                page.set_content(html, wait_until="domcontentloaded", timeout=5000)
+                parsed = WebsiteInspector._parse_html(page.content().encode("utf-8"))
+            finally:
+                browser.close()
+
+    assert "".join(parsed.title) == "Offline smoke"
+    assert parsed.description == "Local description"
+    assert parsed.h1 == ["Local heading"]
+    assert parsed.links == ["/next"]
 
 
 def test_follows_a_sitemap_index_and_prioritizes_relevant_pages() -> None:
@@ -210,12 +395,193 @@ def test_a_city_mention_is_not_promoted_to_a_confirmed_service_area() -> None:
         and item.location_type is LocationType.CITY_MENTION
     ]
     assert mentions
-    assert all(item.verification_status.value == "UNVERIFIED" for item in mentions)
+    assert all(
+        item.verification_status is VerificationStatus.WEBSITE_REPORTED
+        for item in mentions
+    )
     assert not any(
         item.city == "Sample City One"
         and item.location_type
         in {LocationType.SERVICE_AREA, LocationType.EXPLICITLY_SERVED_CITY}
         for item in result.locations
+    )
+
+
+def test_explicit_state_aliases_replace_placeholders_and_unknown_regions() -> None:
+    home = b"""<html><head><title>Cleaning</title>
+    <script type='application/ld+json'>
+    {"@type":"LocalBusiness","name":"Test Cleaning",
+     "address":{"@type":"PostalAddress","addressLocality":"Sarasota",
+                "addressRegion":"FL","addressCountry":"US"},
+     "areaServed":{"@type":"City","name":"Sample City Two",
+                   "addressRegion":"Example Region"}}
+    </script></head><body><h1>Cleaning</h1></body></html>"""
+    result, _ = _inspect_pages(home, {})
+
+    address = next(
+        item
+        for item in result.locations
+        if item.location_type is LocationType.BUSINESS_ADDRESS
+    )
+    area = next(
+        item
+        for item in result.locations
+        if item.location_type is LocationType.SERVICE_AREA
+    )
+    assert address.state == "Florida"
+    assert area.city == "Sample City Two"
+    assert area.state is None
+    assert all(item.state != "Example Region" for item in result.locations)
+    assert all(
+        item.verification_status is VerificationStatus.WEBSITE_REPORTED
+        for item in result.locations
+    )
+
+
+def test_mixed_city_and_neighborhood_list_keeps_types_and_page_provenance() -> None:
+    home = b"""<html><head><title>Construction Nation</title></head><body>
+    <a href="/service-areas">Area We Serve</a></body></html>"""
+    service_areas = b"""<html><body><h2>Area We Serve</h2>
+    <p>Plano, TX Los Rios, TX Treyburn, TX Cross Bend, TX Timber Brook, TX
+    Hunters Glen, TX Richardson, TX Carriage Hill, TX Wind Meadow, TX
+    Madison Estates, TX Dallas North Estates, TX Park Forest, TX.
+    Welcome to Construction Nation Group.</p></body></html>"""
+    result, requested = _inspect_pages(home, {"/service-areas": service_areas})
+
+    assert "/service-areas" in requested
+    explicit_cities = {
+        item.city
+        for item in result.locations
+        if item.location_type is LocationType.EXPLICITLY_SERVED_CITY
+    }
+    neighborhoods = {
+        item.city
+        for item in result.locations
+        if item.location_type is LocationType.NEIGHBORHOOD_MENTION
+    }
+    assert explicit_cities == {"Plano", "Richardson"}
+    assert neighborhoods == {
+        "Los Rios",
+        "Treyburn",
+        "Cross Bend",
+        "Timber Brook",
+        "Hunters Glen",
+        "Carriage Hill",
+        "Wind Meadow",
+        "Madison Estates",
+        "Dallas North Estates",
+        "Park Forest",
+    }
+    assert not any(
+        item.city in neighborhoods
+        and item.location_type is not LocationType.NEIGHBORHOOD_MENTION
+        for item in result.locations
+    )
+    area_candidates = [
+        item
+        for item in result.locations
+        if item.location_type
+        in {
+            LocationType.EXPLICITLY_SERVED_CITY,
+            LocationType.NEIGHBORHOOD_MENTION,
+        }
+    ]
+    assert all(item.state == "Texas" for item in area_candidates)
+    assert all(item.source_url == BASE + "/service-areas" for item in area_candidates)
+    evidence = {item.evidence_id: item for item in result.evidence}
+    assert all(
+        evidence[item.evidence_id].source_url == item.source_url
+        and evidence[item.evidence_id].kind is EvidenceKind.REPORTED
+        and item.verification_status is VerificationStatus.WEBSITE_REPORTED
+        for item in area_candidates
+    )
+
+
+def test_generic_headings_and_short_fragments_are_not_locations() -> None:
+    home = b"""<html><head><title>Construction Nation</title></head><body>
+    <a href="/service-areas">Service Areas</a></body></html>"""
+    service_areas = b"""<html><body><h2>Area We Serve</h2>
+    <p>Our Services Project Gallery, Tes, P, TX.</p></body></html>"""
+    result, _ = _inspect_pages(home, {"/service-areas": service_areas})
+
+    assert not result.locations
+
+
+def test_remodeling_services_are_extracted_from_navigation_and_headings() -> None:
+    home = b"""<html><head><title>Home Remodeling Experts in DFW</title>
+    <script type='application/ld+json'>
+    {"@type":"HomeAndConstructionBusiness","name":"Construction Nation Group",
+     "address":{"@type":"PostalAddress","streetAddress":"704 Central Pkwy E suite 1220",
+                "addressLocality":"Plano","addressRegion":"TX",
+                "postalCode":"75074","addressCountry":"US"}}
+    </script></head>
+    <body><nav>
+    <a href="/our-services">Our Services</a>
+    <a href="/our-services">Home Remodeling</a>
+    <a href="/our-services">Kitchen Remodeling</a>
+    <a href="/our-services">Bathroom Remodeling</a>
+    <a href="/our-services">Home Additions</a>
+    <a href="/our-services">New Home Construction</a>
+    <a href="/our-services">Pools</a>
+    <a href="/our-services">Investors Flip</a>
+    <a href="/gallery">Project Gallery &amp; Testimonials</a>
+    </nav><h1>Home Remodeling Experts in DFW</h1>
+    <h2>Serving the Entire DFW Metro Area</h2>
+    <h2>Room Additions</h2><h2>Full Home Remodeling</h2></body></html>"""
+    result, _ = _inspect_pages(home, {})
+
+    services = {item.service for item in result.services}
+    assert {
+        "Home remodeling",
+        "Full home remodeling",
+        "Kitchen remodeling",
+        "Bathroom remodeling",
+        "Room additions",
+        "Home additions",
+        "New home construction",
+        "Pools",
+        "Investor flip projects",
+    } <= services
+    assert all(
+        item.evidence_classification is EvidenceKind.REPORTED
+        and item.verification_status is VerificationStatus.WEBSITE_REPORTED
+        and item.source_url.startswith(BASE)
+        for item in result.services
+    )
+    regional_area = next(
+        item
+        for item in result.locations
+        if item.location_type is LocationType.REGIONAL_SERVICE_AREA
+    )
+    business_address = next(
+        item
+        for item in result.locations
+        if item.location_type is LocationType.BUSINESS_ADDRESS
+    )
+    assert business_address.city == "Plano"
+    assert business_address.state == "Texas"
+    assert business_address.verification_status is VerificationStatus.WEBSITE_REPORTED
+    assert business_address.source_url == BASE + "/"
+    assert business_address.supporting_text == (
+        "JSON-LD address: 704 Central Pkwy E suite 1220, Plano, Texas, 75074"
+    )
+    address_evidence = next(
+        item
+        for item in result.evidence
+        if item.evidence_id == business_address.evidence_id
+    )
+    assert address_evidence.source_url == business_address.source_url
+    assert address_evidence.excerpt == business_address.supporting_text
+    assert not any(
+        item.city == "Plano" and item.location_type is LocationType.CITY_MENTION
+        for item in result.locations
+    )
+    assert regional_area.city == "DFW Metro Area"
+    assert regional_area.state is None
+    assert regional_area.verification_status is VerificationStatus.WEBSITE_REPORTED
+    assert regional_area.source_url == BASE + "/"
+    assert not any(
+        "Project Gallery" in item.supporting_text for item in result.services
     )
 
 
@@ -252,7 +618,7 @@ def test_explicitly_negated_service_is_not_reported_as_offered() -> None:
     assert not any(item.service == "Carpet cleaning" for item in result.services)
 
 
-def test_service_route_slug_is_inferred_and_keeps_its_source_url() -> None:
+def test_service_route_slug_alone_does_not_infer_a_service() -> None:
     route = "/services/carpet-upholstery-cleaning"
     result, requested = _inspect_pages(
         b"<html><head><title>Sample City Two Cleaning Services</title></head><body></body></html>",
@@ -264,14 +630,7 @@ def test_service_route_slug_is_inferred_and_keeps_its_source_url() -> None:
     )
 
     assert route in requested
-    for category in ("Carpet cleaning", "Upholstery cleaning"):
-        candidate = next(item for item in result.services if item.service == category)
-        assert candidate.source_url == BASE + route
-        assert candidate.supporting_text == (
-            "Service-page URL slug: carpet upholstery cleaning"
-        )
-        assert candidate.evidence_classification is EvidenceKind.INFERRED
-        assert candidate.verification_status is VerificationStatus.UNVERIFIED
+    assert not result.services
 
 
 def test_service_category_in_page_title_is_reported() -> None:
@@ -315,10 +674,7 @@ def test_generic_recurring_cleaning_is_not_mislabeled_as_house_cleaning() -> Non
         },
         sitemap_paths=("/services/recurring-cleaning",),
     )
-    assert any(item.service == "Recurring cleaning" for item in result.services)
-    assert not any(
-        item.service == "Recurring house cleaning" for item in result.services
-    )
+    assert not result.services
 
 
 def test_service_categories_in_h1_and_h2_are_extracted() -> None:
@@ -419,7 +775,7 @@ def test_duplicate_service_pages_collapse_to_one_category() -> None:
     assert candidates[0].source_url in {BASE + route for route in routes}
 
 
-def test_conflicting_service_evidence_is_left_unverified() -> None:
+def test_conflicting_service_evidence_is_not_reported_as_offered() -> None:
     route = "/services/carpet-cleaning"
     result, _ = _inspect_pages(
         b"<html><head><title>Cleaning company</title></head><body>"
@@ -430,12 +786,7 @@ def test_conflicting_service_evidence_is_left_unverified() -> None:
         },
         sitemap_paths=(route,),
     )
-    candidate = next(
-        item for item in result.services if item.service == "Carpet cleaning"
-    )
-    assert candidate.evidence_classification is EvidenceKind.INFERRED
-    assert candidate.verification_status is VerificationStatus.UNVERIFIED
-    assert candidate.confidence <= 0.6
+    assert not any(item.service == "Carpet cleaning" for item in result.services)
     assert result.details is not None
     assert any(
         "Conflicting evidence for Carpet cleaning" in item
@@ -446,18 +797,53 @@ def test_conflicting_service_evidence_is_left_unverified() -> None:
 def test_visible_contact_page_address_is_preserved_as_website_observation() -> None:
     inspector, _ = _inspector(
         {
-            "/contact": b"<html><body><h1>Contact</h1><p>Office: 25 Palm Avenue, Sample City Three, FL 34285</p></body></html>",
+            "/contact": b"<html><body><h1>Contact</h1><p>Office: 704 Central Pkwy E suite 1220, Plano, TX 75074, United States.</p><p>Our founder grew up in Plano, TX.</p></body></html>",
         }
     )
     result = inspector.inspect(BASE)
     candidate = next(
         item
         for item in result.locations
-        if item.location_type is LocationType.BUSINESS_ADDRESS
-        and item.city == "Sample City Three"
+        if item.location_type is LocationType.BUSINESS_ADDRESS and item.city == "Plano"
     )
     assert candidate.evidence_classification is EvidenceKind.OBSERVED
-    assert candidate.postal_code == "34285"
+    assert candidate.postal_code == "75074"
+    assert candidate.state == "Texas"
+    assert candidate.source_url == BASE + "/contact"
+    assert "704 Central Pkwy E suite 1220, Plano, TX 75074" in candidate.supporting_text
+    address_evidence = next(
+        item for item in result.evidence if item.evidence_id == candidate.evidence_id
+    )
+    assert address_evidence.source_url == candidate.source_url
+    assert address_evidence.excerpt == candidate.supporting_text
+    mentions = [
+        item
+        for item in result.locations
+        if item.city == "Plano" and item.location_type is LocationType.CITY_MENTION
+    ]
+    assert len(mentions) == 1
+    assert mentions[0].postal_code is None
+    assert "founder grew up" in mentions[0].supporting_text
+
+
+def test_common_plano_mention_remains_a_city_mention_not_an_address() -> None:
+    result, _ = _inspect_pages(
+        b"""<html><head><title>Construction Nation</title></head><body>
+        <p>Our founder grew up in Plano, TX and still enjoys the local parks.</p>
+        </body></html>""",
+        {},
+    )
+
+    mentions = [
+        item
+        for item in result.locations
+        if item.city == "Plano" and item.location_type is LocationType.CITY_MENTION
+    ]
+    assert len(mentions) == 1
+    assert not any(
+        item.city == "Plano" and item.location_type is LocationType.BUSINESS_ADDRESS
+        for item in result.locations
+    )
 
 
 def test_malformed_html_is_parsed_without_crashing() -> None:
@@ -467,6 +853,34 @@ def test_malformed_html_is_parsed_without_crashing() -> None:
     result = inspector.inspect(BASE)
     assert result.pages[0].title == "Broken title"
     assert result.pages[0].status_code == 200
+
+
+def test_meta_robots_directives_are_kept_with_the_inspected_page() -> None:
+    html = b"""<html><head><meta name='robots' content='noindex, follow'>
+    <title>Private example</title></head><body></body></html>"""
+    result, _ = _inspect_pages(html, {})
+
+    assert result.pages[0].robots_directives == ("noindex", "follow")
+
+
+def test_x_robots_tag_is_kept_with_the_inspected_page() -> None:
+    transport, _ = _fixture_transport()
+
+    def fetch(url: str, timeout: int, limit: int, root_host: str) -> FetchResponse:
+        response = transport(url, timeout, limit, root_host)
+        if (urlsplit(url).path or "/") == "/":
+            return FetchResponse(
+                response.body,
+                response.status_code,
+                response.final_url,
+                response.content_type,
+                "noindex",
+            )
+        return response
+
+    result = WebsiteInspector(transport=fetch).inspect(BASE)
+
+    assert result.pages[0].x_robots_tag == "noindex"
 
 
 @pytest.mark.parametrize(

@@ -26,6 +26,9 @@ from aeos.live.domain import (
     MarketEntity,
     MarketEntityType,
     SourceEvidence,
+    Vertical,
+    vertical_profile_for,
+    verticals_match,
 )
 from aeos.live.ports import MarketDiscoveryResult
 
@@ -356,6 +359,7 @@ def build_profile_area_query(
     state_region: str,
     city: str,
     additional_areas: tuple[str, ...] = (),
+    vertical: str | Vertical = Vertical.HOUSE_CLEANING,
 ) -> str:
     """Build one bounded query from named OSM administrative areas.
 
@@ -366,6 +370,12 @@ def build_profile_area_query(
 
     def quoted(value: str) -> str:
         return json.dumps(value.strip(), ensure_ascii=False)
+
+    mappings = profile_category_mappings(vertical)
+    if not mappings:
+        raise ValueError(
+            f"No documented Overpass category mapping is available for {vertical!r}"
+        )
 
     country_name = country.strip()
     if country_name.casefold() in {
@@ -391,39 +401,127 @@ def build_profile_area_query(
             f"(area.profileState)->.profileArea{index};"
         )
         area_set = f".profileArea{index}"
-        for key, value in (
-            ("craft", "cleaning"),
-            ("office", "property_management"),
-            ("office", "estate_agent"),
-            ("shop", "estate_agent"),
-            ("shop", "cleaning_supplies"),
-        ):
+        for mapping in mappings:
+            selector = "".join(
+                f"[{quoted(key)}={quoted(value)}]" for key, value in mapping.tags
+            )
             lines.extend(
                 (
-                    f"nwr(area{area_set})[{json.dumps(key)}={json.dumps(value)}];",
+                    f"nwr(area{area_set}){selector};",
                     f"out center {MAX_PER_QUERY};",
                 )
             )
     return "\n".join(lines)
 
 
-def _classify(tags: Mapping[str, str]) -> tuple[MarketEntityType, str] | None:
-    """Apply only the OSM tags documented for this pilot's categories."""
+@dataclass(frozen=True, slots=True)
+class ProfileCategoryMapping:
+    """A provider tag combination with one narrowly supported market role."""
 
-    matches: list[tuple[MarketEntityType, str]] = []
-    if tags.get("shop") == "cleaning_supplies":
-        matches.append((MarketEntityType.SUPPLIER, "cleaning supplies"))
-    if tags.get("office") == "property_management":
-        matches.append((MarketEntityType.POTENTIAL_CUSTOMER, "property management"))
-    if tags.get("office") == "estate_agent" or tags.get("shop") == "estate_agent":
-        matches.append((MarketEntityType.PARTNER, "real estate agencies"))
-    if tags.get("craft") == "cleaning":
-        matches.append((MarketEntityType.COMPETITOR, "cleaning services"))
-    if not matches:
-        return None
-    # MarketEntity has one role. Keep one source object once and document any
-    # overlap rather than manufacturing duplicate entities for the same OSM ID.
-    return matches[0]
+    tags: tuple[tuple[str, str], ...]
+    entity_type: MarketEntityType
+    category: str
+    reference_url: str
+
+    @property
+    def label(self) -> str:
+        return " + ".join(f"{key}={value}" for key, value in self.tags)
+
+
+def profile_category_mappings(
+    vertical: str | Vertical,
+) -> tuple[ProfileCategoryMapping, ...]:
+    """Return only documented OSM mappings applicable to this profile vertical."""
+
+    profile = vertical_profile_for(vertical)
+    if profile is None:
+        return ()
+
+    property_managers = ProfileCategoryMapping(
+        tags=(("office", "property_management"),),
+        entity_type=MarketEntityType.POTENTIAL_CUSTOMER,
+        category="property management",
+        reference_url="https://wiki.openstreetmap.org/wiki/Tag:office%3Dproperty_management",
+    )
+    estate_agents = ProfileCategoryMapping(
+        tags=(("office", "estate_agent"),),
+        entity_type=MarketEntityType.PARTNER,
+        category="real estate agencies",
+        reference_url="https://wiki.openstreetmap.org/wiki/Tag:office%3Destate_agent",
+    )
+    estate_agent_shops = ProfileCategoryMapping(
+        tags=(("shop", "estate_agent"),),
+        entity_type=MarketEntityType.PARTNER,
+        category="real estate agencies",
+        reference_url="https://wiki.openstreetmap.org/wiki/Tag:office%3Destate_agent",
+    )
+
+    if verticals_match(profile.vertical, Vertical.CLEANING_SERVICES):
+        return (
+            ProfileCategoryMapping(
+                tags=(("shop", "cleaning_supplies"),),
+                entity_type=MarketEntityType.SUPPLIER,
+                category="cleaning supplies",
+                reference_url="https://wiki.openstreetmap.org/wiki/Tag:shop%3Dcleaning_supplies",
+            ),
+            property_managers,
+            estate_agents,
+            estate_agent_shops,
+            ProfileCategoryMapping(
+                tags=(("craft", "cleaning"),),
+                entity_type=MarketEntityType.COMPETITOR,
+                category="cleaning services",
+                reference_url="https://wiki.openstreetmap.org/wiki/Tag:craft%3Dcleaning",
+            ),
+        )
+    if verticals_match(profile.vertical, Vertical.HVAC):
+        return (
+            ProfileCategoryMapping(
+                tags=(("shop", "hvac"),),
+                entity_type=MarketEntityType.SUPPLIER,
+                category="HVAC suppliers",
+                reference_url="https://wiki.openstreetmap.org/wiki/Tag:shop%3Dhvac",
+            ),
+            property_managers,
+            ProfileCategoryMapping(
+                tags=(("craft", "hvac"),),
+                entity_type=MarketEntityType.COMPETITOR,
+                category="HVAC services",
+                reference_url="https://wiki.openstreetmap.org/wiki/Tag:craft%3Dhvac",
+            ),
+        )
+    if verticals_match(profile.vertical, Vertical.ROOFING):
+        return (
+            ProfileCategoryMapping(
+                tags=(("shop", "trade"), ("trade", "roofing")),
+                entity_type=MarketEntityType.SUPPLIER,
+                category="roofing suppliers",
+                reference_url="https://wiki.openstreetmap.org/wiki/Tag:shop%3Dtrade",
+            ),
+            property_managers,
+            estate_agents,
+            estate_agent_shops,
+            ProfileCategoryMapping(
+                tags=(("craft", "roofer"),),
+                entity_type=MarketEntityType.COMPETITOR,
+                category="roofing services",
+                reference_url="https://wiki.openstreetmap.org/wiki/Tag:craft%3Droofer",
+            ),
+        )
+    return ()
+
+
+def _classify(
+    tags: Mapping[str, str], vertical: str | Vertical
+) -> tuple[MarketEntityType, str] | None:
+    """Classify only tag combinations documented for this profile vertical."""
+
+    for mapping in profile_category_mappings(vertical):
+        if all(tags.get(key) == value for key, value in mapping.tags):
+            # MarketEntity has one role. Keep one source object once and document
+            # any overlap rather than manufacturing duplicate entities per role.
+            return mapping.entity_type, mapping.category
+    return None
 
 
 def _coordinates(element: Mapping[str, object]) -> tuple[float | None, float | None]:
@@ -594,6 +692,7 @@ class OverpassMarketDiscovery:
                         state_region=self._business.state,
                         city=self._business.city,
                         additional_areas=self._service_areas,
+                        vertical=self._business.industry,
                     )
                 )
                 response: bytes | _HttpResult
@@ -655,7 +754,7 @@ class OverpassMarketDiscovery:
             raise TypeError("business must be a BusinessInput")
         if self._business is None:
             if (
-                business.industry not in {"HOUSE_CLEANING", "House Cleaning"}
+                not verticals_match(business.industry, Vertical.CLEANING_SERVICES)
                 or business.city.casefold() != "orlando"
                 or business.state.casefold() not in {"fl", "florida"}
             ):
@@ -664,14 +763,15 @@ class OverpassMarketDiscovery:
                 )
             return
         if (
-            business.industry.replace("_", " ").casefold() != "house cleaning"
+            not profile_category_mappings(business.industry)
+            or not verticals_match(business.industry, self._business.industry)
             or business.city.casefold() != self._business.city.casefold()
             or business.state.casefold() != self._business.state.casefold()
             or business.country.casefold() != self._business.country.casefold()
         ):
             raise ValueError(
                 "profile-scoped Overpass discovery requires the configured "
-                "House Cleaning business and location"
+                "supported vertical and location"
             )
 
     def _normalize(self, body: bytes) -> MarketDiscoveryResult:
@@ -704,14 +804,32 @@ class OverpassMarketDiscovery:
             )
 
         retrieved_at = self._clock().astimezone(timezone.utc)
+        vertical = (
+            self._business.industry
+            if self._business is not None
+            else Vertical.HOUSE_CLEANING
+        )
+        profile = vertical_profile_for(vertical)
+        vertical_name = (
+            profile.canonical_industry_name if profile is not None else str(vertical)
+        )
         entities: list[MarketEntity] = []
         evidence: list[SourceEvidence] = []
         limitations: list[str] = [
             "OpenStreetMap is community-maintained; missing entries and stale attributes are possible.",
-            "OSM craft=cleaning covers building, industrial, window, and janitorial cleaning; it does not establish residential house-cleaning service.",
-            "No established OSM tag was selected for moving companies or vacation-rental operators; those categories were not searched.",
             "Apartment building features are not treated as organizations or confirmed commercial buyers.",
         ]
+        if verticals_match(vertical, Vertical.CLEANING_SERVICES):
+            limitations.extend(
+                (
+                    "OSM craft=cleaning covers building, industrial, window, and janitorial cleaning; it does not establish residential house-cleaning service.",
+                    "No established OSM tag was selected for moving companies or vacation-rental operators; those categories were not searched.",
+                )
+            )
+        else:
+            limitations.append(
+                f"The {vertical_name} competitor category is a provider classification; it does not establish the business's exact services, licenses, quality, current capacity, or commercial fit."
+            )
         if self._business is None:
             limitations.extend(
                 (
@@ -762,7 +880,7 @@ class OverpassMarketDiscovery:
             if not name:
                 skipped_unnamed += 1
                 continue
-            classification = _classify(tags)
+            classification = _classify(tags, vertical)
             if classification is None:
                 skipped_unsupported += 1
                 continue
@@ -791,7 +909,7 @@ class OverpassMarketDiscovery:
             entity_evidence: list[SourceEvidence] = []
             classifier_tags = tuple(
                 f"{key}={tags[key]}"
-                for key in ("craft", "office", "shop")
+                for key in ("craft", "office", "shop", "trade")
                 if key in tags
             )
             category_excerpt = "OpenStreetMap tags: " + "; ".join(classifier_tags)
@@ -936,9 +1054,15 @@ class OverpassMarketDiscovery:
                 limitations.append(
                     f"{name} ({object_id}) is missing a mapped addr:city or addr:state; location-based fit remains unqualified by the assessment engine."
                 )
-            if entity_type is MarketEntityType.COMPETITOR:
+            if entity_type is MarketEntityType.COMPETITOR and verticals_match(
+                vertical, Vertical.CLEANING_SERVICES
+            ):
                 limitations.append(
                     f"{name} ({object_id}) is a possible cleaning-services competitor only; OSM does not specify residential house cleaning for this entry."
+                )
+            elif entity_type is MarketEntityType.COMPETITOR:
+                limitations.append(
+                    f"{name} ({object_id}) is classified as a possible {vertical_name} competitor from its OSM craft tag; this does not establish the exact service mix, coverage, or business model."
                 )
 
         if skipped_malformed:
@@ -962,7 +1086,8 @@ class OverpassMarketDiscovery:
                 "Overpass returned a remark: " + payload["remark"].strip()
             )
         area_count = 1 + len(self._service_areas) if self._business is not None else 1
-        if len(elements) >= MAX_PER_QUERY * 5 * area_count:
+        mapping_count = len(profile_category_mappings(vertical))
+        if len(elements) >= MAX_PER_QUERY * mapping_count * area_count:
             limitations.append(
                 "Provider output reached the configured per-query result limit; category coverage may be truncated."
             )

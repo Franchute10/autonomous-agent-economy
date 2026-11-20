@@ -4,6 +4,7 @@ import argparse
 from collections.abc import Sequence
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import re
 import time
@@ -20,6 +21,7 @@ from aeos.live.website_demo import (
     run_website_inspection_command,
     run_website_market_command,
 )
+from aeos.live.url_diagnosis import run_business_url_diagnosis_command
 from aeos.live.adapters.overpass import (
     APPLICATION_USER_AGENT,
     DEFAULT_ENDPOINT,
@@ -32,6 +34,7 @@ from aeos.live.adapters.overpass import (
     OverpassMarketDiscovery,
     OverpassRequestError,
     OverpassResponseError,
+    profile_category_mappings,
 )
 from aeos.live.domain import (
     AssessmentStatus,
@@ -41,12 +44,9 @@ from aeos.live.domain import (
     MarketEntityType,
     InvalidLiveContract,
     SourceEvidence,
-    Vertical,
     assessment_to_dict,
-    vertical_profile_for,
 )
 from aeos.live.domain.profile import parse_business_profile_document
-from aeos.live.domain.vertical import verticals_match
 from aeos.live.ports import MarketDiscoveryPort, MarketDiscoveryResult
 
 DEFAULT_OUTPUT_DIRECTORY = Path("artifacts/live")
@@ -56,13 +56,23 @@ OSM_LICENSE_URL = "https://www.openstreetmap.org/copyright"
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
-            "Run one bounded, live OpenStreetMap/Overpass discovery for the "
-            "Orlando house-cleaning pilot. This command makes one external request."
+            "Run one bounded, live OpenStreetMap/Overpass market search. Profile mode "
+            "supports documented cleaning, HVAC, and roofing mappings; no-profile "
+            "mode remains the Orlando House Cleaning pilot. The command makes at "
+            "most one provider request."
         )
     )
     parser.add_argument("--city", default="Orlando")
     parser.add_argument("--state", default="FL")
     parser.add_argument("--industry", default="HOUSE_CLEANING")
+    parser.add_argument(
+        "--overpass-endpoint",
+        default=os.environ.get("AEOS_OVERPASS_ENDPOINT", DEFAULT_ENDPOINT),
+        help=(
+            "HTTPS Overpass interpreter endpoint (default: AEOS_OVERPASS_ENDPOINT "
+            "or the documented public instance)."
+        ),
+    )
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -78,6 +88,14 @@ def _parser() -> argparse.ArgumentParser:
         "--inspect-website",
         metavar="URL",
         help="Inspect a public business website and write JSON/Markdown reports only.",
+    )
+    parser.add_argument(
+        "--diagnose-url",
+        metavar="URL",
+        help=(
+            "Classify a business URL and produce an evidence-led report. "
+            "This route never starts market discovery."
+        ),
     )
     parser.add_argument(
         "--website-report",
@@ -121,7 +139,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--confirm-market-discovery",
         action="store_true",
-        help="Explicitly authorize Overpass discovery for only the selected market(s).",
+        help=(
+            "Explicitly authorize Overpass discovery for a profile or selected "
+            "market(s)."
+        ),
     )
     return parser
 
@@ -136,60 +157,36 @@ def _run_profile(args: argparse.Namespace) -> int:
     started_at = datetime.now(timezone.utc)
     started = time.monotonic()
     business = profile.to_business_input()
-    vertical = vertical_profile_for(profile.vertical)
-    supported_pilot = vertical is not None and verticals_match(
-        vertical.vertical, Vertical.CLEANING_SERVICES
-    )
+    endpoint = cast(str, args.overpass_endpoint)
+    category_mappings = profile_category_mappings(profile.vertical)
+    supported_pilot = bool(category_mappings)
     provider_error: str | None = None
     provider_exception: OverpassRequestError | OverpassResponseError | None = None
     provider_diagnostic: dict[str, object] = {
         "name": "OpenStreetMap data via Overpass API",
-        "endpoint": DEFAULT_ENDPOINT,
-        "endpoint_hostname": urlsplit(DEFAULT_ENDPOINT).hostname,
+        "endpoint": endpoint,
+        "endpoint_hostname": urlsplit(endpoint).hostname,
         "application_user_agent": PROFILE_APPLICATION_USER_AGENT,
         "instance_usage_policy_reference": "https://wiki.openstreetmap.org/wiki/Overpass_API",
         "osm_attribution": "© OpenStreetMap contributors",
         "data_license": "Open Database License (ODbL) 1.0",
         "license_url": OSM_LICENSE_URL,
         "request_count": 0,
+        "attempt_count": 0,
         "retry_count": 0,
         "timeout_seconds": DEFAULT_TIMEOUT_SECONDS,
         "response_size_limit_bytes": MAX_RESPONSE_BYTES,
         "api_cost_usd": None,
         "api_cost_note": "No per-request price was published for this listed public instance; actual charge is unknown.",
-        "searched_categories": [
-            "craft=cleaning",
-            "office=property_management",
-            "office=estate_agent",
-            "shop=estate_agent",
-            "shop=cleaning_supplies",
-        ]
-        if supported_pilot
-        else [],
+        "searched_categories": [mapping.label for mapping in category_mappings],
         "category_mapping_references": [
-            {
-                "tag": "craft=cleaning",
-                "url": "https://wiki.openstreetmap.org/wiki/Tag:craft%3Dcleaning",
-            },
-            {
-                "tag": "office=property_management",
-                "url": "https://wiki.openstreetmap.org/wiki/Tag:office%3Dproperty_management",
-            },
-            {
-                "tag": "office=estate_agent or shop=estate_agent",
-                "url": "https://wiki.openstreetmap.org/wiki/Tag:office%3Destate_agent",
-            },
-            {
-                "tag": "shop=cleaning_supplies",
-                "url": "https://wiki.openstreetmap.org/wiki/Tag:shop%3Dcleaning_supplies",
-            },
-        ]
-        if supported_pilot
-        else [],
+            {"tag": mapping.label, "url": mapping.reference_url}
+            for mapping in category_mappings
+        ],
     }
-    if supported_pilot:
+    if supported_pilot and args.confirm_market_discovery:
         adapter = OverpassMarketDiscovery(
-            endpoint=DEFAULT_ENDPOINT,
+            endpoint=endpoint,
             timeout_seconds=DEFAULT_TIMEOUT_SECONDS,
             max_response_bytes=MAX_RESPONSE_BYTES,
             business=business,
@@ -207,6 +204,8 @@ def _run_profile(args: argparse.Namespace) -> int:
         provider_diagnostic.update(
             {
                 "request_count": adapter.request_count,
+                "attempt_count": adapter.request_count,
+                "retry_count": 0,
                 "request_elapsed_seconds": round(adapter.request_elapsed_seconds, 3),
                 "http_status": (
                     provider_exception.http_status
@@ -224,14 +223,57 @@ def _run_profile(args: argparse.Namespace) -> int:
                     *(profile.additional_service_areas or ()),
                 ],
                 "area_scope": "Named administrative areas within the supplied state/region and country.",
-                "status": "failed" if provider_error else "succeeded",
+                "status": (
+                    "FAILED"
+                    if provider_error
+                    else "COMPLETED_WITH_RESULTS"
+                    if discovery.entities
+                    else "COMPLETED_NO_RESULTS"
+                ),
+                "result_count": None if provider_error else len(discovery.entities),
                 "error": provider_error,
             }
         )
+    elif supported_pilot:
+        discovery = _empty_discovery(
+            "Market discovery was not run because explicit confirmation was not provided."
+        )
+        provider_diagnostic.update(
+            {
+                "status": "NOT_RUN",
+                "result_count": None,
+                "not_run_reason": (
+                    "Pass --confirm-market-discovery to authorize the Overpass request."
+                ),
+                "search_areas": [
+                    profile.city,
+                    *(profile.additional_service_areas or ()),
+                ],
+                "area_scope": "Named administrative areas within the supplied state/region and country.",
+            }
+        )
     else:
-        limitation = f"No documented Overpass tag mapping is available for vertical {profile.vertical!r}; no market search was sent."
-        discovery = _empty_discovery(limitation)
-        provider_diagnostic["status"] = "not_searched_unsupported_vertical"
+        normalized_vertical = profile.vertical.replace("_", " ").casefold()
+        if normalized_vertical == "home remodeling":
+            unsupported_reason = (
+                "HOME_REMODELING is not a declared vertical in the vertical registry, "
+                "and the broader CONSTRUCTION taxonomy does not identify residential "
+                "remodeling providers or dedicated remodeling suppliers. No documented "
+                "Overpass category mapping is available, so no provider request was sent."
+            )
+        else:
+            unsupported_reason = (
+                f"No documented Overpass category mapping is available for vertical "
+                f"{profile.vertical!r}; no provider request was sent."
+            )
+        discovery = _empty_discovery(unsupported_reason)
+        provider_diagnostic.update(
+            {
+                "status": "UNSUPPORTED",
+                "result_count": None,
+                "unsupported_reason": unsupported_reason,
+            }
+        )
 
     assessment = assess_business_profile(profile, discovery)
     elapsed = time.monotonic() - started
@@ -255,19 +297,44 @@ def _run_profile(args: argparse.Namespace) -> int:
     )
     markdown_path.write_text(render_business_report_markdown(report), encoding="utf-8")
     competition = cast(dict[str, object], report["competitive_environment"])
+    discovery_status = str(provider_diagnostic["status"])
     print(f"AEOS LIVE profile assessment: {assessment.status.value}")
     print(f"Business: {profile.business_name}")
-    print(
-        "Discovery counts: "
-        f"{len(cast(list[object], competition['potential_competitors']))} potential competitors, "
-        f"{len(cast(list[object], competition['verified_competitors']))} verified competitors, "
-        f"{len(cast(list[object], report['potential_customers']))} potential customers, "
-        f"{len(cast(list[object], report['partners_and_channels']))} partners/channels, "
-        f"{len(cast(list[object], report['suppliers']))} suppliers"
-    )
+    if discovery_status == "NOT_RUN":
+        print("Discovery counts (NOT_RUN): unavailable; confirmation was not provided.")
+    elif discovery_status == "FAILED":
+        print("Discovery counts (FAILED): unavailable; market result is unknown.")
+    elif discovery_status == "UNSUPPORTED":
+        print(
+            "Discovery counts (UNSUPPORTED): not searched; no provider request was sent."
+        )
+    else:
+        result_count = provider_diagnostic["result_count"]
+        print(
+            f"Discovery counts ({discovery_status}): {result_count} organizations; "
+            f"{len(cast(list[object], competition['potential_competitors']))} potential competitors, "
+            f"{len(cast(list[object], competition['verified_competitors']))} verified competitors, "
+            f"{len(cast(list[object], report['potential_customers']))} potential customers, "
+            f"{len(cast(list[object], report['partners_and_channels']))} partners/channels, "
+            f"{len(cast(list[object], report['suppliers']))} suppliers"
+        )
     print(f"Benchmark: {cast(dict[str, object], report['benchmark'])['status']}")
     print(f"BestNextMove: {report['best_next_move']}")
-    print(f"Provider requests: {provider_diagnostic['request_count']}; retries: 0")
+    attempt_count = cast(int, provider_diagnostic["attempt_count"])
+    if discovery_status in {"NOT_RUN", "UNSUPPORTED"}:
+        search_detail = "no search sent (0 attempts)"
+        provider_label = (
+            f"provider: not contacted (configured: {provider_diagnostic['name']})"
+        )
+    else:
+        search_detail = f"attempts: {attempt_count}"
+        provider_label = f"provider: {provider_diagnostic['name']}"
+    http_status = provider_diagnostic.get("http_status")
+    print(
+        f"Market discovery: {discovery_status} | {provider_label} | "
+        f"{search_detail} | retries: {provider_diagnostic['retry_count']} | "
+        f"HTTP status: {http_status if http_status is not None else 'unavailable'}"
+    )
     print(f"JSON report: {json_path.resolve()}")
     print(f"Markdown report: {markdown_path.resolve()}")
     if not supported_pilot:
@@ -494,6 +561,8 @@ def _provider_diagnostic(
 ) -> dict[str, object]:
     return {
         "endpoint_hostname": urlsplit(adapter.endpoint).hostname,
+        "attempt_count": adapter.request_count,
+        "retry_count": 0,
         "failure_category": error.category if error is not None else None,
         "exception_type": error.exception_type if error is not None else None,
         "sanitized_error_message": (
@@ -567,11 +636,19 @@ def _make_report(
         },
         "provider": {
             "name": "OpenStreetMap data via Overpass API",
+            "status": (
+                "FAILED"
+                if provider_error
+                else "COMPLETED_WITH_RESULTS"
+                if discovery.entities
+                else "COMPLETED_NO_RESULTS"
+            ),
             "endpoint": adapter.endpoint,
             "endpoint_hostname": provider_diagnostic["endpoint_hostname"],
             "instance_usage_policy_reference": "https://wiki.openstreetmap.org/wiki/Overpass_API",
             "application_user_agent": APPLICATION_USER_AGENT,
             "request_count": adapter.request_count,
+            "attempt_count": adapter.request_count,
             "retry_count": 0,
             "timeout_seconds": adapter.timeout_seconds,
             "request_elapsed_seconds": provider_diagnostic["elapsed_seconds"],
@@ -647,7 +724,9 @@ def render_markdown_report(report: dict[str, object]) -> str:
     counts = cast(dict[str, object], report["counts"])
     target = cast(dict[str, object], report["target_identification"])
     summary = cast(dict[str, object], report["assessment_summary"])
+    provider = cast(dict[str, object], report["provider"])
     groups = cast(dict[str, list[dict[str, object]]], report["entities_by_category"])
+    discovery_status = str(provider["status"])
     lines = [
         "# AEOS LIVE — Orlando House-Cleaning Discovery Pilot",
         "",
@@ -661,11 +740,19 @@ def render_markdown_report(report: dict[str, object]) -> str:
         "",
         "## Discovery counts",
         "",
-        f"- Possible cleaning-service competitors: {counts['possible_competitors']}",
-        f"- Exact comparable competitors: {counts['exact_comparable_competitors']}",
-        f"- Potential customers: {counts['potential_customers']}",
-        f"- Possible partners: {counts['possible_partners']}",
-        f"- Suppliers: {counts['suppliers']}",
+        *(
+            (
+                "- Counts unavailable; the market result is unknown because discovery failed.",
+            )
+            if discovery_status == "FAILED"
+            else (
+                f"- Possible cleaning-service competitors: {counts['possible_competitors']}",
+                f"- Exact comparable competitors: {counts['exact_comparable_competitors']}",
+                f"- Potential customers: {counts['potential_customers']}",
+                f"- Possible partners: {counts['possible_partners']}",
+                f"- Suppliers: {counts['suppliers']}",
+            )
+        ),
         "",
         "These are directory observations, not confirmed leads, buyer need, or existing commercial relationships.",
         "",
@@ -743,14 +830,14 @@ def render_markdown_report(report: dict[str, object]) -> str:
     for limitation in cast(list[str], report["limitations"]):
         lines.append(f"- {limitation}")
     execution = cast(dict[str, object], report["execution"])
-    provider = cast(dict[str, object], report["provider"])
     diagnostic = cast(dict[str, object], report["provider_diagnostic"])
     lines.extend(
         (
             "",
             "## Execution and source terms",
             "",
-            f"- Provider requests: {execution['provider_requests']} (no retries)",
+            f"- Final discovery status: {discovery_status}",
+            f"- Provider attempts: {provider['attempt_count']} (retries: {provider['retry_count']})",
             f"- Endpoint hostname: `{provider['endpoint_hostname']}`",
             f"- HTTP status: {diagnostic['http_status'] if diagnostic['http_status'] is not None else 'unavailable'}",
             f"- Request reached HTTP server: {diagnostic['request_reached_http_server'] if diagnostic['request_reached_http_server'] is not None else 'unknown'}",
@@ -792,6 +879,27 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run one real request, then the actual deterministic LIVE assessment."""
 
     args = _parser().parse_args(argv)
+    if args.diagnose_url is not None:
+        if (
+            args.inspect_website is not None
+            or args.website_report is not None
+            or args.select_market
+            or args.market_city
+            or args.market_state
+            or args.market_postal_code
+            or args.market_radius is not None
+            or args.service
+            or args.use_detected_services
+            or args.confirm_market_discovery
+        ):
+            _parser().error(
+                "--diagnose-url cannot be combined with website market selection or market discovery"
+            )
+        return run_business_url_diagnosis_command(
+            args.diagnose_url,
+            output_directory=args.output_dir,
+            profile_path=args.profile,
+        )
     if args.inspect_website is not None:
         if (
             args.profile is not None
@@ -848,7 +956,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.market_radius is not None,
             args.service,
             args.use_detected_services,
-            args.confirm_market_discovery,
+            args.confirm_market_discovery and args.profile is None,
         )
     ):
         _parser().error(
@@ -867,7 +975,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     started_at = datetime.now(timezone.utc)
     started = time.monotonic()
     adapter = OverpassMarketDiscovery(
-        endpoint=DEFAULT_ENDPOINT,
+        endpoint=cast(str, args.overpass_endpoint),
         timeout_seconds=DEFAULT_TIMEOUT_SECONDS,
         max_response_bytes=MAX_RESPONSE_BYTES,
     )
@@ -896,12 +1004,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     target_report = cast(dict[str, object], report["target_identification"])
     counts = cast(dict[str, object], report["counts"])
     summary = cast(dict[str, object], report["assessment_summary"])
+    provider = cast(dict[str, object], report["provider"])
+    discovery_status = str(provider["status"])
     print(f"AEOS LIVE assessment: {assessment.status.value}")
     print(f"Target business: {target_report['target_business']}")
-    print(f"Counts: {counts}")
+    if discovery_status == "FAILED":
+        print("Counts: unavailable (FAILED; market result is unknown)")
+    else:
+        print(f"Counts ({discovery_status}): {counts}")
     print(f"BestNextMove: {summary['best_next_move']}")
-    print(f"Provider requests: {adapter.request_count}; retries: 0")
     diagnostic = cast(dict[str, object], report["provider_diagnostic"])
+    print(
+        f"Market discovery: {discovery_status} | provider: {provider['name']} | "
+        f"attempts: {provider['attempt_count']} | retries: {provider['retry_count']} | "
+        f"HTTP status: {diagnostic['http_status'] if diagnostic['http_status'] is not None else 'unavailable'}"
+    )
     print(
         "Provider diagnostic: "
         f"{diagnostic['failure_category'] or 'success'} "

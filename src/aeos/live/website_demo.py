@@ -355,8 +355,13 @@ def _selection_dict(resolution: MarketSelectionResolution) -> dict[str, object]:
 
 
 def _location_dict(item: LocationCandidate) -> dict[str, object]:
+    is_neighborhood = item.location_type is LocationType.NEIGHBORHOOD_MENTION
+    is_region = item.location_type is LocationType.REGIONAL_SERVICE_AREA
     return {
-        "city": item.city,
+        "city": None if is_neighborhood or is_region else item.city,
+        "neighborhood": item.city if is_neighborhood else None,
+        "region": item.city if is_region else None,
+        "place_name": item.city,
         "state": item.state,
         "postal_code": item.postal_code,
         "location_type": item.location_type.value,
@@ -391,24 +396,18 @@ def _inspection_from_report(report: dict[str, object]) -> WebsiteInspectionResul
             )
         )
     pages_raw = cast(list[dict[str, object]], report.get("paginas_revisadas", []))
-    pages = tuple(
-        WebsitePage(
-            url=str(item["url"]),
-            status_code=cast(int, item["http_status"]),
-            title=cast(str | None, item.get("title")),
-            meta_description=cast(str | None, item.get("meta_description")),
-            h1_headings=tuple(cast(list[str], item.get("h1", []))),
-            h2_headings=tuple(cast(list[str], item.get("h2", []))),
-            main_text=str(item.get("main_text", "")),
-        )
-        for item in pages_raw
-    )
+    pages = tuple(_website_page_from_report(item) for item in pages_raw)
     locations_raw = cast(
         list[dict[str, object]], report.get("candidatos_geograficos", [])
     )
     locations = tuple(
         LocationCandidate(
-            city=str(item["city"]),
+            city=str(
+                item.get("place_name")
+                or item.get("city")
+                or item.get("neighborhood")
+                or ""
+            ),
             state=cast(str | None, item.get("state")),
             postal_code=cast(str | None, item.get("postal_code")),
             location_type=LocationType(str(item["location_type"])),
@@ -483,6 +482,15 @@ def _inspection_from_report(report: dict[str, object]) -> WebsiteInspectionResul
                     ).get("perfiles_mencionados", []),
                 )
             ),
+            structured_data_types=tuple(
+                cast(
+                    list[str],
+                    cast(
+                        dict[str, object],
+                        report.get("otros_datos_estructurados", {}),
+                    ).get("tipos_schema", []),
+                )
+            ),
             robots_status=str(robots.get("status", "unknown")),
             robots_sitemaps=tuple(cast(list[str], robots.get("sitemaps", []))),
             robots_restrictions=tuple(
@@ -498,6 +506,40 @@ def _inspection_from_report(report: dict[str, object]) -> WebsiteInspectionResul
         pages=pages,
         locations=locations,
         services=services,
+    )
+
+
+def _website_page_from_report(item: dict[str, object]) -> WebsitePage:
+    rendered = item.get("dom_renderizado")
+    rendered_dom = rendered if isinstance(rendered, dict) else {}
+    method = str(item.get("metodo_inspeccion", "HTML_ONLY"))
+    return WebsitePage(
+        url=str(item["url"]),
+        status_code=cast(int, item["http_status"]),
+        title=cast(str | None, item.get("title_html", item.get("title"))),
+        meta_description=cast(
+            str | None, item.get("meta_description_html", item.get("meta_description"))
+        ),
+        h1_headings=tuple(cast(list[str], item.get("h1_html", item.get("h1", [])))),
+        h2_headings=tuple(cast(list[str], item.get("html_h2", item.get("h2", [])))),
+        main_text=str(item.get("main_text", "")),
+        link_texts=tuple(cast(list[str], item.get("link_texts", []))),
+        link_urls=tuple(
+            cast(list[str], item.get("html_link_urls", item.get("link_urls", [])))
+        ),
+        inspection_method=method,
+        rendered_title=cast(str | None, rendered_dom.get("title")),
+        rendered_meta_description=cast(
+            str | None, rendered_dom.get("meta_description")
+        ),
+        rendered_h1_headings=tuple(cast(list[str], rendered_dom.get("h1", []))),
+        rendered_h2_headings=tuple(cast(list[str], rendered_dom.get("h2", []))),
+        rendered_link_texts=tuple(cast(list[str], rendered_dom.get("link_texts", []))),
+        rendered_link_urls=tuple(cast(list[str], rendered_dom.get("link_urls", []))),
+        rendered_dom_error=cast(str | None, item.get("dom_renderizado_error")),
+        rendered_dom_error_message=cast(
+            str | None, item.get("dom_renderizado_error_mensaje")
+        ),
     )
 
 
