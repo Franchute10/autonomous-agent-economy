@@ -592,7 +592,6 @@ def test_import_confirmation_requires_candidate_file(tmp_path: Path) -> None:
             as_of=AS_OF,
             confirm_import=True,
         )
-\n
 def _real_profile_without_organization_id(tmp_path: Path) -> Path:
     payload = json.loads(DEFAULT_PROFILE.read_text(encoding="utf-8"))
     assert isinstance(payload, dict)
