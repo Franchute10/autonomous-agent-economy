@@ -105,8 +105,8 @@ Esto acredita presencia de entregas de dominio, arquitectura, persistencia y un 
 
 ### Motor de leads
 
-- PR #1 (#12) propone Tavily y está abierto; GitHub lo reporta `mergeable: false`.
-- PR #2 (#13) añade journal JSONL, evaluación y métricas y está abierto; su base es la rama de PR #1, no `main`.
+- PR #1 propone Tavily y está abierto; GitHub lo reporta `mergeable: false`.
+- PR #2 añade journal JSONL, evaluación y métricas y está abierto; su base es la rama de PR #1, no `main`.
 - El cuerpo del PR #2 reporta 878 pruebas offline aprobadas. En el chat actual se mostró la corrida focal `test_intent_provider_promotion.py`: 2 aprobadas. Un resultado no sustituye al otro; CI y el número final deben verificarse sobre el SHA que se quiera integrar.
 - El experimento del operador con Tavily produjo candidatos irrelevantes y cero leads validados. El objetivo de calidad comercial sigue bloqueado por evidencia insuficiente, no por falta de otro filtro regex.
 
