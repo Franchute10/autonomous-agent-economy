@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (refreshed after the AEOS LIVE 003C PR stack reconciliation and latest operator fetch; local `main` and other worktrees still need a fresh inventory)  
+**Snapshot:** 2026-11-20 (refreshed with the six-checkout inventory; exact local file reconciliation and ignored-data review remain)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
