@@ -125,7 +125,9 @@ The upload review classifies the local material but does not authorize deleting 
 
 - [x] Establish a canonical entry point: README links to the readiness snapshot; AGENTS.md requires reading it before changes.
 - [x] Repair the reported PR #17 type-check failures and rerun GitHub CI. The exact current head and evidence are recorded above.
-- [x] Collect the initial Windows inventory and inspect/classify the uploaded main diff and untracked-file bundle. [x] Refresh remote refs; fast-forward the clean 003c followup worktree to `e456832`. [ ] Refresh the other worktrees and finish their explicit file-level reconciliation before integration or cleanup.
+- [x] Collect the initial Windows inventory and inspect/classify the uploaded main diff and untracked-file bundle.
+- [x] Refresh remote refs and fast-forward the clean 003c followup worktree to `e456832`.
+- [ ] Refresh the other worktrees and finish their explicit file-level reconciliation before integration or cleanup.
 - [ ] Review and reconcile the AEOS PR stack. Confirm the correct ancestry, inspect combined diff scope, and merge in dependency order only after local worktree reconciliation.
 - [ ] Reconcile the Commercial Lead Engine local checkout with PR #1/#2; do not push the mismatched local clone.
 - [ ] Configure PR-required branch rules for both public repositories after the required check names are verified. The AEOS main branch was last observed without protection; this GitHub connection did not provide a successful settings update.
