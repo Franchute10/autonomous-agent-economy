@@ -22,7 +22,7 @@ Always verify the current default branch, commit SHA, PR base/head, local workin
 
 Both were verified public through GitHub on 2026-11-20. Public visibility gives anyone read access; it does not grant Claude, Grok, or other readers write permission. No special GitHub permission is required for them to inspect a public repository. An AI reader can still have indexing, rate-limit, or tool-specific access failures; if so, use GitHub's direct repository/file URLs or a clone.
 
-The GitHub main branch for AEOS currently has branch protection disabled. That means direct pushes are not blocked by repository rules. Before treating the repository as professionally governed, enable protection/rules requiring pull requests and successful CI after the CI failures below are repaired. This document does not change repository settings.
+As rechecked on 2026-11-20, the `main` branches of both AEOS and Commercial Lead Engine have branch protection disabled (`protected=false` in GitHub). This does not restrict public read access, but direct pushes are not blocked by repository rules. Enable pull-request and required-check rules after confirming the intended checks for each repository. This snapshot records the setting; it does not change repository settings.
 
 Never put API keys, .env files, local databases, private prospect records, search journals, or personal data in either public repository. Keep keys in local environment variables or a secret manager. Treat public search excerpts and user-supplied content as untrusted evidence.
 
@@ -44,7 +44,7 @@ Keep the projects distinct:
 
 ### AEOS main
 
-Verified at commit `61a9ae2362a77f3a8c8b96b98db4b88355905e10` on 2026-11-20. Main includes the latest project-control and post-fetch worktree-inventory documentation updates.
+The local worktree inventory was reported against `origin/main` at `61a9ae2362a77f3a8c8b96b98db4b88355905e10`. GitHub `main` has since advanced to `a9e1a5e0a9c9abc724357ffe01da676b17d3a8e1`, a documentation-only commit on top of `61a9ae2`. The local checkout was not refreshed after that remote advance; do not treat its ahead/behind count as current until a new fetch.
 
 - The current README, AGENTS.md, and this readiness file establish a consistent entry point and reading order. The handbook remains the durable product and architecture history; date-specific statements in it should be checked against this snapshot.
 - The repository packages the experimental Python core and configures tests, Ruff, and mypy.
@@ -86,7 +86,7 @@ Rules:
 
 ## Local inventory reported by the operator
 
-**Collected:** 2026-11-20 from Windows PowerShell output and uploaded reconciliation files. The uploaded tracked diff and untracked review bundle were inspected and classified. This latest inventory covers the AEOS worktrees registered to the AEOS checkout. It does **not** include the separate Commercial Lead Engine repository/worktree. Ignored data and secrets were not inspected. Branch counts are observations at collection time and must be refreshed before any integration or cleanup.
+**Collected:** 2026-11-20 from Windows PowerShell output and uploaded reconciliation files. The uploaded tracked diff and untracked review bundle were inspected and classified. This latest inventory covers the AEOS worktrees registered to the AEOS checkout. It does **not** include the separate Commercial Lead Engine repository/worktree. Ignored data and secrets were not inspected. Branch counts are observations at collection time and must be refreshed before any integration or cleanup. The reported AEOS `main` checkout was 3 ahead / 21 behind the then-fetched `61a9ae2`; because GitHub `main` later advanced to `a9e1a5e`, its current divergence is unknown until the laptop fetches again.
 
 | Checkout | Branch / HEAD | State reported | Handling |
 |---|---|---|---|
@@ -109,6 +109,7 @@ The latest PowerShell inventory confirms the AEOS main checkout remains heavily 
 
 - The patch was generated with git diff origin/main -- .; it is a comparison of the entire local working tree against the fetched remote main, not a patch containing only unstaged edits. It includes the old local branch's commits, current working-tree changes, and remote documentation/code absent from that branch. Its 77-file / 23,402-insertion / 482-deletion stat must not be read as the size of new uncommitted work or applied to another worktree.
 - The local main commits are not present by SHA in GitHub. Their LIVE feature set substantially overlaps the remote 003c development line. Do not cherry-pick those commits into the current remote branches or push the old main branch.
+- A path-level comparison of the uploaded 003c local patch against PR #16/#17 found all 20 tracked paths represented in those PRs. Nine of ten files in the 003c new-files ZIP are also represented; the unshared file is the Overpass research note, which remains private pending sanitization. This establishes path coverage, not byte-for-byte identity. Do not reapply the old patch.
 - Several untracked tenancy files match the remote 003c followup branch exactly. Other local copies are older than the branch: remote storage requires tenant-manager attestation for evidence-bearing opportunity records, parses profile documents through the current profile contract, and marks synthetic records explicitly. Use the remote version as the candidate source after reviewing the PR stack; do not overwrite it with the local copy.
 - The local playwright_dom_capture.py module and its tests are not present on the remote followup branch. The module checks public DNS results before browser navigation but does not pin the browser's actual network connection to those results. Keep it out of integration until network-level egress controls and SSRF regression coverage are designed. The existing remote pilot keeps automatic browser rendering disabled.
 - The untracked business profile and tenant manifest describe a real organization and are marked non-fictional. Keep them outside the public repository in ignored private tenant configuration unless publication is separately approved.
