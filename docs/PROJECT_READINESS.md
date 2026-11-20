@@ -152,6 +152,12 @@ Remote `main` advanced after the inventory bundle was created and is now at `b89
 
 The exact hash results reduce uncertainty about duplicate files, but they do not tell whether a differing version is better, stale, private, or safe to publish. The next reconciliation work is to inspect those differences semantically, then inspect ignored paths and run a full secret scan on the laptop before cleaning or archiving any checkout.
 
+## Readiness update after spot-check (2026-11-20)
+
+- PR #36, which records the targeted 003C patch review, was merged to `main` after both GitHub checks succeeded. Current `main` is `93eea98999c7dcb5ddda8e9a3ceccb9f2cc177dd`.
+- No application code changed in this update. The documented review covered eight differing files in `aeos-003c-local.patch`; it did not resolve dirty `main` / `003c-review` contents, inspect ignored local data, or complete a laptop-wide/history secret scan.
+- The remaining local patch review must use the uploaded artifacts as evidence and keep all Windows worktrees untouched. The next review target is the seven differing files in `aeos-003c-followup-review.patch`, followed by the remaining local-main differences.
+
 ## Semantic spot-check of local 003C patch (2026-11-20)
 
 A targeted semantic comparison was completed for the eight files whose blobs differed between the uploaded `aeos-003c-local.patch` and remote `codex/aeos-live-003c` at `0cc8598e2272f6da25de07826b880d37e7ab43c4`. This is a review of those eight differences only; it does not complete review of the dirty local `main` or `003c-review` worktrees.
