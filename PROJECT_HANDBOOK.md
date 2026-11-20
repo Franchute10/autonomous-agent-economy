@@ -231,3 +231,22 @@ El operador generó un diff de los archivos Python de la rama local `main` contr
 No se copió ni integró código. Los commits locales `f45411f`, `40e1e9d` y `9847fce`, junto con los cambios sin commit, permanecen preservados y pendientes de conciliación selectiva. La salida de parche no clasifica archivos no rastreados ni artefactos no Python.
 
 La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) conserva el registro y el siguiente paso. Reanudar desde la comparación de un comportamiento o prueba concreta que no esté ya cubierta en `003c`; mantener el worktree local intacto hasta revisar por separado el resto de cambios y artefactos.
+
+## 11. Inventario local más reciente de AEOS main (2026-11-20)
+
+El operador volvió a ejecutar `git status`, comparó archivos no Python con `origin/main` y resumió los archivos no rastreados por extensión. Este es un reporte del equipo Windows, no una inspección directa del disco desde esta sesión.
+
+- Estado informado: rama local `main`, 3 commits adelante y 6 detrás de `origin/main`; sin cambios staged; 58 archivos rastreados modificados/eliminados y 46 archivos sin seguimiento.
+- Los 46 archivos no rastreados se distribuyen por extensión: 17 `.py`, 8 `.json`, 5 `.md`, 5 `.txt`, 5 `.png`, 2 `.html`, y un archivo de cada tipo `.yml`, `.js`, `.jpg` y `.gif`. El conteo no describe el contenido.
+- El diff no Python contra `origin/main` muestra aparentes altas y bajas de documentos. En particular, `PROJECT_HANDBOOK.md` y `AGENTS.md` aparecen como eliminaciones porque el HEAD local está detrás de commits remotos que ya los contienen; no tratarlas como una decisión local de borrado.
+- Hay cambios de ejemplos y artefactos de pilotos con datos específicos, además de un directorio de Paddle Sandbox. No subirlos ni examinarlos en bloque; clasificar por separado contenido, sensibilidad y propósito. Mantener fuera de Git credenciales, datos de prospectos/clientes, bases locales y reportes privados.
+- El diff de 50 archivos Python ya está revisado en la sección 10: no aplicarlo ni cherry-pickearlo en bloque porque los 50 paths existen en 003c y varias versiones de 003c son posteriores.
+
+### Próxima revisión local
+
+1. Obtener el SHA local actual con `git -C $repo log -1 --format="%H %D"` y conservar la rama intacta.
+2. Inspeccionar de forma selectiva los diffs de documentación/configuración y los 17 archivos Python no rastreados. No compartir ni subir contenidos sensibles.
+3. Clasificar los JSON, HTML, texto e imágenes como fixture sintético, dato de piloto, configuración local o artefacto. Revisar especialmente cualquier configuración local de pagos y datos personales antes de decidir si se ignora, conserva localmente o publica una plantilla saneada.
+4. Reconciliar los commits locales con 003c por comportamientos y pruebas, no trasladando los commits completos. Solo preparar un PR de código cuando haya una brecha concreta, diff pequeño y pruebas sobre la rama destino.
+
+La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) es el registro operativo de esta conciliación. No ejecutar `pull`, merge, rebase, reset, clean, restore ni staging masivo en el worktree divergente.
