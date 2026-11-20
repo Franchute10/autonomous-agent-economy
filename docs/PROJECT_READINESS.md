@@ -5,10 +5,10 @@
 
 ## Read order
 
-1. [README](../README.md) — short project orientation.
-2. [AGENTS.md](../AGENTS.md) — rules for people and coding agents.
-3. [PROJECT_HANDBOOK.md](../PROJECT_HANDBOOK.md) — product intent, architecture, decision history, and durable handoff. Some dated inventory sections are historical; check this snapshot and GitHub before acting.
-4. This document — current readiness, open blockers, and next work.
+1. [README](../README.md) — short project orientation and entry point.
+2. This document — current verified readiness, open blockers, PR branches, and next work.
+3. [AGENTS.md](../AGENTS.md) — rules for people and coding agents.
+4. [PROJECT_HANDBOOK.md](../PROJECT_HANDBOOK.md) — product intent, architecture, decision history, and durable handoff. Some dated history is contextual; use this snapshot and GitHub for current state.
 5. [Minimum Viable Technical Architecture](architecture/AEOS_Minimum_Viable_Technical_Architecture_v0.1.md), [ADR index](../docs/adr/README.md), then the relevant implementation runbook and pull request.
 
 Always verify the current default branch, commit SHA, PR base/head, local working tree, and CI. A document or chat can become stale.
@@ -44,7 +44,7 @@ Keep the projects distinct:
 
 ### AEOS main
 
-Verified at commit `b627c06dd8c7694db48bfc5b6ae2d87ef9175d4c` on 2026-11-20.
+Verified at commit `ab1a3edff5f46268df9356f8c682a8b8ca2d677f` on 2026-11-20 (documentation-only updates since the PR-state verification).
 
 - The current README, AGENTS.md, and this readiness file establish a consistent entry point and reading order. The handbook remains the durable product and architecture history; date-specific statements in it should be checked against this snapshot.
 - The repository packages the experimental Python core and configures tests, Ruff, and mypy.
