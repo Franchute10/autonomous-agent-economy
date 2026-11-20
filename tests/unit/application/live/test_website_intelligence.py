@@ -1,6 +1,7 @@
 """Owner market selection and website report behavior."""
 
 from datetime import datetime, timezone
+from dataclasses import replace
 import json
 from pathlib import Path
 from typing import cast
@@ -38,13 +39,14 @@ def _candidate(
     location_type: LocationType = LocationType.EXPLICITLY_SERVED_CITY,
     evidence_id: str = "website:area:sample-city-two",
 ) -> LocationCandidate:
+    state_text = f", {state}" if state else ""
     return LocationCandidate(
         city=city,
         state=state,
         postal_code=None,
         location_type=location_type,
         source_url="https://example.com/service-areas",
-        supporting_text="We serve Sample City Two, Example Region.",
+        supporting_text=f"We serve {city}{state_text}.",
         evidence_classification=EvidenceKind.REPORTED,
         confidence=0.88,
         verification_status=VerificationStatus.WEBSITE_REPORTED,
@@ -107,6 +109,45 @@ def test_market_selection_creates_owner_confirmed_scope_and_keeps_source_candida
     assert result.scope.source_evidence_id == original.evidence_id
     assert result.original_candidate == original
     assert result.location_was_corrected_or_added is False
+
+
+def test_neighborhood_is_not_serialized_or_selected_as_a_city() -> None:
+    neighborhood = _candidate(
+        city="Los Rios",
+        state="Texas",
+        location_type=LocationType.NEIGHBORHOOD_MENTION,
+    )
+    regional_area = _candidate(
+        city="DFW Metro Area",
+        state=None,
+        location_type=LocationType.REGIONAL_SERVICE_AREA,
+        evidence_id="website:area:dfw",
+    )
+    inspection = _inspection(locations=(neighborhood, regional_area))
+    result = resolve_business_locations(
+        inspection,
+        selected_city="Los Rios",
+        selected_state="Texas",
+        selected_services=("Kitchen remodeling",),
+    )
+
+    assert result.original_candidate is None
+    assert result.location_was_corrected_or_added is True
+    assert result.scope.source_evidence_id is None
+    report = build_website_report(
+        inspection,
+        website_url="https://example.com/",
+        status="succeeded",
+    )
+    section = cast(dict[str, object], report["website_inspection"])
+    candidates = cast(list[dict[str, object]], section["candidatos_geograficos"])
+    assert candidates[0]["city"] is None
+    assert candidates[0]["neighborhood"] == "Los Rios"
+    assert candidates[0]["place_name"] == "Los Rios"
+    assert candidates[1]["city"] is None
+    assert candidates[1]["region"] == "DFW Metro Area"
+    assert "NEIGHBORHOOD_MENTION" in render_website_report_markdown(report)
+    assert "REGIONAL_SERVICE_AREA" in render_website_report_markdown(report)
 
 
 def test_owner_correction_does_not_overwrite_the_extracted_candidate() -> None:
@@ -321,3 +362,31 @@ def test_failed_inspection_report_omits_sensitive_url_parameters() -> None:
     assert "#fragment" not in serialized
     inspection = cast(dict[str, object], report["website_inspection"])
     assert inspection["requested_url"] == "https://fixture.example/"
+
+
+def test_partial_rendered_dom_report_lists_only_observed_dom_fields() -> None:
+    inspection = _inspection(locations=(), services=())
+    partial_page = WebsitePage(
+        url="https://example.com/",
+        status_code=200,
+        inspection_method="HTTP_AND_RENDERED_DOM",
+        rendered_title="Rendered title",
+        rendered_h1_headings=("Observed H1",),
+        rendered_dom_error="render_timeout",
+        rendered_dom_error_message="Partial DOM after navigation timeout.",
+    )
+    inspection = replace(inspection, pages=(partial_page,))
+
+    report = build_website_report(
+        inspection,
+        website_url="https://example.com/",
+        status="succeeded",
+    )
+    website = cast(dict[str, object], report["website_inspection"])
+    page = cast(dict[str, object], cast(list[object], website["paginas_revisadas"])[0])
+    rendered_dom = cast(dict[str, object], page["dom_renderizado"])
+
+    assert rendered_dom["status"] == "PARTIAL"
+    assert rendered_dom["fields_observed"] == ["title", "h1"]
+    assert rendered_dom["title"] == "Rendered title"
+    assert rendered_dom["h1"] == ["Observed H1"]

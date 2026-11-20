@@ -16,6 +16,50 @@ class WebsitePage:
     h1_headings: tuple[str, ...] = ()
     h2_headings: tuple[str, ...] = ()
     main_text: str = ""
+    link_texts: tuple[str, ...] = ()
+    link_urls: tuple[str, ...] = ()
+    robots_directives: tuple[str, ...] = ()
+    x_robots_tag: str | None = None
+    inspection_method: str = "HTML_ONLY"
+    rendered_title: str | None = None
+    rendered_meta_description: str | None = None
+    rendered_h1_headings: tuple[str, ...] = ()
+    rendered_h2_headings: tuple[str, ...] = ()
+    rendered_link_texts: tuple[str, ...] = ()
+    rendered_link_urls: tuple[str, ...] = ()
+    rendered_dom_error: str | None = None
+    rendered_dom_error_message: str | None = None
+
+    @property
+    def rendered_dom_status(self) -> str:
+        if self.inspection_method == "HTML_ONLY":
+            return "HTML_ONLY"
+        if self.rendered_dom_error in {
+            "external_navigation_blocked",
+            "render_failed",
+            "render_http_error",
+            "render_request_budget_exhausted",
+            "render_timeout",
+        }:
+            return "PARTIAL"
+        return "RENDERED"
+
+    @property
+    def rendered_dom_fields_observed(self) -> tuple[str, ...]:
+        if self.inspection_method == "HTML_ONLY":
+            return ()
+        fields: list[str] = []
+        if self.rendered_title:
+            fields.append("title")
+        if self.rendered_meta_description:
+            fields.append("meta_description")
+        if self.rendered_h1_headings:
+            fields.append("h1")
+        if self.rendered_h2_headings:
+            fields.append("h2")
+        if self.rendered_link_texts or self.rendered_link_urls:
+            fields.append("links")
+        return tuple(fields)
 
     def __post_init__(self) -> None:
         if not isinstance(self.url, str) or not self.url.strip():
@@ -28,14 +72,43 @@ class WebsitePage:
             value = getattr(self, field)
             if value is not None and not isinstance(value, str):
                 raise InvalidLiveContract(f"{field} must be a string or None")
-        for field in ("h1_headings", "h2_headings"):
+        if self.inspection_method not in {"HTML_ONLY", "HTTP_AND_RENDERED_DOM"}:
+            raise InvalidLiveContract("inspection_method is not supported")
+        for field in (
+            "rendered_title",
+            "rendered_meta_description",
+            "rendered_dom_error",
+            "rendered_dom_error_message",
+        ):
+            value = getattr(self, field)
+            if value is not None and not isinstance(value, str):
+                raise InvalidLiveContract(f"{field} must be a string or None")
+        for field in (
+            "h1_headings",
+            "h2_headings",
+            "robots_directives",
+            "rendered_h1_headings",
+            "rendered_h2_headings",
+            "rendered_link_texts",
+            "rendered_link_urls",
+        ):
             values = getattr(self, field)
             if not isinstance(values, tuple) or any(
                 not isinstance(item, str) for item in values
             ):
                 raise InvalidLiveContract(f"{field} must be a tuple of strings")
+        if not isinstance(self.link_texts, tuple) or any(
+            not isinstance(item, str) for item in self.link_texts
+        ):
+            raise InvalidLiveContract("link_texts must be a tuple of strings")
+        if not isinstance(self.link_urls, tuple) or any(
+            not isinstance(item, str) for item in self.link_urls
+        ):
+            raise InvalidLiveContract("link_urls must be a tuple of strings")
         if not isinstance(self.main_text, str):
             raise InvalidLiveContract("main_text must be a string")
+        if self.x_robots_tag is not None and not isinstance(self.x_robots_tag, str):
+            raise InvalidLiveContract("x_robots_tag must be a string or None")
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,6 +128,7 @@ class WebsiteInspectionDetails:
     robots_sitemaps: tuple[str, ...] = ()
     robots_restrictions: tuple[str, ...] = ()
     sitemap_urls: tuple[str, ...] = ()
+    structured_data_types: tuple[str, ...] = ()
     limitations: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
@@ -84,6 +158,7 @@ class WebsiteInspectionDetails:
             "robots_sitemaps",
             "robots_restrictions",
             "sitemap_urls",
+            "structured_data_types",
             "limitations",
         ):
             values = getattr(self, field)

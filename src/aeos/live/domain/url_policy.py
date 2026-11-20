@@ -106,8 +106,6 @@ def safe_url_for_report(url: str | None) -> str | None:
             netloc = f"{host}:{parts.port}"
         else:
             netloc = host
-        if parts.netloc.casefold().startswith("www."):
-            netloc = f"www.{netloc}"
         safe = strip_tracking_parameters(url.strip())
         clean = urlsplit(safe)
         return urlunsplit(

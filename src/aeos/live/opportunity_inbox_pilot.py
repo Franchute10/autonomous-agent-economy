@@ -7,7 +7,7 @@ from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import sys
-from typing import Sequence
+from typing import Sequence, cast
 
 from aeos.application.live.opportunity_inbox import (
     import_record,
@@ -20,6 +20,7 @@ from aeos.application.live.opportunity_inbox import (
     render_opportunity_report_markdown,
     update_status,
 )
+from aeos.application.live.manual_request_capture import capture_manual_request
 from aeos.live.adapters.opportunity_inbox import LocalOpportunityInbox
 from aeos.live.domain.errors import InvalidLiveContract
 from aeos.live.domain.opportunity_inbox import OpportunityStatus
@@ -28,6 +29,7 @@ from aeos.live.domain.opportunity_inbox import OpportunityStatus
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_STORE = ROOT / "artifacts/live/fictional-cleaning-002d/opportunities.json"
 DEFAULT_REPORT = ROOT / "artifacts/live/fictional-cleaning-002d/opportunity-inbox-es.md"
+DEFAULT_CAPTURE_DIRECTORY = ROOT / "artifacts/live/manual-request-captures"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -38,6 +40,14 @@ def _parser() -> argparse.ArgumentParser:
         )
     )
     commands = parser.add_subparsers(dest="command", required=True)
+    capture = commands.add_parser(
+        "capture-request",
+        help="Save a manually pasted public request with source evidence; no fetch.",
+    )
+    capture.add_argument("--input", type=Path, required=True)
+    capture.add_argument("--output", type=Path)
+    capture.add_argument("--output-dir", type=Path, default=DEFAULT_CAPTURE_DIRECTORY)
+
     add = commands.add_parser(
         "import", help="Import one authorized manual opportunity."
     )
@@ -172,6 +182,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return 2
     try:
+        if args.command == "capture-request":
+            payload = json.loads(args.input.read_text(encoding="utf-8"))
+            if not isinstance(payload, dict):
+                raise InvalidLiveContract("input must contain one JSON object")
+            capture = capture_manual_request(payload)
+            output_path = args.output or (
+                args.output_dir / f"{capture['capture_id']}.json"
+            )
+            _write_output(
+                output_path,
+                json.dumps(capture, ensure_ascii=False, indent=2) + "\n",
+            )
+            print(f"Captura manual guardada: {capture['capture_id']}")
+            print(f"Acceso: {capture['access_status']}")
+            intent_assessment = cast(dict[str, object], capture["intent_assessment"])
+            print(
+                "Intención explícita en el texto: "
+                f"{intent_assessment['explicit_intent']}"
+            )
+            print("Comprador confirmado: no; no se contactó al autor.")
+            print(f"Archivo: {output_path.resolve()}")
+            return 0
         inbox = LocalOpportunityInbox(args.store)
         if args.command == "import":
             payload = json.loads(args.input.read_text(encoding="utf-8"))
