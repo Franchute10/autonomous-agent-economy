@@ -212,3 +212,22 @@ Retomar el roadmap técnico desde el último estado verificado en GitHub, no des
 
 Actualizar la fecha y el estado solo cuando haya evidencia nueva. Mantener enlaces a commits, PR, issue o documentos. No borrar estados previos de un experimento: añadir resultado, decisión y motivo. Si cambia el propósito, límites de autoridad o arquitectura, crear una revisión del Charter/ADR y explicar qué lo reemplaza.
 
+
+## 10. Reconciliación de diff local de código (2026-11-20)
+
+El operador generó un diff de los archivos Python de la rama local `main` contra el `origin/main` recién actualizado y lo compartió para revisión. La revisión fue estática sobre el parche; no equivale a ejecutar el código local ni a inspeccionar todo el worktree.
+
+### Resultado verificado en GitHub
+
+- Base remota `main`: `bef52a60e2507912206ef8ae44c5524999196c98`.
+- Rama remota `codex/aeos-live-003c`: `7764fb4b234f34b650b1f22ed5341af4d5a2c974`; comparación de GitHub: 23 commits adelante y 6 detrás de `main`.
+- El parche contiene 50 rutas Python: 38 archivos completos añadidos contra `main` y 12 diffs a archivos existentes.
+- Las 50 rutas ya existen en `003c`. Entre los 38 archivos completos, 13 coinciden exactamente con los blobs de `003c` y 25 son revisiones distintas.
+- En el código de adquisición superpuesto, `003c` incluye controles posteriores sobre perfiles, ámbito por organización, evidencia, vistas previas no accionables, aprobación autenticada y tratamiento más seguro de reportes. No aplicar el parche ni cherry-pick de los commits locales en bloque: podría reemplazar esas revisiones.
+- Un escaneo estático limitado a patrones de credenciales no encontró coincidencias en este parche. No representa una auditoría de todos los archivos locales.
+
+### Decisión y estado
+
+No se copió ni integró código. Los commits locales `f45411f`, `40e1e9d` y `9847fce`, junto con los cambios sin commit, permanecen preservados y pendientes de conciliación selectiva. La salida de parche no clasifica archivos no rastreados ni artefactos no Python.
+
+La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) conserva el registro y el siguiente paso. Reanudar desde la comparación de un comportamiento o prueba concreta que no esté ya cubierta en `003c`; mantener el worktree local intacto hasta revisar por separado el resto de cambios y artefactos.
