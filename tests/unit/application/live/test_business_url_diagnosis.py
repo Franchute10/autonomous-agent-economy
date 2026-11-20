@@ -291,8 +291,8 @@ def test_website_diagnosis_has_evidenced_prioritized_findings() -> None:
     assert findings == []
     assert 1 <= len(pending) <= 3
     all_items = [*findings, *pending]
-    assert [int(item["priority"]) for item in findings] == sorted(
-        int(item["priority"]) for item in findings
+    assert [cast(int, item["priority"]) for item in findings] == sorted(
+        cast(int, item["priority"]) for item in findings
     )
     for item in all_items:
         evidence = cast(dict[str, object], item["evidence"])
