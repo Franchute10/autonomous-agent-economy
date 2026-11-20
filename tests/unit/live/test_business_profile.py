@@ -641,7 +641,10 @@ def test_report_keeps_reported_hvac_presence_and_failed_market_unknown() -> None
     assert "Competidores potenciales: 0" not in markdown
     assert "continuidad con la LLC no confirmada" in markdown
     assert "Los datos operativos son REPORTED y no se atribuyen a Sunbiz." in markdown
-    assert any("market demand are unknown" in item for item in report["limitations"])
+    assert any(
+        "market demand are unknown" in item
+        for item in cast(list[str], report["limitations"])
+    )
 
 
 def test_report_json_and_markdown_redact_sensitive_source_urls() -> None:
@@ -716,7 +719,9 @@ def test_missing_registry_and_unknown_market_status_remain_unknown() -> None:
     assert registry["business_name"] is None
     assert registry["data_status"] == "NOT_PROVIDED"
     assert registry["evidence"] == []
-    assert "No legal registry details were supplied" in registry["verification_note"]
+    assert "No legal registry details were supplied" in str(
+        registry["verification_note"]
+    )
     assert all(value is None for value in counts.values())
     assert "conteos de competidores no están disponibles" in markdown.casefold()
     assert "No se encontraron organizaciones" not in markdown
