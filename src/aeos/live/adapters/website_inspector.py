@@ -362,6 +362,10 @@ class DOMRenderer(Protocol):
     ) -> Mapping[str, RenderedDOMOutcome]: ...
 
 
+def _is_windows_environment() -> bool:
+    return os.name == "nt"
+
+
 @contextmanager
 def _playwright_browser_cache_environment() -> Iterator[None]:
     """Temporarily select the normal profile cache when LOCALAPPDATA is sandboxed."""
@@ -372,7 +376,7 @@ def _playwright_browser_cache_environment() -> Iterator[None]:
         if profile
         else Path.home() / "AppData" / "Local" / "ms-playwright"
     )
-    if os.name == "nt" and not original_browser_path and browser_cache.is_dir():
+    if _is_windows_environment() and not original_browser_path and browser_cache.is_dir():
         os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(browser_cache)
     try:
         yield
