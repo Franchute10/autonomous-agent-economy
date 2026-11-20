@@ -7,7 +7,7 @@ from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import sys
-from typing import Sequence
+from typing import Sequence, cast
 
 from aeos.application.live.opportunity_inbox import (
     import_record,
@@ -196,9 +196,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(f"Captura manual guardada: {capture['capture_id']}")
             print(f"Acceso: {capture['access_status']}")
+            intent_assessment = cast(
+                dict[str, object], capture["intent_assessment"]
+            )
             print(
                 "Intención explícita en el texto: "
-                f"{capture['intent_assessment']['explicit_intent']}"
+                f"{intent_assessment['explicit_intent']}"
             )
             print("Comprador confirmado: no; no se contactó al autor.")
             print(f"Archivo: {output_path.resolve()}")
