@@ -1,5 +1,6 @@
 """Offline fixtures for the bounded website inspection adapter."""
 
+import os
 from pathlib import Path
 from types import SimpleNamespace
 from urllib.parse import urlsplit
@@ -208,10 +209,10 @@ def test_playwright_browser_cache_uses_the_installed_profile_cache(
     monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
 
     with website_inspector._playwright_browser_cache_environment():
-        assert website_inspector.os.environ["PLAYWRIGHT_BROWSERS_PATH"] == str(
+        assert os.environ["PLAYWRIGHT_BROWSERS_PATH"] == str(
             browser_cache
         )
-    assert "PLAYWRIGHT_BROWSERS_PATH" not in website_inspector.os.environ
+    assert "PLAYWRIGHT_BROWSERS_PATH" not in os.environ
 
 
 def test_dom_request_policy_blocks_data_and_navigation_but_allows_required_get_assets() -> (
