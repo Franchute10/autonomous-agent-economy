@@ -207,7 +207,10 @@ def test_playwright_browser_cache_uses_the_installed_profile_cache(
     monkeypatch.setenv("USERPROFILE", str(tmp_path / "profile"))
     monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "sandboxed-local-appdata"))
     monkeypatch.delenv("PLAYWRIGHT_BROWSERS_PATH", raising=False)
-    monkeypatch.setattr(os, "name", "nt")
+    monkeypatch.setattr(
+        "aeos.live.adapters.website_inspector._is_windows_environment",
+        lambda: True,
+    )
 
     with website_inspector._playwright_browser_cache_environment():
         assert os.environ["PLAYWRIGHT_BROWSERS_PATH"] == str(browser_cache)
