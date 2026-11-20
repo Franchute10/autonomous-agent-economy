@@ -1,6 +1,6 @@
 # AEOS Project Readiness and Control
 
-**Snapshot:** 2026-11-20 (refreshed after PR #17 CI passed and operator inventory was received)  
+**Snapshot:** 2026-11-20 (refreshed after the operator fetched all current refs and reported the local worktree inventory)  
 **Purpose:** operational status for project owners and reviewers. This file records verified repository state; it does not claim product, lead, or production readiness.
 
 ## Read order
@@ -44,7 +44,7 @@ Keep the projects distinct:
 
 ### AEOS main
 
-Verified at commit `ab1a3edff5f46268df9356f8c682a8b8ca2d677f` on 2026-11-20 (documentation-only updates since the PR-state verification).
+Verified at commit `bc11e26b2d6ccee807503e208c50b0d8e94206e7` on 2026-11-20. The latest commits after the earlier product-state check are documentation-only.
 
 - The current README, AGENTS.md, and this readiness file establish a consistent entry point and reading order. The handbook remains the durable product and architecture history; date-specific statements in it should be checked against this snapshot.
 - The repository packages the experimental Python core and configures tests, Ruff, and mypy.
@@ -86,20 +86,22 @@ Rules:
 
 ## Local inventory reported by the operator
 
-**Collected:** 2026-11-20 from a PowerShell inventory pasted by the operator. This is a report of Git metadata and filenames, not an independent inspection of local file contents. Remote refs may have advanced since collection; run `git fetch origin` before using ahead/behind counts.
+**Collected:** 2026-11-20 after the operator ran `git fetch origin` in both repositories and reported each known worktree. This records Git metadata, diffs, and untracked filenames supplied by the operator; file contents and ignored data were not independently inspected. Ahead/behind counts below reflect that fetch and can change.
 
-| Checkout | Reported branch / HEAD | Reported state | Handling |
+| Checkout | Reported branch / HEAD | State after fetch | Handling |
 |---|---|---|---|
-| AEOS main checkout | `main` / `9847fce` | At collection: 3 ahead, 10 behind its then-current `origin/main`; 58 tracked files changed, including deletions of business/market data, plus new tenancy, migration, sandbox, and LinkedIn files. | Preserve. Do not pull, reset, stage broadly, or delete. Identify the three local commits and classify all edits first. |
-| AEOS 003c followup | `codex/aeos-003c-followup-20261120` / `36f79fd` | Clean at collection. The remote PR branch has since advanced to `e456832` with CI fixes. | Fetch, then confirm local is merely behind before updating. |
-| AEOS 003c review | `codex/aeos-003c-review-20261120` / `65a4b6c` | Seven commits behind its then-current tracking ref; 19 tracked files modified and five new files. Changes overlap the work proposed in PR #17. | Preserve and compare its complete diff to current PR #17 before classifying it as duplicate or obsolete. |
-| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913c` | Clean tracked tree; one commit ahead and ten behind its then-current `origin/main`. Multiple ignored pytest temporary directories. | Preserve its unique commit; inspect/test ancestry before integrating. Temporary paths are not proof that data can be deleted. |
-| AEOS LIVE 003c | `codex/aeos-live-003c` / `763d939` | 18 commits behind its then-current tracking ref; tracked and untracked code/docs/tests changed. | Preserve and compare against remote and the newer PR branches. |
-| Commercial Lead Engine | `codex/intent-evidence-evaluation` / `a647263` | Clean at collection and matched the then-current PR #2 head. | Fetch and verify against current PR #1/#2 before any push or merge. |
+| AEOS main checkout | `main` / `9847fce` | 3 local commits ahead and 15 behind `origin/main`; 58 tracked files changed (1,362 insertions, 3,111 deletions), including data deletions; 25 untracked paths reported across tenancy, migration, Paddle sandbox, LinkedIn assets, examples, and tests. The three local commits (`f45411f`, `40e1e9d`, `9847fce`) were not found by SHA in GitHub. | Preserve. No pull/reset/clean/broad staging. The code may overlap remote 003c and PR work, but exact content-level reconciliation is open. Inspect all deletions, private data, and untracked paths. |
+| AEOS 003c followup | `codex/aeos-003c-followup-20261120` / `36f79fd` | Clean; 9 commits behind remote `e456832`. | Safe fast-forward candidate after confirming expected upstream and that the directory is the intended worktree. |
+| AEOS 003c review | `codex/aeos-003c-review-20261120` / `65a4b6c` | 7 commits behind remote `771995f`; 19 tracked files modified and five new files. | Preserve. This local diff substantially overlaps PR #17; compare file content before classifying any residual files. |
+| AEOS 003b checkpoint | `codex/aeos-live-003b-checkpoint` / `a23913c` | Clean; one local commit ahead and 15 behind the fetched `origin/main`. | Preserve unique local commit and compare ancestry/content before integration. |
+| AEOS LIVE 003c | `codex/aeos-live-003c` / `763d939` | 18 commits behind remote `d56b48d`; 20 tracked files changed and 11 untracked files reported. Most tracked changes overlap the later 003c review/followup work; the overpass-resilience note and HZ profile fixture remain specifically unverified for duplication. | Preserve. Compare remaining unique files and the complete diff before moving or deleting anything. |
+| Commercial Lead Engine | `codex/intent-evidence-evaluation` / `a647263` | Clean and matched its tracking ref at fetch time. | No local reconciliation currently reported; PR #1/#2 are still separate remote proposals. |
 
-Ignored paths reported include `.aeos-private/`, `.venv/`, `artifacts/`, pytest temporary output, and tool caches. Their contents were not inspected and must be treated as local data until classified. No secrets scan was part of this inventory.
+The remote branch comparison confirms the development line is not the same as `main`: `codex/aeos-live-003c` diverges from `main` (24 commits ahead and 5 behind at comparison time), and contains broad LIVE, tenancy, offer, and beta work. The review branch adds the manual-capture proposal; the followup branch adds the website/market pilot hardening proposal. These are meaningful overlapping implementation lines, not evidence that local data or every file is safely duplicated.
 
-This inventory closes the **collection** step only. It does not reconcile local commits, determine whether data deletions are intentional, authorize cleanup, or establish that every local edit is already represented by a remote PR.
+Ignored paths previously reported include `.aeos-private/`, `.venv/`, `artifacts/`, pytest temporary output, and tool caches. Their contents remain uninspected and must be treated as local data until classified. No current secret scan was part of the inventory.
+
+This refresh closes the **remote-ref collection** step only. It does not reconcile local commits, inspect content of all local diffs, determine whether data deletions are intentional, authorize cleanup, or establish that every local edit is represented by a remote PR. The immediate next operator task is a read-only, file-level comparison of the three local main commits and residual 003c files against fetched remote branches. Do not run `git pull`, `reset`, `restore`, `clean`, or broad staging until that comparison is recorded.
 
 ## Ordered backlog
 
