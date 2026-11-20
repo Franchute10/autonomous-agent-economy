@@ -13,6 +13,7 @@ venv/
 env/
 .env
 .env.*
+/examples/paddle-sandbox/config.local.js
 !.env.example
 src/aeos/live/public_beta_static/paddle-config.local.json
 .idea/
