@@ -110,11 +110,22 @@ Esto acredita presencia de entregas de dominio, arquitectura, persistencia y un 
 - El cuerpo del PR #2 reporta 878 pruebas offline aprobadas. En el chat actual se mostró la corrida focal `test_intent_provider_promotion.py`: 2 aprobadas. Un resultado no sustituye al otro; CI y el número final deben verificarse sobre el SHA que se quiera integrar.
 - El experimento del operador con Tavily produjo candidatos irrelevantes y cero leads validados. El objetivo de calidad comercial sigue bloqueado por evidencia insuficiente, no por falta de otro filtro regex.
 
-### Lo local que este manual no puede certificar
+### Inventario local reportado por el operador — 2026-11-20
 
-El historial archivado describe worktrees de Windows, cambios locales y una carpeta `linkedin-leadgen/` que no se inspeccionó por separado. Eso no es un inventario actual. Esta sesión no tiene acceso directo a los discos de la laptop y no puede certificar worktrees, cambios sin commit, archivos ignorados, bases SQLite, logs, tokens ni el estado de Docker.
+El operador pegó la salida de un inventario de Windows. Es un **reporte local**, no una verificación de GitHub; las dos copias adjuntas eran iguales. No se observaron claves en ese inventario. Los conteos siguientes describen el momento del reporte y deben refrescarse antes de decidir qué integrar:
 
-La primera tarea local pendiente es capturar, **desde cada repositorio/worktree existente**, `git worktree list --porcelain`, `git status --short --branch`, `git log -1 --oneline --decorate` y `git diff --stat`; revisar por separado los archivos no rastreados antes de añadir nada. Preservar datos de prueba permitidos, pero no subir credenciales, claves, datos privados de prospección, `.aeos-private/`, `linkedin-leadgen/`, `pilot_local/`, bases de datos, cachés, entornos virtuales ni informes con información personal. Documentar cada excepción por ruta y motivo sin copiar su contenido sensible al chat ni al repo.
+| Repositorio/worktree | Rama y HEAD reportados | Estado reportado |
+|---|---|---|
+| AEOS, worktree principal | `main`, `9847fce` | 3 commits por delante del `origin/main` cacheado; 58 archivos rastreados modificados (incluye eliminaciones), más archivos sin seguimiento. El ref remoto estaba potencialmente desactualizado. |
+| AEOS, checkpoint 003b | `codex/aeos-live-003b-checkpoint`, `a23913c` | El worktree aparece en el listado, pero no se capturó su estado ni diff. |
+| AEOS LIVE 003c | `codex/aeos-live-003c`, `763d939` | Reportado igual a su rama remota; 20 archivos rastreados modificados y 12 rutas sin seguimiento. |
+| Commercial Lead Engine | `codex/intent-evidence-evaluation`, `a647263` | Reportado limpio y alineado con su tracking remoto. |
+
+Este corte no demuestra qué cambios siguen vigentes hoy, qué contiene cada ruta no rastreada, ni si hay divergencia remota. No se copió ni se publicó ningún contenido de los archivos locales. La tarea [AEOS-OPS-001](https://github.com/Franchute10/autonomous-agent-economy/issues/4) lleva el proceso de reconciliación.
+
+### Lo local que requiere acceso a la laptop
+
+Esta sesión no tiene acceso directo al disco de Windows y no puede certificar el estado actual de worktrees, archivos ignorados, bases locales, logs, claves ni Docker. El siguiente paso es refrescar remotos y capturar rama, SHA y estado de cada worktree, incluyendo 003b; luego revisar cada diff y ruta no rastreada antes de seleccionar cambios. Preservar el trabajo existente: no usar `git reset`, `git clean`, `git restore` ni staging masivo. No subir credenciales, datos privados de prospección, bases locales, cachés, entornos virtuales ni reportes con información personal.
 
 ## 6. Decisiones y propuestas vigentes
 
