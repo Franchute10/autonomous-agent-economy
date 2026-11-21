@@ -1,5 +1,7 @@
 # Project instructions for AI coding agents
 
+**Dirección vigente y siguiente acción (2026-11-20):** [Control de producto y continuidad](docs/control/PROJECT_CONTROL.md). Leer junto con la evidencia de validación; los estados fechados anteriores son históricos.
+
 Before proposing work, read [the current project readiness snapshot](docs/PROJECT_READINESS.md), then [PROJECT_HANDBOOK.md](PROJECT_HANDBOOK.md), then the relevant ADR, runbook, issue, or pull request. The readiness snapshot records the latest verified repository state; the handbook preserves project intent, architecture, and history. Chat history is context, not current state.
 
 - Confirm repository, branch, base/head SHA and worktree status before editing.
