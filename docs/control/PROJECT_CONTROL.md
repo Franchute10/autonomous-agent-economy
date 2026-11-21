@@ -21,7 +21,7 @@ El capital conceptual de la tesis no autoriza gasto: presupuesto incremental act
 No abrir otra ronda general de ordenamiento. Corregir documentación únicamente cuando una contradicción afecte a la tarea activa. La revisión de 34 diferencias está completada; no equivale a reconciliar todo el equipo del operador.
 
 ## Decisiones de dirección — 2026-11-21
-- El propietario amplió el encargo: Astra también ejecuta correcciones y experimentos acotados. El modelo disponible continúa desde el handoff; ver ASTRA_EXECUTION_2026-11-21.md y PR #42.
+- El propietario amplió el encargo: Astra también ejecuta correcciones y experimentos acotados. El modelo disponible continúa desde el handoff; ver ASTRA_EXECUTION_2026-11-21.md y PR #42/#45.
 - Priorizar evidencia de valor antes de ampliar arquitectura, fuentes o pagos.
 - Conservar AEOS Core separado del motor; integración por contrato acotado.
 - La experiencia objetivo comienza con una URL; pedir oferta/mercado solo si faltan o son ambiguos.
@@ -30,6 +30,10 @@ No abrir otra ronda general de ordenamiento. Corregir documentación únicamente
 - No tratar web/Facebook/Nextdoor como fuentes independientes si todas se consultan a través del mismo proveedor.
 - Cero oportunidades es un resultado válido; no habilitar compra de un paquete que no existe.
 - Agensi es una posible distribución posterior de un skill demostrable; no demuestra demanda ni reemplaza la validación de este producto.
+
+## Corte de ejecución — 2026-11-21
+PR #42 y #45 integrados en LIVE (de2d211bc22cbbbe72b615e7434e649feca1b730). CI final: 953 passed / 12 skipped; lint, formato y tipos aprobados. Dos diagnósticos reales ejecutados desde GitHub Actions: un sitio de productos y otro de servicios, tres páginas cada uno. LUNA-001 completado a nivel de servicio con límites documentados; UI/DOM e ingesta autorizada de Google Business no acreditados. LUNA-002 es la siguiente tarjeta.
+La exploración documental de seis casos produjo cero oportunidades confirmadas útiles por un dueño; no es una corrida automatizada de leads. No habilita integración comercial ni cobro. [Bitácora de evidencia](ASTRA_EXECUTION_2026-11-21.md).
 
 ## Fuente de verdad
 GitHub conserva tareas, decisiones, código y evidencia resumida. Un documento describe intención; el SHA y la prueba acreditan implementación; la revisión humana acredita utilidad; una transacción real acredita una compra.
