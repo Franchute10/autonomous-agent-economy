@@ -1,6 +1,6 @@
 # Plan de ejecución para Luna — AEOS
 Fecha: 2026-11-21, America/Lima. Autoría de revisión: Astra.
-Estado: planificación; ninguna tarjeta queda ejecutada por publicarse este documento.
+Estado original: planificación. Actualización 2026-11-21: el propietario autorizó ejecución con Astra; ver [bitácora](ASTRA_EXECUTION_2026-11-21.md). El alcance de las tarjetas sigue vigente; el modelo ejecutor no es una restricción. NEXT_SESSION_HANDOFF.md determina la siguiente acción.
 
 ## Diagnóstico de dirección
 Hay código de diagnóstico, contratos de agentes y un motor de descubrimiento/evaluación. Aún falta demostrar el recorrido comercial que el propietario quiere. El riesgo principal es encontrar suficientes solicitudes útiles, no producir más informes.
