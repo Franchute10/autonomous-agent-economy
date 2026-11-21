@@ -1,0 +1,100 @@
+name: AEOS bounded real-site smoke
+
+on:
+  pull_request:
+    types: [opened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: >-
+      github.repository == 'Franchute10/autonomous-agent-economy' &&
+      github.event.repository.private == false &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.head_ref == 'experiment/aeos-real-site-smoke-20261121' &&
+        github.event.pull_request.head.repo.full_name == github.repository))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project
+        run: python -m pip install -e .
+      - name: Diagnose two fixed public sites
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          import signal
+          from datetime import datetime, timezone
+          from aeos.live.public_beta import PublicBetaService
+
+          def timeout_handler(signum, frame):
+              raise TimeoutError("bounded_smoke_timeout")
+
+          signal.signal(signal.SIGALRM, timeout_handler)
+          targets = (
+              ("products", "https://mega-ceramicos-propuesta.vercel.app/"),
+              ("services", "https://lumen.frank-2e.workers.dev/"),
+          )
+          rows = []
+          for sector, url in targets:
+              signal.alarm(70)
+              try:
+                  report = PublicBetaService().diagnose(url, "es")
+                  row = {
+                      "sector": sector,
+                      "url": url,
+                      "observed_at": datetime.now(timezone.utc).isoformat(),
+                      "inspection_status": report.get("inspection_status"),
+                      "pages_received": report.get("pages_received"),
+                      "failure_code": report.get("failure_code"),
+                      "findings": [
+                          {
+                              "title": item.get("title"),
+                              "status": item.get("status"),
+                              "sources": item.get("sources"),
+                              "correction_prompt": item.get("correction_prompt"),
+                          }
+                          for item in report.get("confirmed_findings", [])
+                      ],
+                      "pending_titles": [
+                          item.get("title")
+                          for item in report.get("pending_verifications", [])
+                      ],
+                  }
+              except Exception as error:
+                  row = {
+                      "sector": sector,
+                      "url": url,
+                      "inspection_status": "RUNNER_ERROR",
+                      "error_type": type(error).__name__,
+                  }
+              finally:
+                  signal.alarm(0)
+              rows.append(row)
+              print("AEOS_SMOKE_RESULT " + json.dumps(row, ensure_ascii=False), flush=True)
+          succeeded = sum(
+              row.get("inspection_status") == "SUCCEEDED"
+              and isinstance(row.get("pages_received"), int)
+              and row["pages_received"] > 0
+              for row in rows
+          )
+          print("AEOS_SMOKE_SUMMARY " + json.dumps({
+              "sites_attempted": len(rows),
+              "sites_received": succeeded,
+              "paid_calls": 0,
+              "outreach": False,
+              "scope": "service-level diagnosis, not UI or sales validation",
+          }), flush=True)
+          if succeeded != len(targets):
+              raise SystemExit(1)
+          PY
