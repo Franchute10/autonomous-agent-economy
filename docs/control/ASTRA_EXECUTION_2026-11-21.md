@@ -1,6 +1,6 @@
 # Bitácora Astra — ejecución y decisión de fuentes
 Fecha de revisión: 2026-11-21 (America/Lima).
-Estado: corrección focal implementada en PR draft; exploración externa ejecutada; producto comercial aún no validado.
+Estado: corrección focal integrada en LIVE con CI aprobado; exploración externa ejecutada; producto comercial aún no validado.
 Solicitud del propietario: aprovechar Astra también para ejecutar y eliminar bloqueos. Actualiza la separación anterior que reservaba toda implementación para Luna.
 
 ## 1. Resultado concreto de código — ASTRA-PRODUCT-003
@@ -24,8 +24,8 @@ PYTHONPATH=src python -m unittest discover -s tests/unit/application/live -p tes
 Windows PowerShell: establecer $env:PYTHONPATH="src" y ejecutar el mismo comando python sin el prefijo de variable.
 Antes: 8 casos, 6 aprobados / 1 fallo / 1 error. Después: 8/8 aprobados; git diff --check aprobado.
 Casos: producto único, negocio mixto, producto distinto, zona distinta, solicitud cerrada, sintético no calificable como real, servicio existente y oferta vacía inválida.
-No se ejecutaron pytest completo, Ruff ni mypy: módulos ausentes; no convertir ese bloqueo en PASS. Las consultas de workflows/statuses del head inicial devolvieron listas vacías, no éxito.
-**Decisión:** PR draft, no integrar hasta controles completos sobre el head final. Esta corrección no demuestra que todos los formularios/pilotos admitan negocios solo de productos; el preview específico de procurement todavía se apoya en primary_services y no se amplía en este cambio.
+La ejecución local no pudo correr pytest completo, Ruff ni mypy por módulos ausentes. Se resolvió esa dependencia mediante GitHub CI sobre el head final: 949 passed / 12 skipped; lint, formato y mypy aprobados. Evidencia: https://github.com/Franchute10/autonomous-agent-economy/actions/runs/44919384588 . Las primeras consultas vacías no se trataron como éxito; se revisaron después el job y su log.
+**Decisión ejecutada:** PR #42 integrado en codex/aeos-live-003c, merge 548ed0c23fddf1642b26f49aae128c7ae17a2638. Esta corrección no demuestra que todos los formularios/pilotos admitan negocios solo de productos; el preview específico de procurement todavía se apoya en primary_services y no se amplía en este cambio.
 
 ## 2. Comprobación del entorno
 Se comprobó DNS para el sitio de consultoría y el portal de contratación: ambos fallaron con resolución temporal. No se repitieron llamadas ciegas ni se contrató infraestructura.
@@ -90,11 +90,11 @@ La oferta inicial debe vender utilidad: qué solicitud existe, por qué encaja, 
 Medir minutos humanos por entrega. Gasto de API cero no implica negocio rentable. Precio menos costes y comisiones debe cubrir el trabajo necesario; fijar el paquete después del experimento.
 
 ## 6. Próximo bloque ejecutable — RUNNER-001
-Objetivo: usar un entorno existente capaz para validar PR #42 y ejecutar LUNA-001; no volver a reconstruir chats.
-1. Verificar head del PR, checkout aislado e instrucciones; confirmar Python/dependencias, DNS y HTTPS.
-2. Ejecutar las ocho regresiones, pytest completo, Ruff check/format y mypy sobre el head final. Si falla, corregir solo la causa y actualizar el PR. Integrar a LIVE únicamente con evidencia suficiente.
+Objetivo: ejecutar LUNA-001 desde un entorno existente capaz. La validación e integración de PR #42 ya se completó; no volver a reconstruir chats.
+1. Verificar SHA de LIVE y las instrucciones; confirmar Python/dependencias, DNS y HTTPS.
+2. PR #44 ejecuta un smoke de dos URLs públicas fijas desde GitHub Actions estándar: sin secretos, API de pago, contactos, artefactos ni programación periódica. La prueba offline de PR #42 no necesita repetirse sin cambios.
 3. Ejecutar diagnóstico real de un sitio de productos y otro de servicios; distinguir errores de transporte y resultados del sitio. No sustituirlo por esta investigación web.
 4. Continuar LUNA-002 con un perfil real y la ruta adecuada. Para el primer ensayo de productos, confirmar catálogo/capacidad del dueño antes de calificar cualquiera de los candidatos documentales.
 5. Actualizar #38, Motor #4 y NEXT_SESSION_HANDOFF.md al completar o bloquear. Las tarjetas de integración y cobro siguen condicionadas a utilidad demostrada.
 
-Si el entorno no permite esos controles, mantener PR draft y registrar la dependencia exacta; no reiniciar ordenamiento general ni comprar un runner. Esta bitácora conserva la reproducción y las decisiones para otro modelo.
+Si el smoke no logra leer ambos sitios, registrar la categoría de fallo y corregir únicamente la dependencia concreta; no reiniciar ordenamiento general ni comprar un runner. Esta bitácora conserva la reproducción y las decisiones para otro modelo.
