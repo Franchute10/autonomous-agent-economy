@@ -21,7 +21,7 @@ class CrawlRouteDiversityTests(unittest.TestCase):
                 return FetchResponse(b"", 404, url)
             links = "".join(f'<a href="{route}">Offer</a>' for route in routes)
             body = (
-                '<html><head><title>Example business</title>'
+                "<html><head><title>Example business</title>"
                 '<meta name="description" content="Example offer"></head>'
                 f"<body><h1>Example offer</h1>{links}</body></html>"
             )
@@ -56,7 +56,7 @@ class CrawlRouteDiversityTests(unittest.TestCase):
             requested.index("https://business.example/services"),
         )
 
-    def test_duplicate_prompt_requires_content_comparison_in_both_languages(self) -> None:
+    def test_duplicate_prompt_requires_content_comparison(self) -> None:
         result, _ = self.diagnose(("/contact?cta=one", "/contact?cta=two"))
         findings = result["confirmed_findings"]
         assert isinstance(findings, list)
