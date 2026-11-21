@@ -1456,8 +1456,10 @@ def _profile_match(
 ) -> tuple[bool | None, bool | None, bool | None, bool | None]:
     if profile is None:
         return None, None, None, None
-    offerings = tuple(profile.primary_services) + tuple(
-        profile.secondary_services or ()
+    offerings = (
+        tuple(profile.primary_services)
+        + tuple(profile.secondary_services or ())
+        + tuple(profile.products or ())
     )
     requested = canonical_service_for_vertical(
         profile.vertical, opportunity.service_requested
