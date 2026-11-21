@@ -1,55 +1,36 @@
-# AEOS — Punto de continuidad
+# AEOS — Continuidad vigente
+Actualizado: 2026-11-21 (America/Lima). Planificación Astra; ejecución posterior con Luna.
 
-**Actualizado:** 2026-11-21 (America/Lima)  
-**Fuentes canónicas:** este documento, el [plan de control](PROJECT_CONTROL.md), los [issues de AEOS](https://github.com/Franchute10/autonomous-agent-economy/issues) y el [issue de calidad de leads](https://github.com/Franchute10/commercial-lead-engine/issues/4).
+## Retomar
+1. Leer este archivo y [el plan ejecutable para Luna](LUNA_EXECUTION_PLAN.md).
+2. Verificar issues, ramas y SHAs actuales; leer AGENTS.md y PROJECT_HANDBOOK.md antes de editar.
+3. Ejecutar solo la siguiente tarjeta habilitada. No pedir nuevamente los chats completos.
+4. Registrar el resultado en GitHub al completar o bloquear cada tarea.
 
-## Cómo retomar sin reconstruir el chat
+Este archivo gobierna la siguiente acción; [PROJECT_CONTROL.md](PROJECT_CONTROL.md) fija el alcance. El handbook, readiness y documentos de oferta anteriores conservan historia, pero sus estados y prioridades fechados no sustituyen este corte. Las decisiones arquitectónicas aceptadas siguen vigentes.
 
-1. Leer este handoff.
-2. Verificar el estado actual de GitHub y continuar con los issues enlazados; este documento puede quedar desactualizado.
-3. Leer PROJECT_CONTROL.md para prioridades. Consultar PROJECT_READINESS.md y el ledger de validación solo para detalles históricos o técnicos necesarios.
-4. No pedir a Frank que vuelva a resumir los chats ni repetir trabajo ya registrado. Preguntar solo por un dato que realmente falte para la tarea concreta.
+## Objetivo
+URL o Google Business de un negocio de productos o servicios → diagnóstico gratuito con evidencia y prompt de corrección → oportunidades comerciales útiles, disponibles antes de ofrecer su compra.
+USD 5 por 2–3 oportunidades y USD 10 por 5–6 son hipótesis por validar. No restringir AEOS a limpieza; no prometer cobertura universal. Presupuesto incremental autorizado: USD 0.
+AEOS conserva su propósito de organización gobernada de agentes. Ampliar el runtime no es requisito previo para validar esta oferta.
 
-Este handoff reemplaza el chat como memoria operativa. Los chats previos aportan contexto histórico; GitHub es la fuente del estado, decisiones, código y pruebas.
+## Evidencia y límites
+- Control de proyecto integrado en main mediante [PR #40](https://github.com/Franchute10/autonomous-agent-economy/pull/40), merge 963491a9d8f45b107c95835e097a03d2b6636a89.
+- Selección de páginas de productos/servicios integrada en la rama codex/aeos-live-003c mediante [PR #39](https://github.com/Franchute10/autonomous-agent-economy/pull/39), merge f5cf0c642e36f7a493a48908164c5aba0798dc99. No equivale a integración de LIVE en main.
+- PR #39 reporta validación sobre su base más el cambio: 941 passed / 12 skipped, Ruff/formato/mypy/diff check aprobados. No son pruebas nuevas de esta revisión de planificación.
+- Revisión de las 34 diferencias del parche main completada; conservar LIVE. No reaplicar parches antiguos en bloque. Reconciliación restante: [AEOS #4](https://github.com/Franchute10/autonomous-agent-economy/issues/4).
+- Prueba posterior: cuatro casos sintéticos pasaron mediante harness Python. El diagnóstico externo quedó bloqueado por DNS. Eso no evalúa la calidad del sitio ni demuestra leads.
+- No hay todavía evidencia suficiente de oportunidades útiles repetibles, entrega comercial completa ni compras reales. Google Business sigue requiriendo evidencia autorizada.
+- Motor de leads: [PR #1](https://github.com/Franchute10/commercial-lead-engine/pull/1) abierto hacia main; [PR #2](https://github.com/Franchute10/commercial-lead-engine/pull/2) abierto sobre la rama del #1. No son cambios integrados en main.
+- Fix Pack es una oferta experimental distinta. No confundir su Sandbox con venta de paquetes de leads.
 
-## Objetivo vigente
+## Siguiente acción única
+**LUNA-001: comprobar diagnóstico real acotado** en un sitio de productos y otro de servicios, desde una copia aislada de la rama LIVE verificada, con acceso de red.
+Leer criterios y salida de bloqueo en LUNA_EXECUTION_PLAN.md. No modificar código ni repetir suites por rutina si solo se está capturando evidencia.
+Después: LUNA-002, decidir viabilidad de fuentes antes de construir integración/cobro.
 
-AEOS mantiene su tesis de una organización gobernada de agentes, con objetivos, roles, presupuesto, evidencia, autorizaciones y aprendizaje. La prioridad comercial es probar un flujo simple para negocios de productos y servicios:
+Esta revisión Astra entrega documentación y decisiones de planificación. No implementa las tarjetas ni las declara aprobadas por pruebas.
 
-**URL o Google Business → diagnóstico gratuito con evidencia y prompt de corrección → posible oferta de oportunidades comerciales útiles.**
-
-Los importes objetivo de USD 5 por 2–3 oportunidades y USD 10 por 5–6 son hipótesis. No vender leads como verificados, no limitar el producto a limpieza y no convertir una auditoría genérica de LLM en el producto.
-
-## Estado verificado al 2026-11-21
-
-- **AEOS main:** PR #40 integró el plan de control y el ledger de validación; merge 963491a9d8f45b107c95835e097a03d2b6636a89.
-- **AEOS LIVE:** PR #39 integró la selección de páginas de productos/catálogos/ofertas; merge f5cf0c642e36f7a493a48908164c5aba0798dc99, sobre base 0cc8598. CI reportó 941 pruebas aprobadas y 12 omitidas; Ruff, formato, mypy y diff check pasaron.
-- **Revisión de parches:** las 34 diferencias semánticas del parche aeos-main-source-tests fueron revisadas. Se conserva LIVE; no reaplicar los parches antiguos. También se recuperó y comparó el blob 2555b33 de real_lead_pilot.py; LIVE exige organization_id para almacenamiento predeterminado de perfiles reales y separa el espacio sintético.
-- **Prueba adicional de esta sesión:** los cuatro casos sintéticos (tienda de herramientas, juguetería, consultoría y HVAC) pasaron en un harness Python directo; git diff --check pasó. No se pudo ejecutar pytest en este runner porque no está instalado y no había acceso al registro de paquetes.
-- **Prueba real:** el diagnóstico del sitio público de Lumen falló en dns_resolution antes de leer robots.txt. Es una limitación de red del runner, no evidencia de que el sitio esté mal. No hay leads reales validados, búsqueda live repetible, pagos ni disposición a pagar demostrada.
-- **Google Business:** no afirmar que el perfil fue inspeccionado sin fuente autorizada o evidencia del propietario.
-
-Los detalles están registrados en [AEOS-PRODUCT-001 (#38)](https://github.com/Franchute10/autonomous-agent-economy/issues/38), [AEOS-OPS-001 (#4)](https://github.com/Franchute10/autonomous-agent-economy/issues/4) y [LEADS-VAL-001 (#4)](https://github.com/Franchute10/commercial-lead-engine/issues/4).
-
-## Próxima tarea concreta
-
-**PRODUCT-001 — diagnóstico real en staging con salida DNS/HTTP pública.**
-
-1. Usar un sitio público permitido de un negocio de productos y otro de servicios, de preferencia ya compartidos por Frank; verificar que las URLs actuales sean correctas.
-2. Ejecutar el diagnóstico y guardar evidencia anonimizada de páginas recibidas, robots, sitemap, metadatos, hallazgos y prompts. Respetar robots, límites de rastreo y políticas del sitio.
-3. Distinguir error de red del resultado del diagnóstico; no evaluar una web si no se pudo recuperar.
-4. Registrar resultado en #38. Google Business solo con evidencia autorizada.
-5. Después, ejecutar LEADS-VAL-001 por separado: una vertical de productos y dos de servicios, fuente permitida, muestra etiquetada por persona y costo adicional objetivo de USD 0. No suavizar criterios para inflar resultados.
-6. Revisar cobro/entrega en PRs AEOS #1/#2 únicamente después de verificar su base, head, CI y comportamiento actual. Mantener Sandbox y no activar cobros.
-
-Esta tarea requiere un entorno con DNS y salida web real. Si el siguiente runner tampoco tiene esa salida, documentar el bloqueo y avanzar la evaluación offline o una tarea independiente, sin repetir intentos ciegos.
-
-## Pendientes separados
-
-- **Laptop Windows:** el inventario disponible es del 2026-11-20 y solo registra nombres/estados; no inspecciona contenidos ignorados ni completa el escaneo de secretos/historial. Hace falta una captura actual desde esa laptop. Hasta entonces, preservar sus worktrees, datos privados y respaldos; no hacer reset, clean, restore, pull ni staging masivo.
-- **Motor de leads:** PRs #1/#2 siguen sujetos a revisión e integración en orden. No asumir que el checkout local está sincronizado ni usar una clave compartida previamente en el chat.
-- **Código:** la copia de trabajo de esta sesión puede estar atrasada en 0cc8598 con el diff de PR #39 presente sin commit. GitHub en f5cf0c6 es la referencia; iniciar cambios de código desde una rama limpia y confirmar SHA/estado primero.
-
-## Regla de continuidad
-
-Al cerrar cada tarea, actualizar el issue correspondiente con resultado, SHA/PR, pruebas y límites; actualizar este handoff solo si cambia la siguiente acción o el estado global. Mantener una sola siguiente acción principal. No dejar decisiones ni progreso exclusivamente en el chat.
+## Continuidad obligatoria
+Antes de terminar cada bloque, incluso por bloqueo: actualizar el issue con ID, rama/SHA, resultado, prueba realmente ejecutada, limitación y siguiente paso. Actualizar este archivo cuando cambie la siguiente acción. Evidencia técnica pública resumida; datos de prospectos y credenciales fuera del repositorio público.
+Una sesión nueva debe poder continuar con este enlace y acceso a GitHub. El modelo no cambia el alcance ni convierte una propuesta en capacidad existente.
