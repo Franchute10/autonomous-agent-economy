@@ -9,7 +9,7 @@ El Fix Pack y los documentos anteriores de mercado/Porter no son equivalentes a 
 
 ## Resultado mínimo y condiciones
 Un negocio real entiende el diagnóstico, puede usar un prompt de corrección y recibe un pequeño conjunto de oportunidades que reconoce como pertinente, con evidencia y vía pública de respuesta. El primer piloto puede incluir revisión humana explícita; medir sus minutos y no llamarlo automatización completa.
-El diseño admite distintos rubros. La primera evaluación cubre un negocio de productos y dos de servicios para detectar sesgos; no demuestra cobertura universal. Seleccionar el primer segmento comercial por resultado y acceso a usuarios, no por el volumen de código histórico de limpieza.
+El diseño admite distintos rubros. El primer test comercial definido por el propietario usa dos empresas de Estados Unidos: Construction Nation Group (construcción/remodelación residencial, sitio DFW/Plano) y CMIMBELA Cleaning LLC (limpieza, Sarasota). No ampliar la muestra a negocios del usuario que no pertenecen a este piloto. Esto prueba dos verticales, no cobertura universal.
 USD 0 de gasto incremental. Un proveedor configurado o una cuota gratuita histórica no prueba que hoy pueda usarse sin coste: verificar saldo, límite y ausencia de recarga antes de llamadas. Si no puede verificarse, no llamarlo.
 Un fallo de acceso no prueba ausencia de demanda. Un resultado de buscador no prueba intención ni fecha; un buen ajuste B2B no equivale a solicitud activa de compra.
 
@@ -20,7 +20,7 @@ No invertir catorce días de búsquedas a ciegas: comenzar con una exploración 
 Las tarjetas 003–005 son condicionales. Para habilitarlas, enlazar evidencia de salida de la anterior y crear una subtask concreta en #38 antes de editar. No habilitar producción, pagos reales ni contacto automático por inferencia.
 
 ## LUNA-001 — Diagnóstico de productos y servicios con acceso real
-**Registro:** AEOS #38. **Estado:** completada a nivel de servicio/HTML acotado el 2026-11-21. Dos sitios reales leídos; corrección #45 integrada; CI 953 passed / 12 skipped. Evidencia y límites en [bitácora](ASTRA_EXECUTION_2026-11-21.md). No acredita DOM, ingesta Google Business, UI ni ventas. Siguiente tarjeta: LUNA-002.
+**Registro:** AEOS #38. **Estado:** completada a nivel de servicio/HTML acotado para los smoke de Mega Cerámicos y Lumen el 2026-11-21; esos negocios no son los perfiles del piloto estadounidense y sus resultados no satisfacen su aceptación. Existe evidencia histórica de diagnósticos previos de Construction Nation Group y CMIMBELA, fechada antes de la última corrección #45; no asumir equivalencia con código actual sin verificar SHA y alcance. El resultado de #45 (CI 953 passed / 12 skipped) es evidencia técnica, no de utilidad comercial. No acredita DOM, ingesta Google Business, UI ni ventas. Siguiente tarjeta: LUNA-002 con perfiles y fuentes de EE. UU.
 **Base:** AEOS codex/aeos-live-003c; última integración revisada de2d211bc22cbbbe72b615e7434e649feca1b730. Resolver SHA actual; si cambió, revisar diferencia pertinente.
 **Leer:** AGENTS.md, PROJECT_HANDBOOK.md, docs/runbooks/aeos-public-beta.md; src/aeos/live/public_beta.py; src/aeos/live/adapters/website_inspector.py; tests/unit/application/live/test_multisector_product_entry.py; tests/integration/live/test_public_beta_web.py.
 
@@ -49,8 +49,8 @@ Las tarjetas 003–005 son condicionales. Para habilitarlas, enlazar evidencia d
 Todo campo desconocido queda desconocido; solo lo que cumpla el contrato puede formar parte del paquete.
 
 **Experimento:**
-1. Fijar tres perfiles (un producto/dos servicios), oferta y exclusiones, zona, idioma y ventana. Solicitar al propietario únicamente el dato que no esté en la evidencia existente.
-2. Explorar originales accesibles antes de programar otro adaptador. Comparar una fuente de solicitudes explícitas con otra categoría pública pertinente; directorios sirven como referencia de oferta, no como intención compradora. No prometer acceso a grupos privados ni a portales sin verificar.
+1. Fijar dos perfiles estadounidenses: Construction Nation Group (DFW/Plano, referido por el dueño como Dallas/Nation Construction) y CMIMBELA Cleaning LLC (Sarasota; referido por dictado como Seminvela). Usar las grafías que aparecen en el sitio/historial y registrar la discrepancia, sin corregirla a ciegas. Confirmar oferta, exclusiones, zona, idioma y ventana usando evidencia existente; pedir al propietario solo el dato decisivo que falte.
+2. Explorar fuentes de EE. UU. por separado para esos perfiles. Priorizar solicitudes explícitas de compradores y vías legales de respuesta; distinguirlas de cuentas B2B/partners, que pueden ser prospectos pero no solicitudes de compra. No usar compras públicas peruanas para este piloto. LinkedIn sigue pendiente de decisión; no usarlo ni integrarlo hasta aprobación del dueño. No prometer acceso a grupos privados ni a portales sin verificar.
 3. Congelar consultas, fuente, límite y criterio. La búsqueda manual ayuda a juzgar la fuente, pero no se reporta como éxito del motor.
 4. Si existe cuota verificablemente gratuita, ejecutar el mecanismo actual con journal y revisar originales. Si no existe, evaluar la fuente manualmente y dejar la automatización BLOCKED; no contratar ni eludir el bloqueo.
 5. Etiquetar todos los candidatos y una muestra definida de descartados: solicitud real, proveedor, empleo, otra zona, obsoleto, no solicitud o incierto. Incluir casos positivos y negativos sin seleccionar solo aciertos.
@@ -61,10 +61,10 @@ Todo campo desconocido queda desconocido; solo lo que cumpla el contrato puede f
 **Cierre:** matriz por perfil/fuente con evidencia resumida y decisión CONTINUAR / CAMBIAR FUENTE / PAUSAR. No publicar los journals ni datos personales. Ninguna búsqueda/contacto automático adicional.
 **Regresión pendiente:** conservar pruebas de envejecimiento y evidencia real observada bajo los contratos actuales; no copiar fixtures antiguos ni tratar tests sintéticos como cobertura comercial.
 
-### Actualización ASTRA-SOURCE-002 — 2026-11-21
-Consulta manual, no ejecución de Tavily: en tres perfiles se hallaron solicitudes públicas, pero ninguna pudo calificarse como oportunidad actual y útil. Para materiales, una solicitud de 8,000 ladrillos en Madre de Dios ya figuraba declarada nula y fuera de zona. Para transporte, una solicitud de traslado de maquinaria en Apurímac cerró el 17/11; el TDR exacto no fue verificado. Para Lumen, una solicitud vigente de modelación estructural no corresponde a consultoría comercial.
+### Actualización ASTRA-SOURCE-002 — Perú fuera de alcance del piloto de EE. UU. (2026-11-21)
+Consulta manual, no ejecución de Tavily: en tres perfiles equivocados para este piloto se hallaron solicitudes públicas, pero ninguna pudo calificarse como oportunidad actual y útil. Esta muestra se conserva como experimento separado; no aporta resultados ni denominadores a LUNA-002 en EE. UU. Para materiales, una solicitud de 8,000 ladrillos en Madre de Dios ya figuraba declarada nula y fuera de zona. Para transporte, una solicitud de traslado de maquinaria en Apurímac cerró el 17/11; el TDR exacto no fue verificado. Para Lumen, una solicitud vigente de modelación estructural no corresponde a consultoría comercial.
 Workana devolvió proyectos de servicios explícitos, pero los términos oficiales limitan la extracción/minería y la reventa de su contenido; queda EXCLUIDA del feed AEOS salvo permiso escrito. No se guardan publicaciones individuales. Ver [bitácora ASTRA-SOURCE-002](ASTRA_EXECUTION_2026-11-21.md).
-Decisión: LUNA-002 sigue IN_PROGRESS. Próximo incremento: fuente primaria permitida por perfil, estado/fecha verificables y coste USD 0; sin contacto ni integración hasta acreditar utilidad. Esta muestra no mide cobertura del mercado.
+Decisión: aquella muestra de Perú no es evidencia de LUNA-002 para las empresas objetivo. La tarea sigue IN_PROGRESS. Próximo incremento: evaluar fuentes estadounidenses permitidas, estado/fecha verificables y coste USD 0 para Construction Nation Group y CMIMBELA Cleaning LLC; sin contacto ni integración hasta acreditar utilidad. LinkedIn no está seleccionado. Esta corrección no mide cobertura del mercado.
 
 ## LUNA-003 — Conectar únicamente el recorrido que pasó la evaluación
 **Precondición:** 001 funcional y 002 con segmento/fuente viable. Abrir subtask bajo AEOS #38 y revisar el contrato antes de implementarlo.

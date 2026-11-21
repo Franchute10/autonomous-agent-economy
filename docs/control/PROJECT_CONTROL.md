@@ -20,6 +20,9 @@ El capital conceptual de la tesis no autoriza gasto: presupuesto incremental act
 
 No abrir otra ronda general de ordenamiento. Corregir documentación únicamente cuando una contradicción afecte a la tarea activa. La revisión de 34 diferencias está completada; no equivale a reconciliar todo el equipo del operador.
 
+## Piloto comercial actual — 2026-11-21
+Perfiles de prueba iniciales en EE. UU.: Construction Nation Group (sitio público en DFW/Plano; el dueño refiere Dallas/Nation Construction) y CMIMBELA Cleaning LLC (Sarasota; dictado reciente “Seminvela”). Usar evidencia del sitio y del propietario; conservar las diferencias de grafía hasta confirmar. No usar Mega Cerámicos, Lumen o AC Moreno en la validación de este piloto. Búsqueda y evidencia deben ser de EE. UU.; el análisis de compras peruanas queda como experimento independiente y fuera de sus métricas. LinkedIn aún no está decidido ni autorizado como fuente/integración.
+
 ## Decisiones de dirección — 2026-11-21
 - El propietario amplió el encargo: Astra también ejecuta correcciones y experimentos acotados. El modelo disponible continúa desde el handoff; ver ASTRA_EXECUTION_2026-11-21.md y PR #42/#45.
 - Priorizar evidencia de valor antes de ampliar arquitectura, fuentes o pagos.
@@ -33,11 +36,11 @@ No abrir otra ronda general de ordenamiento. Corregir documentación únicamente
 
 ## Corte de ejecución — 2026-11-21
 PR #42 y #45 integrados en LIVE (de2d211bc22cbbbe72b615e7434e649feca1b730). CI final: 953 passed / 12 skipped; lint, formato y tipos aprobados. Dos diagnósticos reales ejecutados desde GitHub Actions: un sitio de productos y otro de servicios, tres páginas cada uno. LUNA-001 completado a nivel de servicio con límites documentados; UI/DOM e ingesta autorizada de Google Business no acreditados. LUNA-002 es la siguiente tarjeta.
-La exploración documental de seis casos produjo cero oportunidades confirmadas útiles por un dueño; no es una corrida automatizada de leads. No habilita integración comercial ni cobro. [Bitácora de evidencia](ASTRA_EXECUTION_2026-11-21.md).
+Las muestras documentales de compras públicas peruanas (ASTRA-SOURCE-001/002) son históricas y fuera del piloto estadounidense; no cuentan como yield del producto ni como una corrida automatizada de leads. No habilita integración comercial ni cobro. [Bitácora de evidencia](ASTRA_EXECUTION_2026-11-21.md).
 
 ## Fuente y reutilización de solicitudes — 2026-11-21
-ASTRA-SOURCE-002 no encontró oportunidad elegible para los tres perfiles en la muestra manual de compras públicas. Workana queda fuera del feed AEOS: sus términos oficiales restringen la minería de datos y la redistribución/reventa de contenido. No alimentar paquetes pagos desde marketplaces sin licencia explícita.
-LUNA-002 permanece en curso y debe elegir una fuente primaria autorizada, perfil por perfil, con evidencia original vigente y coste incremental USD 0. No se contactó a nadie. Evidencia: [bitácora](ASTRA_EXECUTION_2026-11-21.md) y [Motor #4](https://github.com/Franchute10/commercial-lead-engine/issues/4).
+ASTRA-SOURCE-002 documentó una muestra manual peruana para perfiles que no corresponden al piloto de EE. UU.; sus cero elegibles son fuera de alcance y no cuentan en la evaluación comercial actual. Workana queda fuera del feed AEOS: sus términos oficiales restringen la minería de datos y la redistribución/reventa de contenido. No alimentar paquetes pagos desde marketplaces sin licencia explícita.
+LUNA-002 permanece en curso: elegir fuentes estadounidenses permitidas para Construction Nation Group y CMIMBELA Cleaning LLC, perfil por perfil, con evidencia original vigente y coste incremental USD 0. No se contactó a nadie. Evidencia: [bitácora](ASTRA_EXECUTION_2026-11-21.md) y [Motor #4](https://github.com/Franchute10/commercial-lead-engine/issues/4).
 
 ## Fuente de verdad
 GitHub conserva tareas, decisiones, código y evidencia resumida. Un documento describe intención; el SHA y la prueba acreditan implementación; la revisión humana acredita utilidad; una transacción real acredita una compra.

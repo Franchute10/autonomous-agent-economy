@@ -156,3 +156,12 @@ Una búsqueda exploratoria encontró páginas de proyectos explícitos de consul
 - No se presentó paquete al dueño para juicio de utilidad porque no quedó candidato elegible. No se habilita integración, precio ni cobro.
 
 **Siguiente paso:** seleccionar una fuente permitida por perfil, confirmar sus términos/licencia, cobertura geográfica, fecha/estado original y ruta de respuesta antes de automatizar. Priorizar canales oficiales de solicitudes y datos suministrados por el dueño con permiso; mantener la automatización en BLOCKED si no se demuestra acceso autorizado y gratuito. No concluir que el mercado carece de demanda a partir de esta muestra.
+
+
+## 9. Corrección de alcance del piloto — 2026-11-21
+
+En la conversación AEOS original, el propietario definió como empresas piloto en Estados Unidos a **Construction Nation Group** (el propietario la refiere como Dallas; el sitio consultado y los informes históricos indican DFW/Plano) y **CMIMBELA Cleaning LLC** (Sarasota). El dictado “Seminvela” parece referirse a CMIMBELA; no reemplazar el nombre del sitio. El propietario también escribió “Nation Construction”; los informes y el sitio dicen Construction Nation Group. Confirmar la denominación antes de materiales externos.
+
+La selección posterior de Mega Cerámicos, AC Moreno y Lumen, y las muestras ASTRA-SOURCE-001/002 en SUTRAN, GOREMAD/DRTC/OECE/SEACE, fueron una desviación del piloto solicitado. Se conserva como investigación peruana independiente, pero no se debe usar para aceptar o rechazar la hipótesis estadounidense, calcular yield o decidir el producto. Workana/LinkedIn tampoco quedan elegidos para la búsqueda de EE. UU.; LinkedIn sigue pendiente de decisión. No hubo autorización de contacto.
+
+Los informes de smoke de 2026-11-21 de Mega Cerámicos y Lumen prueban una ejecución técnica del servicio de diagnóstico en esos sitios, pero no de los sitios/mercados de las dos empresas piloto. Los informes históricos del 2026-11-10 sí nombran https://constructionnationgroup.com/ y https://cmimbelacleaningllc.com/; deben tratarse como evidencia de ese momento y versión, no como prueba automática de la revisión #45 ni del actual generador de leads. El siguiente bloque debe retomar los dos perfiles estadounidenses, hallar fuentes con acceso permitido a coste USD 0 y evaluar solicitudes originales por separado.
