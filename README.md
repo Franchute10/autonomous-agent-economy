@@ -1,6 +1,6 @@
 # Autonomous Agent Economy — AEOS
 
-**Dirección vigente y siguiente acción (2026-11-20):** [Control de producto y continuidad](docs/control/PROJECT_CONTROL.md). Leer junto con la evidencia de validación; los estados fechados anteriores son históricos.
+**Continuidad vigente (2026-11-21):** leer [NEXT_SESSION_HANDOFF.md](docs/control/NEXT_SESSION_HANDOFF.md) y [el plan para Luna](docs/control/LUNA_EXECUTION_PLAN.md). Objetivo y prioridades: [PROJECT_CONTROL.md](docs/control/PROJECT_CONTROL.md). Los estados fechados anteriores son históricos.
 
 AEOS is an experimental project exploring how an AI-native organization can coordinate objectives, agents, workflows, budgets, evidence, approvals, and learning.
 
@@ -10,7 +10,7 @@ The repository has multiple active development lines and experimental pilots. Th
 
 For an accurate project handoff, read in this order:
 
-1. [Project readiness snapshot](docs/PROJECT_READINESS.md) — current verified state, blockers, open PRs, and next work.
+1. [Current handoff](docs/control/NEXT_SESSION_HANDOFF.md) — current priorities, evidence and next task. Use the [Luna execution plan](docs/control/LUNA_EXECUTION_PLAN.md) for acceptance criteria. The [readiness snapshot](docs/PROJECT_READINESS.md) is dated background; verify its status claims against current issues and commits.
 2. [AI and contributor instructions](AGENTS.md) — operating rules for people and coding agents.
 3. [Project handbook](PROJECT_HANDBOOK.md) — product intent, boundaries, architecture decisions, and history. Check dated status sections against the readiness snapshot.
 4. [Minimum Viable Technical Architecture v0.1](docs/architecture/AEOS_Minimum_Viable_Technical_Architecture_v0.1.md).

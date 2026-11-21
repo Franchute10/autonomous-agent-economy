@@ -52,7 +52,17 @@ Ver PATCH_INVENTORY.json para ruta, blob de origen/destino y comparación. Cifra
 | 003c-local | 12 | 8 | Regresiones ya documentadas; no aplicar |
 | followup-review-fixes | 3 | 1 | Correcciones mayormente representadas; prueba evolucionó |
 | followup-test-status-fix | 0 | 1 | Archivo mal formado y corrección superada; no aplicar |
-| main-source-tests | 16 | 34 | Comparación exacta completada; revisión semántica completa pendiente |
-| main-vs-003c-core | 2 | 1 | Tres archivos, no dos; base del tercero no disponible por blob en el clon |
+| main-source-tests | 16 | 34 | Comparación semántica completada el 2026-11-21; conservar LIVE; no reaplicar |
+| main-vs-003c-core | 2 | 1 | Blob 2555b33 de real_lead_pilot.py recuperado y comparado; conservar LIVE |
 
-No hubo rutas ausentes en LIVE entre los resultados de estos parches. Igualdad de blobs prueba igualdad de contenido; diferencia no prueba trabajo nuevo. Se reconstruyeron las 34 diferencias del parche main para revisión posterior; no se publican sus contenidos ni los datos de negocio de los parches. Esta sesión no completa limpieza de Windows, auditoría histórica de secretos ni clasificación de archivos ignorados.
+No hubo rutas ausentes en LIVE entre los resultados de estos parches. Igualdad de blobs prueba igualdad de contenido; diferencia no prueba trabajo nuevo. Las 34 diferencias del parche main se reconstruyeron y revisaron semánticamente el 2026-11-21; no se reaplican las versiones antiguas. No se publican datos de negocio de los parches. La reconciliación restante se sigue por separado en AEOS #4.
+
+
+## Actualización de continuidad — 2026-11-21
+
+- Revisión de 34 diferencias completada; conservar LIVE. El archivo restante de main-vs-003c-core se recuperó y comparó; conservar LIVE. No reaplicar parches antiguos.
+- Cuatro casos sintéticos pasaron mediante un harness Python directo y git diff --check. No fue una nueva corrida de pytest.
+- La validación reportada en PR #39 fue 941 passed / 12 skipped sobre su base más el cambio. No atribuir esta cifra a una nueva ejecución ni a CI sin revisar los logs correspondientes.
+- El intento real posterior falló por DNS antes de recuperar contenido. No demuestra calidad del sitio, disponibilidad de leads ni validación comercial.
+- Esta actualización Astra es revisión y planificación; no vuelve a ejecutar suites ni implementa las tareas de Luna.
+- Siguiente acción: [LUNA-001](LUNA_EXECUTION_PLAN.md), diagnóstico real. La evaluación de utilidad y fuentes se mantiene separada en LUNA-002.
