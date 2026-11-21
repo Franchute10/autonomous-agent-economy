@@ -1,5 +1,5 @@
 # AEOS — Continuidad vigente
-Actualizado: 2026-11-21 (America/Lima). Planificación Astra; ejecución posterior con Luna.
+Actualizado: 2026-11-21 (America/Lima). Planificación y ejecución focal Astra; continuidad con el modelo disponible.
 
 ## Retomar
 1. Leer este archivo y [el plan ejecutable para Luna](LUNA_EXECUTION_PLAN.md).
@@ -24,12 +24,15 @@ AEOS conserva su propósito de organización gobernada de agentes. Ampliar el ru
 - Motor de leads: [PR #1](https://github.com/Franchute10/commercial-lead-engine/pull/1) abierto hacia main; [PR #2](https://github.com/Franchute10/commercial-lead-engine/pull/2) abierto sobre la rama del #1. No son cambios integrados en main.
 - Fix Pack es una oferta experimental distinta. No confundir su Sandbox con venta de paquetes de leads.
 
-## Siguiente acción única
-**LUNA-001: comprobar diagnóstico real acotado** en un sitio de productos y otro de servicios, desde una copia aislada de la rama LIVE verificada, con acceso de red.
-Leer criterios y salida de bloqueo en LUNA_EXECUTION_PLAN.md. No modificar código ni repetir suites por rutina si solo se está capturando evidencia.
-Después: LUNA-002, decidir viabilidad de fuentes antes de construir integración/cobro.
+## Avance Astra de ejecución
+[Bitácora 2026-11-21](ASTRA_EXECUTION_2026-11-21.md): PR #42 corrige perfiles de productos y ajuste de catálogo; ocho regresiones focales aprobadas. PR draft, sin integración: faltan suite completa, lint y tipos.
+Exploración externa: seis casos revisados; tres candidatos documentales condicionados, uno vencido y dos conflictos. Cero oportunidades confirmadas útiles por el dueño. Investigación externa no equivale a corrida del motor.
+El usuario autorizó ejecutar con Astra; ya no se reserva toda implementación a Luna.
 
-Esta revisión Astra entrega documentación y decisiones de planificación. No implementa las tarjetas ni las declara aprobadas por pruebas.
+## Siguiente acción única
+**RUNNER-001:** validar el [PR #42](https://github.com/Franchute10/autonomous-agent-economy/pull/42) en un entorno con dependencias y red, y ejecutar el diagnóstico real de LUNA-001.
+Head de PR revisado: 7d1a2dfc0f16a338cb76b06e3e350429641b1c44. Ejecutar regresiones, suite, Ruff/formato y mypy; corregir fallos y registrar evidencia antes de integrar a LIVE.
+Después diagnosticar un sitio de productos y otro de servicios; continuar LUNA-002 con perfil real y fuente apropiada. Ver bitácora Astra para reproducción, condiciones y salida de bloqueo. No reiniciar ordenamiento ni comprar infraestructura.
 
 ## Continuidad obligatoria
 Antes de terminar cada bloque, incluso por bloqueo: actualizar el issue con ID, rama/SHA, resultado, prueba realmente ejecutada, limitación y siguiente paso. Actualizar este archivo cuando cambie la siguiente acción. Evidencia técnica pública resumida; datos de prospectos y credenciales fuera del repositorio público.
