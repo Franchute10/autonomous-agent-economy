@@ -128,3 +128,31 @@ El siguiente cuello de botella es comprobar utilidad comercial. No volver a ejec
 4. Preparar muestra privada únicamente con candidatos elegibles; pedir la valoración del responsable sobre esa muestra concreta. Sin utilidad confirmada, no habilitar compra.
 5. Registrar en Motor #4 y actualizar NEXT_SESSION_HANDOFF.md. Cambiar hipótesis tras tres corridas comparables sin rendimiento; las tarjetas 003–005 siguen condicionadas.
 
+
+## 8. ASTRA-SOURCE-002 — muestra de solicitudes y permisos de fuente (2026-11-21)
+
+**Propósito:** identificar si una fuente pública entrega solicitudes actuales para perfiles ya presentes en el ecosistema: materiales de construcción (Mega Cerámicos), transporte de carga especial (AC Moreno) y consultoría comercial (Lumen). No se asumió capacidad, zona de servicio o acreditación no confirmada.
+
+**Método y alcance:** exploración manual acotada mediante consultas en español y lectura de páginas fuente disponibles, con observación al 21/11/2026. No se llamó al motor de Tavily ni a una API de pago, no se extrajeron datos de usuarios ni se contactó a nadie. Esta muestra no es una corrida automatizada, comparación de motores, medida de cobertura ni cálculo de precisión/recall. Las páginas individuales de GOREMAD agotaron el tiempo de apertura; sus detalles siguientes provienen de la versión indexada por el buscador y requieren reabrir en el portal antes de actuar.
+
+| Perfil | Solicitud pública encontrada | Evaluación al 21/11 |
+|---|---|---|
+| Materiales de construcción | GOREMAD, solicitud 6418: 8,000 ladrillos King Kong 18 huecos para obra Boca Colorado. Fecha 6–9/11; el resultado indexado informa que se declaró nula el 11/11 por precios por encima del presupuesto y que se haría una nueva convocatoria. | Solicitud real pero vencida/nula, en Madre de Dios, fuera de la cobertura norte atribuida al distribuidor; no es lead vigente. Fuente: https://cotizaciones.regionmadrededios.gob.pe/solicitud/21860 . Reapertura directa no disponible en esta sesión. |
+| Transporte de maquinaria | DRTC Apurímac, cotización 467: movilización y desmovilización de maquinaria; publicada 16/11, cierre 17/11 a las 08:00. La entidad exige RNP, ficha/consulta RUC y recepción por su canal dentro del plazo. | Solicitud real y pertinente por categoría, pero vencida antes de la observación; el TDR/enrutamiento exacto no se verificó, así que no se califica capacidad. Fuente primaria accesible: https://drtcapurimac.gob.pe/portal/cotizacion-n467-servicio-de-movilizacion-y-desmovilizacion-de-maquinarias/ . |
+| Consultoría comercial | GOREMAD, solicitud 6556: cálculo y modelación estructural; publicada 20/11, límite 23/11 a las 12:00. | Aún en plazo al momento de la observación, pero es ingeniería/modelación estructural, no consultoría comercial/RevOps; descartar por especialidad. Detalle indexado: https://cotizaciones.regionmadrededios.gob.pe/solicitud/21999 . Apertura directa no disponible. |
+
+La ayuda del portal GOREMAD explica que muestra solicitudes vigentes por defecto y permite filtrar por estado/fechas; https://cotizaciones.regionmadrededios.gob.pe/ayuda . Aun así, lo hallado no valida este portal como canal universal: depende de geografía, RNP, requisitos del postor y tiempo corto de respuesta.
+
+### Fuente de servicios freelance — Workana, EXCLUIDA para el feed AEOS
+Una búsqueda exploratoria encontró páginas de proyectos explícitos de consultoría/ventas con señales de estado mezcladas entre encabezado y descripción. Al revisar las condiciones oficiales en español, los términos limitan el contenido a uso personal/no comercial y prohíben extraer, indexar o hacer minería de datos (incluidos procesos manuales o automáticos), además de reproducir o revender contenido. Ver https://help.workana.com/hc/es/articles/360041499974-T%C3%89RMINOS-Y-CONDICIONES-DE-WORKANA (secciones de licencia/restricciones).
+
+**Decisión:** no incorporar Workana como fuente de AEOS ni reproducir sus publicaciones en una muestra pagada, a menos que exista permiso escrito que lo autorice. Un freelancer puede considerar Workana como canal propio usando su cuenta y las funciones oficiales, por separado del feed de AEOS. Por respeto a los términos y a los usuarios, esta bitácora no copia títulos, nombres, texto ni URLs de proyectos individuales.
+
+### Resultado de ASTRA-SOURCE-002
+- Cero oportunidades actuales calificadas para los perfiles probados.
+- Una fuente oficial de compras muestra solicitudes explícitas pero devuelve obsoletas, fuera de zona o con especialidad no coincidente en esta muestra acotada.
+- Un marketplace de servicios tuvo señales de intención, pero queda excluido de extracción/reventa por sus términos.
+- La búsqueda web genérica también devuelve directorios, páginas de proveedores y puestos laborales; esos elementos no son solicitudes compradoras.
+- No se presentó paquete al dueño para juicio de utilidad porque no quedó candidato elegible. No se habilita integración, precio ni cobro.
+
+**Siguiente paso:** seleccionar una fuente permitida por perfil, confirmar sus términos/licencia, cobertura geográfica, fecha/estado original y ruta de respuesta antes de automatizar. Priorizar canales oficiales de solicitudes y datos suministrados por el dueño con permiso; mantener la automatización en BLOCKED si no se demuestra acceso autorizado y gratuito. No concluir que el mercado carece de demanda a partir de esta muestra.
