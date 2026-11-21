@@ -1,6 +1,8 @@
 # AEOS — Control de producto y continuidad
 
-Fecha: 2026-11-20, America/Lima. Dirección confirmada por Frank. Este documento actualiza la prioridad de producto; las cifras históricas del handbook no son el estado vigente.
+**Retomar sin reconstruir conversaciones:** [Punto de continuidad vigente](NEXT_SESSION_HANDOFF.md). Leerlo primero; después verificar issues y estado remoto.
+
+Fecha: 2026-11-21, America/Lima. Dirección confirmada por Frank. Este documento actualiza la prioridad de producto; las cifras históricas del handbook no son el estado vigente.
 
 ## Objetivo y alcance
 
@@ -24,9 +26,9 @@ La limpieza interior es un caso histórico. No limita el producto, la taxonomía
 
 | ID | Entrega | Estado / dependencia | Criterio de cierre |
 |---|---|---|---|
-| OPS-001 | Reconciliar laptop y parches | [Issue existente #4](https://github.com/Franchute10/autonomous-agent-economy/issues/4), parcial | Cada cambio tiene destino; respaldo antes de archivar; revisar 34 diferencias de main y datos locales |
+| OPS-001 | Reconciliar laptop y parches | [Issue existente #4](https://github.com/Franchute10/autonomous-agent-economy/issues/4), parcial | Cada cambio tiene destino; respaldo antes de archivar; 34 diferencias de main revisadas; falta reconciliar datos locales/Windows |
 | PRODUCT-001 | Diagnóstico gratuito y prompt para varios rubros | [Issue #38](https://github.com/Franchute10/autonomous-agent-economy/issues/38), en progreso | Sitio real de productos y de servicios, hallazgos atribuibles y prompt usable; Google Business con evidencia autorizada |
-| PRODUCT-002 | Corregir selección de páginas de productos | [PR #39](https://github.com/Franchute10/autonomous-agent-economy/pull/39); cuatro pruebas realizadas | Productos/catálogo/servicios/ofertas inspeccionados dentro del presupuesto, sin asumir limpieza |
+| PRODUCT-002 | Corregir selección de páginas de productos | [PR #39](https://github.com/Franchute10/autonomous-agent-economy/pull/39) merged; cuatro casos sintéticos realizados | Productos/catálogo/servicios/ofertas inspeccionados dentro del presupuesto, sin asumir limpieza |
 | LEADS-VAL-001 | Validar solicitudes útiles y coste | [Motor #4](https://github.com/Franchute10/commercial-lead-engine/issues/4), pendiente de fuente accesible | Un sector de productos y dos de servicios; URLs originales revisadas, fechas/zonas verificables, utilidad y coste por lead |
 | DELIVERY-001 | Cobro y entrega consistente | Dentro de PRODUCT-001; revisar PR AEOS #1/#2 | Pago de prueba entrega exactamente el resultado comprado; firmas, idempotencia, recuperación y tratamiento de falta de stock |
 | RELEASE-001 | Piloto pagado | Depende de PRODUCT, LEADS y DELIVERY | Empresa recibe valor confirmado; transacción real autorizada y margen medido |
@@ -44,8 +46,8 @@ No abrir otra ronda general de documentación si la siguiente tarea ejecutable y
 
 ## Cómo continuar desde cualquier modelo
 
-Leer README → PROJECT_READINESS → este plan → VALIDATION_2026-11-20 → issue de la tarea → archivos de código. Confirmar repo, rama, SHA y estado; leer AGENTS.md. Elegir una tarea abierta con criterios de aceptación. Ejecutar, probar y registrar el resultado en GitHub antes de terminar. Si una dependencia impide ejecutar, escribir qué evidencia falta y avanzar una tarea independiente.
+Para una nueva sesión: leer NEXT_SESSION_HANDOFF.md → este plan → issue de la tarea → código pertinente. Consultar el chat solo si hay un dato histórico que no esté registrado. Confirmar repo, rama, SHA y estado; leer AGENTS.md. Elegir una tarea abierta con criterios de aceptación. Ejecutar, probar y registrar el resultado en GitHub antes de terminar. Si una dependencia impide ejecutar, escribir qué evidencia falta y avanzar una tarea independiente.
 
 Cada entrega debe registrar: ID, objetivo, archivos, base y commit/PR, pruebas con denominadores y skips, evidencia live vs fixture, decisión, riesgos observados y siguiente acción. No marcar DONE por haber escrito un plan. Mantener una rama por entrega y un solo registro vigente; conservar historia fechada sin llamarla estado actual.
 
-Siguiente acción concreta: probar el diagnóstico corregido en staging con DNS/red pública; evaluar por separado las fuentes de intención con un conjunto etiquetado de productos y servicios. La corrida local falló antes de leer robots.txt y no permite juzgar las webs. Ningún dato faltante debe suplirse con leads sintéticos.
+Siguiente acción concreta: completar PRODUCT-001 con diagnóstico de un sitio real de productos y otro de servicios en staging con DNS/HTTP público; el runner actual falló en DNS antes de leer robots.txt. Después ejecutar LEADS-VAL-001 por separado. Ver NEXT_SESSION_HANDOFF.md.
