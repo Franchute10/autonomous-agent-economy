@@ -26,7 +26,7 @@ Empresas objetivo: **Construction Nation Group** (el propietario la refiere como
 | Smoke técnico histórico (fuera del piloto actual) | Runs 44955224788 y 44955755471 | Mega Cerámicos y Lumen: 3 páginas; no valida Construction Nation ni CMIMBELA ni cuenta en métricas de ese piloto |
 | Muestreo y prompt corregidos | PR #45, merge de2d211bc22cbbbe72b615e7434e649feca1b730; CI 44955889071: 953 passed / 12 skipped; lint/formato/mypy PASS | Rutas distintas antes de variantes; comparar contenido antes de cambiar metadatos |
 | Google Business | Prueba local con entrada sintética | OWNER_EVIDENCE_REQUIRED, 0 páginas; no inspección real ni ingesta implementada |
-| Exploración de fuentes | [Bitácora](ASTRA_EXECUTION_2026-11-21.md), ASTRA-SOURCE-001 | 6 casos: 3 candidatos documentales, 1 vencido, 2 conflictos; 0 útiles confirmados por dueño |
+| Exploración histórica fuera del piloto de EE. UU. | [Bitácora](ASTRA_EXECUTION_2026-11-21.md), ASTRA-SOURCE-001 | Muestra de compras públicas peruanas; no cuenta en resultados, denominadores ni decisiones del piloto actual |
 
 LIVE verificada: `codex/aeos-live-003c` en `de2d211bc22cbbbe72b615e7434e649feca1b730`. Resolver SHA actual antes de editar.
 Los resultados de Mega Cerámicos/Lumen son únicamente pruebas técnicas de los sitios de esas empresas; quedan fuera del piloto AEOS de EE. UU. No se certifica SEO completo, DOM, UI, conversión ni rentabilidad.
@@ -41,7 +41,7 @@ La prueba real usa runner estándar del repo público, URLs fijas, sin secretos/
 - Las pruebas reales y fuentes públicas están resumidas en la bitácora. Datos privados de prospectos, credenciales y journals no van al repo público.
 
 ## Corrección de alcance — 2026-11-21
-La selección anterior de Mega Cerámicos, AC Moreno y Lumen, así como la búsqueda en GOREMAD/DRTC/OECE/SEACE, fue una desviación del piloto solicitado. Se conserva como antecedente de un experimento peruano independiente; sus perfiles, resultados, ceros y denominadores no cuentan para validar AEOS en EE. UU. El smoke reciente de sitios Mega Cerámicos/Lumen tampoco cuenta como diagnóstico de los dos perfiles piloto. El historial anterior sí incluye inspecciones de los sitios de Construction Nation Group y CMIMBELA, pero deben distinguirse por fecha y versión; no atribuirles cobertura del código actual sin comparar la ejecución.
+La selección anterior de Mega Cerámicos, AC Moreno y Lumen, así como las muestras ASTRA-SOURCE-001/002 en SUTRAN, GOREMAD, DRTC, OECE/SEACE, fue una desviación del piloto solicitado. Se conserva como antecedente de un experimento peruano independiente; sus perfiles, resultados, ceros y denominadores no cuentan para validar AEOS en EE. UU. El smoke reciente de sitios Mega Cerámicos/Lumen tampoco cuenta como diagnóstico de los dos perfiles piloto. El historial anterior sí incluye inspecciones de los sitios de Construction Nation Group y CMIMBELA, pero deben distinguirse por fecha y versión; no atribuirles cobertura del código actual sin comparar la ejecución.
 
 ## Siguiente acción única — LUNA-002 / LEADS-VAL-001
 Registro: [commercial-lead-engine #4](https://github.com/Franchute10/commercial-lead-engine/issues/4).
