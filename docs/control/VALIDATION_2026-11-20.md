@@ -52,7 +52,16 @@ Ver PATCH_INVENTORY.json para ruta, blob de origen/destino y comparación. Cifra
 | 003c-local | 12 | 8 | Regresiones ya documentadas; no aplicar |
 | followup-review-fixes | 3 | 1 | Correcciones mayormente representadas; prueba evolucionó |
 | followup-test-status-fix | 0 | 1 | Archivo mal formado y corrección superada; no aplicar |
-| main-source-tests | 16 | 34 | Comparación exacta completada; revisión semántica completa pendiente |
-| main-vs-003c-core | 2 | 1 | Tres archivos, no dos; base del tercero no disponible por blob en el clon |
+| main-source-tests | 16 | 34 | Comparación semántica completada el 2026-11-21; conservar LIVE; no reaplicar |
+| main-vs-003c-core | 2 | 1 | Blob 2555b33 de real_lead_pilot.py recuperado y comparado; conservar LIVE |
 
-No hubo rutas ausentes en LIVE entre los resultados de estos parches. Igualdad de blobs prueba igualdad de contenido; diferencia no prueba trabajo nuevo. Se reconstruyeron las 34 diferencias del parche main para revisión posterior; no se publican sus contenidos ni los datos de negocio de los parches. Esta sesión no completa limpieza de Windows, auditoría histórica de secretos ni clasificación de archivos ignorados.
+No hubo rutas ausentes en LIVE entre los resultados de estos parches. Igualdad de blobs prueba igualdad de contenido; diferencia no prueba trabajo nuevo. Las 34 diferencias del parche main se reconstruyeron y revisaron semánticamente el 2026-11-21; no se reaplican las versiones antiguas. No se publican datos de negocio de los parches. Esta sesión no completa limpieza de Windows, auditoría histórica de secretos ni clasificación de archivos ignorados.
+
+
+## Actualización de continuidad — 2026-11-21
+
+- AEOS OPS-001 (#4): revisión semántica de las 34 diferencias cerrada; se conserva LIVE por sus controles posteriores de privacidad, procedencia, aislamiento por negocio, previews sintéticos y alcance multisector. La laptop Windows sigue pendiente.
+- Blob faltante del parche main-vs-003c-core: real_lead_pilot.py blob 2555b33 recuperado y comparado. La versión anterior usaba business_name como almacenamiento predeterminado si faltaba organization_id; LIVE exige identidad para perfiles reales y reserva un espacio para ejemplos sintéticos.
+- En el runner de esta sesión pasaron cuatro casos sintéticos mediante harness Python directo y git diff --check. No se pudo ejecutar pytest porque no estaba instalado; la sincronización offline falló por falta del registro de paquetes. PR #39 ya tiene CI reportado: 941 aprobadas, 12 omitidas; Ruff/formato/mypy pasaron.
+- El intento real contra Lumen falló en dns_resolution antes de recuperar robots.txt. No es evidencia sobre calidad del sitio. No hubo búsqueda live de leads, pagos ni validación comercial.
+- Siguiente gate: staging con DNS/HTTP público para diagnosticar un sitio de productos y uno de servicios. Revisar issue #38; validar leads por separado en Commercial Lead Engine #4. La captura de esta sesión no modifica las pruebas CI existentes.
