@@ -36,7 +36,7 @@ Perfiles de prueba iniciales en EE. UU.: Construction Nation Group (sitio públi
 
 ## Corte de ejecución — 2026-11-21
 PR #42 y #45 integrados en LIVE (de2d211bc22cbbbe72b615e7434e649feca1b730). CI final: 953 passed / 12 skipped; lint, formato y tipos aprobados. Dos diagnósticos reales ejecutados desde GitHub Actions: un sitio de productos y otro de servicios, tres páginas cada uno. LUNA-001 completado a nivel de servicio con límites documentados; UI/DOM e ingesta autorizada de Google Business no acreditados. LUNA-002 es la siguiente tarjeta.
-La exploración documental de seis casos produjo cero oportunidades confirmadas útiles por un dueño; no es una corrida automatizada de leads. No habilita integración comercial ni cobro. [Bitácora de evidencia](ASTRA_EXECUTION_2026-11-21.md).
+Las muestras documentales de compras públicas peruanas (ASTRA-SOURCE-001/002) son históricas y fuera del piloto estadounidense; no cuentan como yield del producto ni como una corrida automatizada de leads. No habilita integración comercial ni cobro. [Bitácora de evidencia](ASTRA_EXECUTION_2026-11-21.md).
 
 ## Fuente y reutilización de solicitudes — 2026-11-21
 ASTRA-SOURCE-002 documentó una muestra manual peruana para perfiles que no corresponden al piloto de EE. UU.; sus cero elegibles son fuera de alcance y no cuentan en la evaluación comercial actual. Workana queda fuera del feed AEOS: sus términos oficiales restringen la minería de datos y la redistribución/reventa de contenido. No alimentar paquetes pagos desde marketplaces sin licencia explícita.
