@@ -48,7 +48,7 @@ Resultado de la muestra: 3 candidatos documentales pendientes de ajuste, 1 venci
 
 ### Fuentes originales
 - Índice SUTRAN: https://www.sutran.gob.pe/contrataciones-de-bienes-y-servicios/
-- Electrodomésticos: enlace de especificaciones publicado en la fila correspondiente del índice; se abrió y revisó durante esta sesión.
+- Electrodomésticos: https://www.sutran.gob.pe/wp-content/uploads/2026/11/05.-EETT-Electrodom%C3%A9sticos-2026-VF-F-.pdf
 - Switches: https://www.sutran.gob.pe/wp-content/uploads/2026/11/06.-TDR-MANTENIMIENTO-SWITCHES_V2-F-F-F.pdf
 - Enfriamiento: https://www.sutran.gob.pe/wp-content/uploads/2026/11/04-TDR-Mantenimiento-de-Sistema-de-Enfriamiento-de-Data-Center-v7-F-F-1.pdf
 - Caso vencido: https://drtcapurimac.gob.pe/portal/cotizacion-n-485-servicio-de-asistencia-tecnica-administrativa/
