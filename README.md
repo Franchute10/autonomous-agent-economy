@@ -1,5 +1,7 @@
 # Autonomous Agent Economy — AEOS
 
+**Dirección vigente y siguiente acción (2026-11-20):** [Control de producto y continuidad](docs/control/PROJECT_CONTROL.md). Leer junto con la evidencia de validación; los estados fechados anteriores son históricos.
+
 AEOS is an experimental project exploring how an AI-native organization can coordinate objectives, agents, workflows, budgets, evidence, approvals, and learning.
 
 ## Project status and reading order

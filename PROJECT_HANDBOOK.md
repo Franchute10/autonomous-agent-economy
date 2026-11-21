@@ -1,5 +1,7 @@
 # AEOS — Manual rector del proyecto
 
+**Dirección vigente y siguiente acción (2026-11-20):** [Control de producto y continuidad](docs/control/PROJECT_CONTROL.md). Leer junto con la evidencia de validación; los estados fechados anteriores son históricos.
+
 **Corte de estado:** 2026-11-20  
 **Versión:** 1.0  
 **Repositorio rector:** [Franchute10/autonomous-agent-economy](https://github.com/Franchute10/autonomous-agent-economy)  

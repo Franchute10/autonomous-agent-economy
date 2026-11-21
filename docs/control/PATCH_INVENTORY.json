@@ -1,0 +1,936 @@
+[
+  {
+    "patch": "aeos-003c-followup-review(1).patch",
+    "rows": [
+      {
+        "path": "docs/runbooks/business-url-diagnosis-and-manual-request-capture.md",
+        "old": "0000000",
+        "new": "2feed6f",
+        "remote": "06cb3083dd3a45bd2e0c280c3653539967877aaf",
+        "status": "different",
+        "diff_lines": 17
+      },
+      {
+        "path": "pyproject.toml",
+        "old": "24af16a",
+        "new": "2891571",
+        "remote": "289157114fbc5eb6d6cb84d3702583a84243aed0",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/business_report.py",
+        "old": "8725abd",
+        "new": "7a904d1",
+        "remote": "addd4e7ed3bdf9f445b34328264e0bbffb73019b",
+        "status": "different",
+        "diff_lines": 230
+      },
+      {
+        "path": "src/aeos/application/live/resolve_business_locations.py",
+        "old": "905acca",
+        "new": "d6bdd73",
+        "remote": "d6bdd73b3c268ddb2b9f43c686e57eee5181ec36",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/website_report.py",
+        "old": "ae22de1",
+        "new": "2a56094",
+        "remote": "2a56094fcbdb9be7ea5303af576774ac9646acc7",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/adapters/overpass.py",
+        "old": "4d3eaa5",
+        "new": "a36e0e9",
+        "remote": "70619dca6853a6dfbba2e3335eb07ab6a3a4040b",
+        "status": "different",
+        "diff_lines": 11
+      },
+      {
+        "path": "src/aeos/live/adapters/website_inspector.py",
+        "old": "4771837",
+        "new": "9e09733",
+        "remote": "e911cd31c5a587cd36e24a256558688ec22b0586",
+        "status": "different",
+        "diff_lines": 26
+      },
+      {
+        "path": "src/aeos/live/domain/location_candidate.py",
+        "old": "24f018f",
+        "new": "b251cb8",
+        "remote": "b251cb89456b5f4519c808be45c661e904cf6949",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/profile.py",
+        "old": "1f8b901",
+        "new": "841fcda",
+        "remote": "841fcda80e56a9db0497cb286e87c0d8ce703f33",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/website_inspection.py",
+        "old": "a474513",
+        "new": "0cfe74f",
+        "remote": "0cfe74f652375dd3b9b82f415116787661fe2e47",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/real_demo.py",
+        "old": "263db34",
+        "new": "48bf3ce",
+        "remote": "48bf3ce9e1dc40c89f4ed482c3268039760b3d2f",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/url_diagnosis.py",
+        "old": "0000000",
+        "new": "41a526b",
+        "remote": "41a526b0a8edb37c095b0db4bf2012184c42ebbd",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/website_demo.py",
+        "old": "3cb7f7d",
+        "new": "04a4ab3",
+        "remote": "04a4ab3de10b1b1c8e55e45f75425623276f1d3c",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/application/live/test_business_url_diagnosis.py",
+        "old": "0000000",
+        "new": "7b14437",
+        "remote": "1e6a87f0320ae2c97823a32c831ec692e73c5ac6",
+        "status": "different",
+        "diff_lines": 111
+      },
+      {
+        "path": "tests/unit/application/live/test_website_intelligence.py",
+        "old": "ab87e0e",
+        "new": "44b7619",
+        "remote": "44b7619315a13ae8d35de4a7ef86978f4dee0035",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/home.html",
+        "old": "9bfebbd",
+        "new": "349b0e6",
+        "remote": "349b0e6fb1e9229f569d40431e26c8bff8cbb6f1",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/service-areas.html",
+        "old": "3eb7b69",
+        "new": "e77f72a",
+        "remote": "e77f72a7fea1e10e527576918527b813d3640a71",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/services.html",
+        "old": "a802f2f",
+        "new": "4787d56",
+        "remote": "4787d567286891bc8f30211067bfa8c303ed6330",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_business_profile.py",
+        "old": "0189cae",
+        "new": "e16257a",
+        "remote": "9141e6b9abcd13d94ec8f1e811944853b2f9b574",
+        "status": "different",
+        "diff_lines": 268
+      },
+      {
+        "path": "tests/unit/live/test_overpass.py",
+        "old": "1a99415",
+        "new": "956c944",
+        "remote": "956c944bcb5381133bf3d27ae1e988c51b436a7f",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_playwright_dom_capture.py",
+        "old": "0000000",
+        "new": "241bc8d",
+        "remote": "241bc8dfbbd0c80937d2ae0e73c297ccc8e2574c",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_profile_market_verticals.py",
+        "old": "0000000",
+        "new": "62f71cd",
+        "remote": "62f71cd3d402b15bffc8b83dd807511c6c279bd7",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_website_inspector.py",
+        "old": "54f2a7a",
+        "new": "919e4ed",
+        "remote": "d15592e9f836e8daa369bda92b3915c1c58772ad",
+        "status": "different",
+        "diff_lines": 28
+      }
+    ]
+  },
+  {
+    "patch": "aeos-003c-followup.patch",
+    "rows": [
+      {
+        "path": "pyproject.toml",
+        "old": "24af16a",
+        "new": "2891571",
+        "remote": "289157114fbc5eb6d6cb84d3702583a84243aed0",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/business_report.py",
+        "old": "8725abd",
+        "new": "42af872",
+        "remote": "addd4e7ed3bdf9f445b34328264e0bbffb73019b",
+        "status": "different",
+        "diff_lines": 325
+      },
+      {
+        "path": "src/aeos/application/live/resolve_business_locations.py",
+        "old": "905acca",
+        "new": "d6bdd73",
+        "remote": "d6bdd73b3c268ddb2b9f43c686e57eee5181ec36",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/website_report.py",
+        "old": "ae22de1",
+        "new": "410e2df",
+        "remote": "2a56094fcbdb9be7ea5303af576774ac9646acc7",
+        "status": "different",
+        "diff_lines": 13
+      },
+      {
+        "path": "src/aeos/live/adapters/overpass.py",
+        "old": "4d3eaa5",
+        "new": "a36e0e9",
+        "remote": "70619dca6853a6dfbba2e3335eb07ab6a3a4040b",
+        "status": "different",
+        "diff_lines": 11
+      },
+      {
+        "path": "src/aeos/live/adapters/website_inspector.py",
+        "old": "4771837",
+        "new": "b4db3bc",
+        "remote": "e911cd31c5a587cd36e24a256558688ec22b0586",
+        "status": "different",
+        "diff_lines": 62
+      },
+      {
+        "path": "src/aeos/live/domain/location_candidate.py",
+        "old": "24f018f",
+        "new": "b251cb8",
+        "remote": "b251cb89456b5f4519c808be45c661e904cf6949",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/profile.py",
+        "old": "1f8b901",
+        "new": "841fcda",
+        "remote": "841fcda80e56a9db0497cb286e87c0d8ce703f33",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/url_policy.py",
+        "old": "14d515b",
+        "new": "3902325",
+        "remote": "3902325becf6f67f06dbae84e6cc8c95344a061c",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/website_inspection.py",
+        "old": "a474513",
+        "new": "0cfe74f",
+        "remote": "0cfe74f652375dd3b9b82f415116787661fe2e47",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/real_demo.py",
+        "old": "263db34",
+        "new": "15cc4e4",
+        "remote": "48bf3ce9e1dc40c89f4ed482c3268039760b3d2f",
+        "status": "different",
+        "diff_lines": 24
+      },
+      {
+        "path": "src/aeos/live/website_demo.py",
+        "old": "3cb7f7d",
+        "new": "04a4ab3",
+        "remote": "04a4ab3de10b1b1c8e55e45f75425623276f1d3c",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/application/live/test_website_intelligence.py",
+        "old": "ab87e0e",
+        "new": "44b7619",
+        "remote": "44b7619315a13ae8d35de4a7ef86978f4dee0035",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/home.html",
+        "old": "9bfebbd",
+        "new": "349b0e6",
+        "remote": "349b0e6fb1e9229f569d40431e26c8bff8cbb6f1",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/service-areas.html",
+        "old": "3eb7b69",
+        "new": "e77f72a",
+        "remote": "e77f72a7fea1e10e527576918527b813d3640a71",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/services.html",
+        "old": "a802f2f",
+        "new": "4787d56",
+        "remote": "4787d567286891bc8f30211067bfa8c303ed6330",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_business_profile.py",
+        "old": "0189cae",
+        "new": "74557a2",
+        "remote": "9141e6b9abcd13d94ec8f1e811944853b2f9b574",
+        "status": "different",
+        "diff_lines": 327
+      },
+      {
+        "path": "tests/unit/live/test_overpass.py",
+        "old": "1a99415",
+        "new": "956c944",
+        "remote": "956c944bcb5381133bf3d27ae1e988c51b436a7f",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_website_inspector.py",
+        "old": "54f2a7a",
+        "new": "4c932a7",
+        "remote": "d15592e9f836e8daa369bda92b3915c1c58772ad",
+        "status": "different",
+        "diff_lines": 37
+      }
+    ]
+  },
+  {
+    "patch": "aeos-003c-local(1).patch",
+    "rows": [
+      {
+        "path": "pyproject.toml",
+        "old": "24af16a",
+        "new": "2891571",
+        "remote": "289157114fbc5eb6d6cb84d3702583a84243aed0",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/business_report.py",
+        "old": "8725abd",
+        "new": "42af872",
+        "remote": "addd4e7ed3bdf9f445b34328264e0bbffb73019b",
+        "status": "different",
+        "diff_lines": 325
+      },
+      {
+        "path": "src/aeos/application/live/resolve_business_locations.py",
+        "old": "905acca",
+        "new": "d6bdd73",
+        "remote": "d6bdd73b3c268ddb2b9f43c686e57eee5181ec36",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/website_report.py",
+        "old": "ae22de1",
+        "new": "410e2df",
+        "remote": "2a56094fcbdb9be7ea5303af576774ac9646acc7",
+        "status": "different",
+        "diff_lines": 13
+      },
+      {
+        "path": "src/aeos/live/adapters/overpass.py",
+        "old": "4d3eaa5",
+        "new": "a36e0e9",
+        "remote": "70619dca6853a6dfbba2e3335eb07ab6a3a4040b",
+        "status": "different",
+        "diff_lines": 11
+      },
+      {
+        "path": "src/aeos/live/adapters/website_inspector.py",
+        "old": "4771837",
+        "new": "fd0b3c8",
+        "remote": "e911cd31c5a587cd36e24a256558688ec22b0586",
+        "status": "different",
+        "diff_lines": 74
+      },
+      {
+        "path": "src/aeos/live/domain/location_candidate.py",
+        "old": "24f018f",
+        "new": "b251cb8",
+        "remote": "b251cb89456b5f4519c808be45c661e904cf6949",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/profile.py",
+        "old": "1f8b901",
+        "new": "841fcda",
+        "remote": "841fcda80e56a9db0497cb286e87c0d8ce703f33",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/url_policy.py",
+        "old": "14d515b",
+        "new": "3902325",
+        "remote": "3902325becf6f67f06dbae84e6cc8c95344a061c",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/website_inspection.py",
+        "old": "a474513",
+        "new": "0cfe74f",
+        "remote": "0cfe74f652375dd3b9b82f415116787661fe2e47",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/opportunity_inbox_pilot.py",
+        "old": "95d40e3",
+        "new": "348cea9",
+        "remote": "f09a9c4b21faca5e53f20abb337e78026f419548",
+        "status": "different",
+        "diff_lines": 23
+      },
+      {
+        "path": "src/aeos/live/real_demo.py",
+        "old": "263db34",
+        "new": "15cc4e4",
+        "remote": "48bf3ce9e1dc40c89f4ed482c3268039760b3d2f",
+        "status": "different",
+        "diff_lines": 24
+      },
+      {
+        "path": "src/aeos/live/website_demo.py",
+        "old": "3cb7f7d",
+        "new": "04a4ab3",
+        "remote": "04a4ab3de10b1b1c8e55e45f75425623276f1d3c",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/application/live/test_website_intelligence.py",
+        "old": "ab87e0e",
+        "new": "44b7619",
+        "remote": "44b7619315a13ae8d35de4a7ef86978f4dee0035",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/home.html",
+        "old": "9bfebbd",
+        "new": "349b0e6",
+        "remote": "349b0e6fb1e9229f569d40431e26c8bff8cbb6f1",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/service-areas.html",
+        "old": "3eb7b69",
+        "new": "e77f72a",
+        "remote": "e77f72a7fea1e10e527576918527b813d3640a71",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/fixtures/website/services.html",
+        "old": "a802f2f",
+        "new": "4787d56",
+        "remote": "4787d567286891bc8f30211067bfa8c303ed6330",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_business_profile.py",
+        "old": "0189cae",
+        "new": "74557a2",
+        "remote": "9141e6b9abcd13d94ec8f1e811944853b2f9b574",
+        "status": "different",
+        "diff_lines": 327
+      },
+      {
+        "path": "tests/unit/live/test_overpass.py",
+        "old": "1a99415",
+        "new": "956c944",
+        "remote": "956c944bcb5381133bf3d27ae1e988c51b436a7f",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_website_inspector.py",
+        "old": "54f2a7a",
+        "new": "4c932a7",
+        "remote": "d15592e9f836e8daa369bda92b3915c1c58772ad",
+        "status": "different",
+        "diff_lines": 37
+      }
+    ]
+  },
+  {
+    "patch": "aeos-followup-review-fixes.patch",
+    "rows": [
+      {
+        "path": "docs/runbooks/business-url-diagnosis-and-manual-request-capture.md",
+        "old": "2feed6f",
+        "new": "06cb308",
+        "remote": "06cb3083dd3a45bd2e0c280c3653539967877aaf",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/business_report.py",
+        "old": "7a904d1",
+        "new": "addd4e7",
+        "remote": "addd4e7ed3bdf9f445b34328264e0bbffb73019b",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/adapters/overpass.py",
+        "old": "a36e0e9",
+        "new": "70619dc",
+        "remote": "70619dca6853a6dfbba2e3335eb07ab6a3a4040b",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_business_profile.py",
+        "old": "e16257a",
+        "new": "54970d2",
+        "remote": "9141e6b9abcd13d94ec8f1e811944853b2f9b574",
+        "status": "different",
+        "reconstruction": "base unavailable"
+      }
+    ]
+  },
+  {
+    "patch": "aeos-followup-test-status-fix.patch",
+    "rows": [
+      {
+        "path": "tests/unit/live/test_business_profile.py",
+        "old": "54970d2",
+        "new": "20ff7f3",
+        "remote": "9141e6b9abcd13d94ec8f1e811944853b2f9b574",
+        "status": "different",
+        "reconstruction": "base unavailable"
+      }
+    ]
+  },
+  {
+    "patch": "aeos-main-source-tests(1).patch",
+    "rows": [
+      {
+        "path": "src/aeos/application/live/__init__.py",
+        "old": "7f659f3",
+        "new": "861c065",
+        "remote": "861c065e42abc9a4549e61e0f507b241e59c8693",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/business_report.py",
+        "old": "0000000",
+        "new": "e45d20d",
+        "remote": "addd4e7ed3bdf9f445b34328264e0bbffb73019b",
+        "status": "different",
+        "diff_lines": 819
+      },
+      {
+        "path": "src/aeos/application/live/inspect_business_website.py",
+        "old": "0000000",
+        "new": "4aaf2ed",
+        "remote": "4aaf2ed0892be9e603c1c57417cc6a05f258cfbc",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/market_intelligence.py",
+        "old": "0000000",
+        "new": "a52ae79",
+        "remote": "5645243f992e97208807eeebc83d1c53578410da",
+        "status": "different",
+        "diff_lines": 416
+      },
+      {
+        "path": "src/aeos/application/live/opportunity_activation.py",
+        "old": "0000000",
+        "new": "e4be739",
+        "remote": "d2f5e7fc6baa8c4360878fb6bba8c90f31ce33d4",
+        "status": "different",
+        "diff_lines": 459
+      },
+      {
+        "path": "src/aeos/application/live/opportunity_inbox.py",
+        "old": "0000000",
+        "new": "0fe18e1",
+        "remote": "21655fc2110f62a27bf76b41cbb94808b12002ba",
+        "status": "different",
+        "diff_lines": 224
+      },
+      {
+        "path": "src/aeos/application/live/profile_assessment.py",
+        "old": "0000000",
+        "new": "5846684",
+        "remote": "58466847c5fafa36483e895719c97d041fbdb81a",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/application/live/resolve_business_locations.py",
+        "old": "0000000",
+        "new": "905acca",
+        "remote": "d6bdd73b3c268ddb2b9f43c686e57eee5181ec36",
+        "status": "different",
+        "diff_lines": 23
+      },
+      {
+        "path": "src/aeos/application/live/website_report.py",
+        "old": "0000000",
+        "new": "caea1d8",
+        "remote": "2a56094fcbdb9be7ea5303af576774ac9646acc7",
+        "status": "different",
+        "diff_lines": 292
+      },
+      {
+        "path": "src/aeos/application/ports/persistence.py",
+        "old": "f6973cb",
+        "new": "4d4f0bc",
+        "remote": "4d4f0bcc4ecce5406f8974fbbac7d32f759c7e21",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/infrastructure/artifacts/__init__.py",
+        "old": "7c226a7",
+        "new": "a836093",
+        "remote": "a8360935175861aabf122ac0c0e7a3a34a5514f2",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/infrastructure/artifacts/local.py",
+        "old": "a0b80f2",
+        "new": "f6f53ab",
+        "remote": "f6f53ab932b313ec4ac88920fd396d669efa2e1d",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/infrastructure/persistence/repositories.py",
+        "old": "f4ff30e",
+        "new": "6497266",
+        "remote": "6497266311138e85f604961230b5c1245cccd909",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/infrastructure/persistence/schema.py",
+        "old": "abd6d87",
+        "new": "25d9efb",
+        "remote": "25d9efb14aabca9e391ae7a5fa7226e132fda27c",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/infrastructure/persistence/uow.py",
+        "old": "2e80f25",
+        "new": "2d4f4c9",
+        "remote": "2d4f4c933ebf61454b719611b4afb10043166a5f",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/activation_pilot.py",
+        "old": "0000000",
+        "new": "3fdee57",
+        "remote": "e07f429c70c4d241ed6c1c8a2261ef9619777c0f",
+        "status": "different",
+        "diff_lines": 378
+      },
+      {
+        "path": "src/aeos/live/adapters/__init__.py",
+        "old": "0000000",
+        "new": "4a12099",
+        "remote": "4a120995a1488a89dc24c6a57b7b89c3556d2379",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/adapters/market_research.py",
+        "old": "0000000",
+        "new": "03f1cfc",
+        "remote": "06a33315bb1e61ad55d4875bddbdf4d376ad6c85",
+        "status": "different",
+        "diff_lines": 142
+      },
+      {
+        "path": "src/aeos/live/adapters/opportunity_inbox.py",
+        "old": "0000000",
+        "new": "e078fe5",
+        "remote": "0bc2d8948dcea84a8096be54d034d88807fd7062",
+        "status": "different",
+        "diff_lines": 137
+      },
+      {
+        "path": "src/aeos/live/adapters/opportunity_pipeline.py",
+        "old": "0000000",
+        "new": "c18d246",
+        "remote": "c18d2464aff82e3d3b993ceb32c244c0b7329b52",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/adapters/overpass.py",
+        "old": "0000000",
+        "new": "4d3eaa5",
+        "remote": "70619dca6853a6dfbba2e3335eb07ab6a3a4040b",
+        "status": "different",
+        "diff_lines": 301
+      },
+      {
+        "path": "src/aeos/live/adapters/prospect_research.py",
+        "old": "0000000",
+        "new": "c8d6168",
+        "remote": "d0646e7328e5a32731498ee2c4cba78275d393ef",
+        "status": "different",
+        "diff_lines": 81
+      },
+      {
+        "path": "src/aeos/live/adapters/website_inspector.py",
+        "old": "0000000",
+        "new": "5300e9c",
+        "remote": "e911cd31c5a587cd36e24a256558688ec22b0586",
+        "status": "different",
+        "diff_lines": 1397
+      },
+      {
+        "path": "src/aeos/live/domain/__init__.py",
+        "old": "f77df36",
+        "new": "c0c6107",
+        "remote": "d6c8e3ece0d8fa241e6875a01c244037b984770b",
+        "status": "different",
+        "diff_lines": 22
+      },
+      {
+        "path": "src/aeos/live/domain/location_candidate.py",
+        "old": "0000000",
+        "new": "24f018f",
+        "remote": "b251cb89456b5f4519c808be45c661e904cf6949",
+        "status": "different",
+        "diff_lines": 11
+      },
+      {
+        "path": "src/aeos/live/domain/market_intelligence.py",
+        "old": "0000000",
+        "new": "2f6e299",
+        "remote": "c6b96b7621213d5ed3e2380b6a27fd2a88e4e6f9",
+        "status": "different",
+        "diff_lines": 277
+      },
+      {
+        "path": "src/aeos/live/domain/market_scope.py",
+        "old": "0000000",
+        "new": "eab9ceb",
+        "remote": "eab9cebcd278ce9a70e1ba2a4e9eb00f29c40b2c",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/opportunity_activation.py",
+        "old": "0000000",
+        "new": "4ef75fa",
+        "remote": "eebd0330168028c9b327dbeb7c57989968b2e3b5",
+        "status": "different",
+        "diff_lines": 19
+      },
+      {
+        "path": "src/aeos/live/domain/opportunity_inbox.py",
+        "old": "0000000",
+        "new": "906a073",
+        "remote": "62f77b1ccb00854f67a617af3d58be833710da5e",
+        "status": "different",
+        "diff_lines": 865
+      },
+      {
+        "path": "src/aeos/live/domain/profile.py",
+        "old": "0000000",
+        "new": "a6730be",
+        "remote": "841fcda80e56a9db0497cb286e87c0d8ce703f33",
+        "status": "different",
+        "diff_lines": 220
+      },
+      {
+        "path": "src/aeos/live/domain/vertical.py",
+        "old": "3006bc9",
+        "new": "ce263cf",
+        "remote": "23956fb710eaa98445a3ad7cb88068fd96b0c0d5",
+        "status": "different",
+        "diff_lines": 326
+      },
+      {
+        "path": "src/aeos/live/domain/website_inspection.py",
+        "old": "0000000",
+        "new": "a474513",
+        "remote": "0cfe74f652375dd3b9b82f415116787661fe2e47",
+        "status": "different",
+        "diff_lines": 114
+      },
+      {
+        "path": "src/aeos/live/market_pilot.py",
+        "old": "0000000",
+        "new": "36f94cb",
+        "remote": "36f94cb208f79395946102710cc45d45a4fa7590",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/opportunity_inbox_pilot.py",
+        "old": "0000000",
+        "new": "4c029ba",
+        "remote": "f09a9c4b21faca5e53f20abb337e78026f419548",
+        "status": "different",
+        "diff_lines": 110
+      },
+      {
+        "path": "src/aeos/live/ports/website.py",
+        "old": "95ee094",
+        "new": "36cf3b6",
+        "remote": "36cf3b6d6009b58e05489faffdd3f6faf703a8db",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/real_demo.py",
+        "old": "0000000",
+        "new": "4283750",
+        "remote": "48bf3ce9e1dc40c89f4ed482c3268039760b3d2f",
+        "status": "different",
+        "diff_lines": 448
+      },
+      {
+        "path": "src/aeos/live/real_lead_pilot.py",
+        "old": "0000000",
+        "new": "c20e954",
+        "remote": "a9f65429c95bdcc3badaba378613f93cde28a070",
+        "status": "different",
+        "diff_lines": 422
+      },
+      {
+        "path": "src/aeos/live/website_demo.py",
+        "old": "0000000",
+        "new": "3cb7f7d",
+        "remote": "04a4ab3de10b1b1c8e55e45f75425623276f1d3c",
+        "status": "different",
+        "diff_lines": 106
+      },
+      {
+        "path": "tests/integration/live/test_opportunity_inbox.py",
+        "old": "0000000",
+        "new": "5aa8b9f",
+        "remote": "33397e6317f2b34ccecf3c2b1f04996dff637afb",
+        "status": "different",
+        "diff_lines": 100
+      },
+      {
+        "path": "tests/integration/persistence/test_postgresql_round_trips.py",
+        "old": "9003187",
+        "new": "874eb2c",
+        "remote": "e47d5a2fbf066b13b0da650135802346769bf831",
+        "status": "different",
+        "diff_lines": 127
+      },
+      {
+        "path": "tests/unit/application/live/test_assess_business.py",
+        "old": "3b38412",
+        "new": "027e8df",
+        "remote": "027e8df6dbf5ba5ba6cb43618f45f86233d476d5",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/application/live/test_opportunity_activation.py",
+        "old": "0000000",
+        "new": "66d8b1d",
+        "remote": "280aab26867e657488b0bbbf7551c5606b4dcd2d",
+        "status": "different",
+        "diff_lines": 469
+      },
+      {
+        "path": "tests/unit/application/live/test_opportunity_inbox.py",
+        "old": "0000000",
+        "new": "371ea43",
+        "remote": "04473095c98e3488a9ce8888f7a9a4e03a940684",
+        "status": "different",
+        "diff_lines": 1335
+      },
+      {
+        "path": "tests/unit/application/live/test_website_intelligence.py",
+        "old": "0000000",
+        "new": "2a5f799",
+        "remote": "44b7619315a13ae8d35de4a7ef86978f4dee0035",
+        "status": "different",
+        "diff_lines": 161
+      },
+      {
+        "path": "tests/unit/live/test_business_profile.py",
+        "old": "0000000",
+        "new": "01dc67d",
+        "remote": "9141e6b9abcd13d94ec8f1e811944853b2f9b574",
+        "status": "different",
+        "diff_lines": 505
+      },
+      {
+        "path": "tests/unit/live/test_market_intelligence.py",
+        "old": "0000000",
+        "new": "40b2967",
+        "remote": "6b93ed07230329d4eeb1fe48ab72c1c36a6b5640",
+        "status": "different",
+        "diff_lines": 251
+      },
+      {
+        "path": "tests/unit/live/test_overpass.py",
+        "old": "0000000",
+        "new": "1a99415",
+        "remote": "956c944bcb5381133bf3d27ae1e988c51b436a7f",
+        "status": "different",
+        "diff_lines": 66
+      },
+      {
+        "path": "tests/unit/live/test_real_demo_website_cli.py",
+        "old": "0000000",
+        "new": "b8db334",
+        "remote": "b8db334e68e17633c65d498fd03857470e75f4c1",
+        "status": "exact"
+      },
+      {
+        "path": "tests/unit/live/test_real_lead_pilot.py",
+        "old": "0000000",
+        "new": "1eceb9f",
+        "remote": "d8de439cff4cbc4f885947f5bce2fb923a79c393",
+        "status": "different",
+        "diff_lines": 286
+      },
+      {
+        "path": "tests/unit/live/test_website_inspector.py",
+        "old": "0000000",
+        "new": "4cacd47",
+        "remote": "d15592e9f836e8daa369bda92b3915c1c58772ad",
+        "status": "different",
+        "diff_lines": 646
+      }
+    ]
+  },
+  {
+    "patch": "aeos-main-vs-003c-core(1).patch",
+    "rows": [
+      {
+        "path": "src/aeos/application/live/opportunity_inbox.py",
+        "old": "1c11c52",
+        "new": "21655fc",
+        "remote": "21655fc2110f62a27bf76b41cbb94808b12002ba",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/domain/opportunity_inbox.py",
+        "old": "a2f30d3",
+        "new": "62f77b1",
+        "remote": "62f77b1ccb00854f67a617af3d58be833710da5e",
+        "status": "exact"
+      },
+      {
+        "path": "src/aeos/live/real_lead_pilot.py",
+        "old": "5658c26",
+        "new": "2555b33",
+        "remote": "a9f65429c95bdcc3badaba378613f93cde28a070",
+        "status": "different",
+        "reconstruction": "base unavailable"
+      }
+    ]
+  }
+]
