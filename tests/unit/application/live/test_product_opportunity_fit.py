@@ -118,7 +118,9 @@ class ProductOpportunityFitTests(unittest.TestCase):
         self.assertEqual(result.classification, LeadClassification.COLD)
 
     def test_catalog_match_does_not_override_geography(self) -> None:
-        other_market = replace(profile(), owner_confirmed_service_areas=("Cusco, Cusco",))
+        other_market = replace(
+            profile(), owner_confirmed_service_areas=("Cusco, Cusco",)
+        )
         result = score_opportunity_preview(
             request(), as_of=AS_OF, organization_profile=other_market
         )
@@ -134,7 +136,9 @@ class ProductOpportunityFitTests(unittest.TestCase):
         result = classify_opportunity(
             request(), as_of=AS_OF, organization_profile=profile()
         )
-        self.assertEqual(result.classification, LeadClassification.INSUFFICIENT_EVIDENCE)
+        self.assertEqual(
+            result.classification, LeadClassification.INSUFFICIENT_EVIDENCE
+        )
 
     def test_existing_service_match_is_preserved(self) -> None:
         result = score_opportunity_preview(
