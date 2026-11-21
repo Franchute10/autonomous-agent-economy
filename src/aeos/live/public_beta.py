@@ -520,8 +520,8 @@ def _confirmed_copy(title: str, sources: list[PublicSource]) -> dict[str, object
             "en": "Compare the linked pages and write distinct metadata only when their content supports it.",
         }
         prompt = {
-            "es": f"Haz únicos los títulos o descripciones repetidos de estas páginas: {url_list}. Ajusta cada uno al contenido real; no inventes datos.",
-            "en": f"Make the repeated titles or descriptions unique on these pages: {url_list}. Match each to its actual content; do not invent claims.",
+            "es": f"Compara el contenido de estas URLs con títulos o descripciones repetidos: {url_list}. Comprueba si son páginas diferentes o variantes de una misma página. Redacta metadatos distintos solo cuando su contenido lo justifique; no inventes datos ni elimines parámetros sin verificar su función.",
+            "en": f"Compare the content of these URLs with repeated titles or descriptions: {url_list}. Check whether they are different pages or variants of the same page. Write distinct metadata only when their content supports it; do not invent claims or remove parameters without verifying their purpose.",
         }
         why = {
             "es": "Los metadatos únicos pueden distinguir páginas diferentes; la repetición no demuestra pérdida de posiciones.",
