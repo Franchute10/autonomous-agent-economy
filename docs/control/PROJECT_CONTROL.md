@@ -21,7 +21,7 @@ El capital conceptual de la tesis no autoriza gasto: presupuesto incremental act
 No abrir otra ronda general de ordenamiento. Corregir documentación únicamente cuando una contradicción afecte a la tarea activa. La revisión de 34 diferencias está completada; no equivale a reconciliar todo el equipo del operador.
 
 ## Decisiones de dirección — 2026-11-21
-- Astra revisa y planifica en esta entrega; Luna ejecutará después con criterios verificables.
+- El propietario amplió el encargo: Astra también ejecuta correcciones y experimentos acotados. El modelo disponible continúa desde el handoff; ver ASTRA_EXECUTION_2026-11-21.md y PR #42.
 - Priorizar evidencia de valor antes de ampliar arquitectura, fuentes o pagos.
 - Conservar AEOS Core separado del motor; integración por contrato acotado.
 - La experiencia objetivo comienza con una URL; pedir oferta/mercado solo si faltan o son ambiguos.
