@@ -20,8 +20,8 @@ No invertir catorce días de búsquedas a ciegas: comenzar con una exploración 
 Las tarjetas 003–005 son condicionales. Para habilitarlas, enlazar evidencia de salida de la anterior y crear una subtask concreta en #38 antes de editar. No habilitar producción, pagos reales ni contacto automático por inferencia.
 
 ## LUNA-001 — Diagnóstico de productos y servicios con acceso real
-**Registro:** AEOS #38. **Estado:** siguiente tarea.
-**Base:** AEOS codex/aeos-live-003c; última integración revisada f5cf0c642e36f7a493a48908164c5aba0798dc99. Resolver SHA actual; si cambió, revisar diferencia pertinente.
+**Registro:** AEOS #38. **Estado:** completada a nivel de servicio/HTML acotado el 2026-11-21. Dos sitios reales leídos; corrección #45 integrada; CI 953 passed / 12 skipped. Evidencia y límites en [bitácora](ASTRA_EXECUTION_2026-11-21.md). No acredita DOM, ingesta Google Business, UI ni ventas. Siguiente tarjeta: LUNA-002.
+**Base:** AEOS codex/aeos-live-003c; última integración revisada de2d211bc22cbbbe72b615e7434e649feca1b730. Resolver SHA actual; si cambió, revisar diferencia pertinente.
 **Leer:** AGENTS.md, PROJECT_HANDBOOK.md, docs/runbooks/aeos-public-beta.md; src/aeos/live/public_beta.py; src/aeos/live/adapters/website_inspector.py; tests/unit/application/live/test_multisector_product_entry.py; tests/integration/live/test_public_beta_web.py.
 
 **Ejecutar:**
@@ -88,7 +88,7 @@ Cargos reales/despliegue Live requieren decisión específica posterior. Agensi/
 
 ## Estimación y disciplina de continuidad
 No hay base para prometer que todo esté listo en 2–3 semanas. Esa ventana puede ser una meta de piloto condicionada a 001/002; estimar calendario después de medir acceso, rendimiento de fuente y tamaño real de integración.
-Primer bloque de Luna: resolver 001 o documentar su bloqueo en una sesión acotada. Segundo bloque: exploración y decisión inicial de fuente; no convertirlo en un nuevo proyecto de semanas antes de mirar originales.
+Corte 2026-11-21: 001 se ejecutó desde GitHub Actions; siguiente bloque del modelo disponible: LUNA-002, fichas concretas y evaluación comparable de fuentes. No convertirlo en otro proyecto de semanas antes de mirar originales.
 Antes de pausar o cerrar cada bloque, guardar en el issue: ID/estado, base y head, PR, pruebas realmente ejecutadas, resultado real o fixture, límites, decisión y siguiente paso. Si cambia la siguiente tarea, actualizar NEXT_SESSION_HANDOFF.md.
 No depender de detectar que el chat está por llenarse: cada bloque deja checkpoint. Conservar historial de decisiones fechado; no duplicar conversaciones completas ni crear múltiples documentos llamados estado actual.
 
