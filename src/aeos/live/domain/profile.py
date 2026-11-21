@@ -292,7 +292,10 @@ class BusinessProfile:
                 field,
                 optional=field not in {"primary_services", "target_customer_segments"}
                 or unknown_status,
-                require_value=field in {"primary_services", "target_customer_segments"}
+                require_value=(
+                    field == "target_customer_segments"
+                    or (field == "primary_services" and not self.products)
+                )
                 and not unknown_status,
             )
             values = getattr(self, field)
