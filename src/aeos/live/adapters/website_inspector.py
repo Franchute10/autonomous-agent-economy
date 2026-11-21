@@ -1611,6 +1611,19 @@ class WebsiteInspector:
             if score > 0 and robot_parser.can_fetch(USER_AGENT, candidate):
                 candidates[candidate] = max(score, candidates.get(candidate, 0))
         ordered = sorted(candidates, key=lambda item: (-candidates[item], item))
+        # Spend the small crawl budget on distinct routes before query variants.
+        # Keep every original URL: a query can identify a different product.
+        seen_paths = {urlsplit(final_url).path or "/"}
+        distinct_routes: list[str] = []
+        query_variants: list[str] = []
+        for candidate in ordered:
+            path = urlsplit(candidate).path or "/"
+            if path in seen_paths:
+                query_variants.append(candidate)
+            else:
+                seen_paths.add(path)
+                distinct_routes.append(candidate)
+        ordered = distinct_routes + query_variants
         for page_url in ordered[: self.max_pages - 1]:
             try:
                 response = self._fetch(page_url, root_host)
