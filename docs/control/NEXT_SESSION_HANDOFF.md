@@ -39,16 +39,18 @@ La prueba real usa runner estándar del repo público, URLs fijas, sin secretos/
 
 ## Siguiente acción única — LUNA-002 / LEADS-VAL-001
 Registro: [commercial-lead-engine #4](https://github.com/Franchute10/commercial-lead-engine/issues/4).
-**Objetivo:** decidir si una fuente produce solicitudes pertinentes para un negocio real antes de integrar otra API o vender un paquete.
+**Objetivo:** identificar una fuente permitida que entregue solicitudes pertinentes por perfil, antes de integrar una API o empaquetar datos.
 
-1. Recuperar de la evidencia existente tres fichas: un negocio de productos y dos de servicios. Fijar oferta, capacidad confirmada, zona, idioma, ventana y exclusiones. Solicitar únicamente datos imprescindibles ausentes; no inventarlos.
-2. Congelar fuente/consultas/límite antes de la corrida. Los seis casos documentales previos no equivalen a tres corridas comparables ni a leads para esos negocios.
-3. Revisar originales y registrar necesidad, fecha/estado, ajuste, vía legítima de respuesta y descartes. Separar candidatos documentales de oportunidades útiles confirmadas.
-4. Si una cuota de API no puede acreditarse gratuita, continuar evaluación manual acotada y marcar automatización bloqueada; no gastar ni contratar.
-5. Preparar muestra privada para valoración del dueño solo con candidatos elegibles. Sin oportunidades suficientes, registrar cero y cambiar fuente/segmento tras el límite del experimento. No sustituir solicitudes por directorios.
-6. Actualizar Motor #4, bitácora y este archivo con resultado y siguiente paso.
+Estado 2026-11-21: ASTRA-SOURCE-002 revisó una muestra manual. GOREMAD/DRTC devolvieron solicitudes vencidas, fuera de zona o de especialidad; no hay candidato elegible. Workana mostró intención en servicios, pero sus términos limitan la extracción/minería (incluidos procesos manuales y automáticos) y prohíben revender el contenido. Se excluye del feed AEOS sin permiso escrito. Ver bitácora ASTRA-SOURCE-002.
 
-LUNA-003/004/005 siguen condicionadas a la utilidad demostrada. LUNA-001 no necesita repetirse por cambiar de chat o modelo. No abrir otra ronda general de documentación.
+1. Para Mega Cerámicos, AC Moreno y Lumen, fijar solo ofertas, capacidades y zonas sustentadas por evidencia del dueño o sitio. Si falta una condición decisiva, déjala como desconocida.
+2. Para cada perfil, hallar una fuente primaria que permita el uso comercial previsto y guardar enlace a sus términos/licencia; confirmar método de acceso/coste antes de buscar.
+3. Congelar fuente, consultas, territorio, ventana de fechas, límites y exclusiones. Revisar origen, fecha, estado, requisitos, alcance y vía legítima de respuesta. No confundir empleo, partner, directorio o proveedor con una compra del servicio.
+4. Si no puede acreditarse que el acceso está autorizado y cuesta USD 0, mantener la automatización BLOCKED y evaluar manualmente solo lo permitido. No pagar ni contactar.
+5. Registrar denominadores y descartes anonimizados. Pedir juicio de utilidad solo sobre candidatos elegibles; mantener cero cuando no haya.
+6. Actualizar Motor #4, bitácora y este handoff antes de cerrar el bloque.
+
+LUNA-003/004/005 siguen condicionadas a utilidad demostrada. LUNA-001 no necesita repetirse por cambiar de chat o modelo. No abrir otra ronda general de documentación.
 
 ## Continuidad obligatoria
 Cada bloque deja ID/estado, fecha, repo/rama/base/head, PR, pruebas y denominadores, evidencia real o sintética, límites, decisión y siguiente acción.

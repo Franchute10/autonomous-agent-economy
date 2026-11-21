@@ -61,6 +61,11 @@ Todo campo desconocido queda desconocido; solo lo que cumpla el contrato puede f
 **Cierre:** matriz por perfil/fuente con evidencia resumida y decisión CONTINUAR / CAMBIAR FUENTE / PAUSAR. No publicar los journals ni datos personales. Ninguna búsqueda/contacto automático adicional.
 **Regresión pendiente:** conservar pruebas de envejecimiento y evidencia real observada bajo los contratos actuales; no copiar fixtures antiguos ni tratar tests sintéticos como cobertura comercial.
 
+### Actualización ASTRA-SOURCE-002 — 2026-11-21
+Consulta manual, no ejecución de Tavily: en tres perfiles se hallaron solicitudes públicas, pero ninguna pudo calificarse como oportunidad actual y útil. Para materiales, una solicitud de 8,000 ladrillos en Madre de Dios ya figuraba declarada nula y fuera de zona. Para transporte, una solicitud de traslado de maquinaria en Apurímac cerró el 17/11; el TDR exacto no fue verificado. Para Lumen, una solicitud vigente de modelación estructural no corresponde a consultoría comercial.
+Workana devolvió proyectos de servicios explícitos, pero los términos oficiales limitan la extracción/minería y la reventa de su contenido; queda EXCLUIDA del feed AEOS salvo permiso escrito. No se guardan publicaciones individuales. Ver [bitácora ASTRA-SOURCE-002](ASTRA_EXECUTION_2026-11-21.md).
+Decisión: LUNA-002 sigue IN_PROGRESS. Próximo incremento: fuente primaria permitida por perfil, estado/fecha verificables y coste USD 0; sin contacto ni integración hasta acreditar utilidad. Esta muestra no mide cobertura del mercado.
+
 ## LUNA-003 — Conectar únicamente el recorrido que pasó la evaluación
 **Precondición:** 001 funcional y 002 con segmento/fuente viable. Abrir subtask bajo AEOS #38 y revisar el contrato antes de implementarlo.
 **Diseño propuesto:** mantener dos repositorios; una interfaz de aplicación intercambia perfil confirmado y oportunidades con evidencia. No fusionar dominios ni crear un runtime general de agentes.

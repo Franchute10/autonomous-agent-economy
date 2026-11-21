@@ -35,6 +35,10 @@ No abrir otra ronda general de ordenamiento. Corregir documentación únicamente
 PR #42 y #45 integrados en LIVE (de2d211bc22cbbbe72b615e7434e649feca1b730). CI final: 953 passed / 12 skipped; lint, formato y tipos aprobados. Dos diagnósticos reales ejecutados desde GitHub Actions: un sitio de productos y otro de servicios, tres páginas cada uno. LUNA-001 completado a nivel de servicio con límites documentados; UI/DOM e ingesta autorizada de Google Business no acreditados. LUNA-002 es la siguiente tarjeta.
 La exploración documental de seis casos produjo cero oportunidades confirmadas útiles por un dueño; no es una corrida automatizada de leads. No habilita integración comercial ni cobro. [Bitácora de evidencia](ASTRA_EXECUTION_2026-11-21.md).
 
+## Fuente y reutilización de solicitudes — 2026-11-21
+ASTRA-SOURCE-002 no encontró oportunidad elegible para los tres perfiles en la muestra manual de compras públicas. Workana queda fuera del feed AEOS: sus términos oficiales restringen la minería de datos y la redistribución/reventa de contenido. No alimentar paquetes pagos desde marketplaces sin licencia explícita.
+LUNA-002 permanece en curso y debe elegir una fuente primaria autorizada, perfil por perfil, con evidencia original vigente y coste incremental USD 0. No se contactó a nadie. Evidencia: [bitácora](ASTRA_EXECUTION_2026-11-21.md) y [Motor #4](https://github.com/Franchute10/commercial-lead-engine/issues/4).
+
 ## Fuente de verdad
 GitHub conserva tareas, decisiones, código y evidencia resumida. Un documento describe intención; el SHA y la prueba acreditan implementación; la revisión humana acredita utilidad; una transacción real acredita una compra.
 Main contiene el control canónico. LIVE contiene una línea candidata aún no integrada a main. Verificar ambos antes de editar; no confundir merge a LIVE con release.
