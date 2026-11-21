@@ -1,6 +1,6 @@
 # Bitácora Astra — ejecución y decisión de fuentes
 Fecha de revisión: 2026-11-21 (America/Lima).
-Estado: corrección focal integrada en LIVE con CI aprobado; exploración externa ejecutada; producto comercial aún no validado.
+Estado: soporte de productos integrado en LIVE; diagnóstico de dos sitios reales ejecutado; corrección de muestreo y prompt integrada en LIVE mediante PR #45; producto comercial aún no validado.
 Solicitud del propietario: aprovechar Astra también para ejecutar y eliminar bloqueos. Actualiza la separación anterior que reservaba toda implementación para Luna.
 
 ## 1. Resultado concreto de código — ASTRA-PRODUCT-003
@@ -89,12 +89,42 @@ Brechas que requieren tarjetas acotadas, no cambios masivos en esta entrega:
 La oferta inicial debe vender utilidad: qué solicitud existe, por qué encaja, qué falta confirmar y cómo responder legítimamente. No prometer exclusividad, compradores confirmados ni un número fijo de oportunidades ausentes.
 Medir minutos humanos por entrega. Gasto de API cero no implica negocio rentable. Precio menos costes y comisiones debe cubrir el trabajo necesario; fijar el paquete después del experimento.
 
-## 6. Próximo bloque ejecutable — RUNNER-001
-Objetivo: ejecutar LUNA-001 desde un entorno existente capaz. La validación e integración de PR #42 ya se completó; no volver a reconstruir chats.
-1. Verificar SHA de LIVE y las instrucciones; confirmar Python/dependencias, DNS y HTTPS.
-2. PR #44 ejecuta un smoke de dos URLs públicas fijas desde GitHub Actions estándar: sin secretos, API de pago, contactos, artefactos ni programación periódica. La prueba offline de PR #42 no necesita repetirse sin cambios.
-3. Ejecutar diagnóstico real de un sitio de productos y otro de servicios; distinguir errores de transporte y resultados del sitio. No sustituirlo por esta investigación web.
-4. Continuar LUNA-002 con un perfil real y la ruta adecuada. Para el primer ensayo de productos, confirmar catálogo/capacidad del dueño antes de calificar cualquiera de los candidatos documentales.
-5. Actualizar #38, Motor #4 y NEXT_SESSION_HANDOFF.md al completar o bloquear. Las tarjetas de integración y cobro siguen condicionadas a utilidad demostrada.
+## 6. RUNNER-001 y LUNA-001 — prueba real completada a nivel de servicio
+El bloqueo local de DNS no era una incapacidad del programa. Se usó GitHub Actions estándar del repositorio público existente, sin secretos, proveedor de pago, artefactos persistidos ni programación periódica.
 
-Si el smoke no logra leer ambos sitios, registrar la categoría de fallo y corregir únicamente la dependencia concreta; no reiniciar ordenamiento general ni comprar un runner. Esta bitácora conserva la reproducción y las decisiones para otro modelo.
+Primera corrida: [PR #44](https://github.com/Franchute10/autonomous-agent-economy/pull/44), head e58f58bd988bfd9d7ad1383ae13b95282695fce0, [run 44955224788](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/44955224788), 2026-11-21 17:09 Lima. Ambos sitios: SUCCEEDED, 3 páginas recibidas. El PR #44 se cerró como experimento completado y reemplazado por #45; no se integró separadamente.
+
+La muestra inicial de Lumen incluyó dos variantes de /contact con parámetros de botón y produjo títulos repetidos. Esto no prueba que ambas páginas sean idénticas ni que todos los duplicados sean falsos: la meta description también coincidía con la portada.
+
+### ASTRA-CRAWL-004 — corrección focal
+[PR #45](https://github.com/Franchute10/autonomous-agent-economy/pull/45), base LIVE 548ed0c23fddf1642b26f49aae128c7ae17a2638:
+- Prioriza rutas distintas antes de variantes de consulta, conservando las URLs originales. No elimina parámetros ni equipara automáticamente dos contenidos.
+- El prompt público español/inglés exige comparar contenido y cambiar metadatos solo cuando esté justificado, consistente con la recomendación interna.
+- Cuatro pruebas sintéticas verifican que contacto no desplace productos, que productos identificados por query sigan disponibles, que se conserve prioridad entre rutas distintas y que ambos idiomas condicionen la corrección.
+- Pruebas focales locales: 4/4. Primera CI detectó formato del fixture, corregido; no se tomó ese run como aprobado.
+
+Segunda corrida real: head 60aca905c612586d9800c16acb310202090d3565, [run 44955755471](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/44955755471), 2026-11-21 17:15 Lima.
+
+| Negocio / URL pública | Resultado real | Interpretación y límite |
+|---|---|---|
+| Productos: https://mega-ceramicos-propuesta.vercel.app/ | SUCCEEDED; 3 páginas; 0 hallazgos confirmados; H1 pendiente | No se inventa un defecto; HTML limitado no certifica sitio correcto ni ausencia de errores |
+| Servicios: https://lumen.frank-2e.workers.dev/ | SUCCEEDED; 3 páginas; meta description repetida en portada, /contact y /about | Ya no ocupa dos cupos con contacto. Prompt con las 3 URLs y comparación previa; no afirma pérdida de posiciones |
+
+Se revisaron los extractos y prompts emitidos por el programa; no hubo auditoría manual exhaustiva de todo el HTML ni DOM renderizado. Presupuesto de la beta: 3 páginas, 500 KB por respuesta, 2 s por solicitud y 25 s totales de HTTP; alarma exterior de 70 s por sitio. No extrapolar este muestreo a indexación completa, experiencia UI o ventas.
+
+Google Business se comprobó localmente con URL sintética: OWNER_EVIDENCE_REQUIRED, 0 páginas, sin hallazgos, Fix Pack no disponible. Es una prueba del manejo honesto de entrada, no una inspección de un perfil real ni implementación de su ingesta autorizada.
+
+Las dos corridas son del servicio Python real. No son dos corridas de generación de leads. Cero llamadas de API de pago; ningún contacto ni cobro.
+
+### Cierre técnico de PR #45
+Head final: 4da8986baf48f389265ac542715bf5f5f14f1c83. [CI 44955889071](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/44955889071): 953 passed / 12 skipped; Ruff, formato y mypy aprobados. Entre el smoke y este head solo cambió el formato/nombre de una prueba, no los blobs de producción ni workflow. Diff remoto de cuatro archivos revisado.
+**Decisión ejecutada:** PR #45 integrado en codex/aeos-live-003c, merge de2d211bc22cbbbe72b615e7434e649feca1b730. No es release ni integración de LIVE a main. PR #44 cerrado como experimento sustituido. LUNA-001 queda completado en su alcance de servicio/HTML acotado; la ingesta autorizada de Google Business, DOM y validación UI/comercial siguen sin acreditarse.
+
+## 7. Próximo bloque — LUNA-002
+El siguiente cuello de botella es comprobar utilidad comercial. No volver a ejecutar RUNNER-001 ni la suite solo por actualizar documentos.
+1. Partir de los negocios ya suministrados, con una ficha de producto y dos de servicios; conservar como desconocidas las capacidades que no estén confirmadas.
+2. Fijar oferta, zona, idioma, ventana de antigüedad y exclusiones antes de buscar. No presentar los tres pliegos de esta bitácora como leads para Mega Cerámicos o Lumen: no se confirmó su ajuste.
+3. Revisar solicitudes originales y estado vigente en una fuente pertinente por perfil. Registrar consultas y denominadores, sin confundir la investigación documental con una ejecución del motor.
+4. Preparar muestra privada únicamente con candidatos elegibles; pedir la valoración del responsable sobre esa muestra concreta. Sin utilidad confirmada, no habilitar compra.
+5. Registrar en Motor #4 y actualizar NEXT_SESSION_HANDOFF.md. Cambiar hipótesis tras tres corridas comparables sin rendimiento; las tarjetas 003–005 siguen condicionadas.
+
