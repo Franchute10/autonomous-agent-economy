@@ -2,7 +2,7 @@ name: AEOS bounded real-site smoke
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 permissions:
@@ -14,7 +14,7 @@ jobs:
       github.repository == 'Franchute10/autonomous-agent-economy' &&
       github.event.repository.private == false &&
       (github.event_name == 'workflow_dispatch' ||
-       (github.head_ref == 'fix/aeos-route-diversity-20261121' &&
+       (github.head_ref == 'test/us-software-validation-20261122' &&
         github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -42,8 +42,8 @@ jobs:
 
           signal.signal(signal.SIGALRM, timeout_handler)
           targets = (
-              ("products", "https://mega-ceramicos-propuesta.vercel.app/"),
-              ("services", "https://lumen.frank-2e.workers.dev/"),
+              ("construction-dfw", "https://constructionnationgroup.com/"),
+              ("cleaning-sarasota", "https://cmimbelacleaningllc.com/"),
           )
           rows = []
           for sector, url in targets:
