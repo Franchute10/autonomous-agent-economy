@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-11-24 (America/Lima)  
 **Estado:** descubrimiento técnico completado; aprobación de stack y aprovisionamiento pendientes.  
-**Alcance:** evaluación de solo lectura. No se creó ni modificó infraestructura, no se desplegó código y no se ejecutó inferencia.
+**Alcance:** inventario de solo lectura y prueba ASGI local aislada (2026-11-25). No se creó ni modificó infraestructura, no se desplegó código y no se ejecutó inferencia.
 
 ## 1. Decisiones de producto ya confirmadas
 
@@ -77,3 +77,11 @@ El propietario debe aprobar o corregir la arquitectura candidata. Después:
 6. Actualizar roadmap y test ledger con SHA, URL de staging, comandos, denominadores y evidencias. No marcar S0-03 DONE antes de esas pruebas.
 
 **Resultado de esta sesión:** el conector Cloudflare está operativo; la plataforma es técnicamente viable para alojar AEOS Starter con Supabase como PostgreSQL/Auth, pero la infraestructura AEOS aún no existe. No hubo gasto, despliegue, modificación de recursos ni llamada a un modelo.
+
+## 7. Avance 2026-11-25 (America/Lima)
+
+- Supabase Management API cotizó un proyecto nuevo en la organización existente: USD 0 mensuales. Es una cotización puntual de creación, no una garantía de todos los consumos futuros. Se solicitó consultar el costo sin crear el proyecto; falta confirmación del propietario para aprovisionarlo. No se tocaron proyectos de terceros.
+- PR #51: dos checks de GitHub Actions completados con éxito para el SHA 8951ee99b6a2c6c691f89a7763d65f3889d60c30; evidencia en [push CI](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45526510310) y [PR CI](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45526546146). No extrapolar el resultado al nuevo head.
+- Se ejecutó un probe ASGI local, código en [health_smoke.py](../../spikes/starter_s0_03/health_smoke.py), commit 9642f2ae957e7f5ac0c93eb1553c34c36f0669b9. Python 3.13.5, FastAPI 0.128.2, httpx 0.28.1, Starlette 0.50.0. Comando reproducible tras instalar FastAPI==0.128.2 y httpx==0.28.1 en un entorno aislado: `python spikes/starter_s0_03/health_smoke.py`. Resultado 4/4 PASS: liveness HTTP 200, readiness HTTP 503 mientras faltan dependencias, POST /tasks HTTP 404, POST /healthz HTTP 405. SHA256 del archivo probado: f2c5182f96f44871d01bc2549c9406288cbcf2bf6cf2018ee6f3a3648e407e70. No se modificaron dependencias del Core.
+- El entorno local de ejecución no resolvió github.com; no fue posible clonar ni correr una suite completa del repositorio aquí. El probe se ejecutó como archivo aislado, y se verificó su contenido tras subirlo a GitHub.
+- S0-03 sigue IN_REVIEW/BLOCKED en aprovisionamiento. Falta confirmar creación gratuita, validar plan/cuota Cloudflare, desplegar y probar conexión PostgreSQL, auth y RLS. No se ha probado Workers, Hyperdrive ni IA en vivo.
