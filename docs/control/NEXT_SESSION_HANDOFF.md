@@ -1,4 +1,34 @@
 # AEOS — Continuidad vigente
+Actualizado: 2026-11-24 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
+
+## PRIORIDAD ACTUAL — AEOS STARTER MVP
+
+El propietario ha reorientado el trabajo al lanzamiento de un único producto SaaS inicial para Perú: **AEOS Starter**, con autonomía supervisada. No construir tres planes comerciales ni billing recurrente en el MVP.
+
+**Fuente de verdad del nuevo producto:**
+- [Índice de control Starter](../starter/README.md)
+- [Plan de MVP y arquitectura](../starter/AEOS_STARTER_MVP_PLAN.md)
+- [Roadmap de 24 hitos](../starter/ROADMAP.md)
+- [Registro de decisiones](../starter/DECISION_LOG.md)
+- [Test ledger](../starter/TEST_LEDGER.md)
+- [Checklist de release](../starter/RELEASE_CHECKLIST.md)
+- [Issue principal #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
+- [PR de planificación #50](https://github.com/Franchute10/autonomous-agent-economy/pull/50), integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`.
+
+**Estado:** planificación baseline integrada en main; implementación del Starter aún no iniciada. El primer departamento operativo recomendado es Comercial, pendiente de confirmación. Fecha objetivo 24-12-2026, sujeta a gates y capacidad. Presupuesto incremental autorizado: USD 0 hasta aprobación expresa.
+
+**Siguiente acción única:** cerrar checkpoint STARTER-00 con el propietario (departamento inicial, alcance de los nueve departamentos visibles vs. uno funcional, presupuesto de hosting/modelo y disponibilidad técnica). Después ejecutar S0-03: spike de auth, hosting, PostgreSQL y modelo, sin tocar LIVE ni worktrees locales.
+
+**Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
+
+## Retomar
+1. Leer [el índice Starter](../starter/README.md) y [el roadmap](../starter/ROADMAP.md).
+2. Verificar issues, ramas y SHAs actuales; leer AGENTS.md y el plan de Starter antes de editar.
+3. Ejecutar la siguiente tarjeta habilitada. No solicitar nuevamente los chats ni repetir el ordenamiento general.
+4. Registrar el resultado en GitHub al completar o bloquear cada tarea.
+
+Este handoff gobierna la siguiente acción. Los apartados históricos posteriores preservan el piloto LIVE anterior y no sustituyen la prioridad Starter vigente.
+
 Actualizado: 2026-11-21 (America/Lima). Planificación y ejecución focal; continuar con el modelo disponible.
 
 ## Retomar
