@@ -17,7 +17,7 @@ El propietario ha reorientado el trabajo al lanzamiento de un único producto Sa
 
 **Estado:** planificación baseline integrada en main. Checkpoint confirmado: Comercial, todos los departamentos visibles, objetivo 24-12-2026. [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) conserva decisiones, spike, cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS; aún no integrado en main. No hay servicio desplegado. Presupuesto incremental autorizado: USD 0.
 
-**Siguiente acción única:** tras confirmar con el propietario la creación del proyecto Supabase exclusivo para AEOS a USD 0/mes en su organización existente, aprovisionar y comprobar ACTIVE_HEALTHY. Ver [spike S0-03](../starter/S0-03_TECHNICAL_SPIKE.md). No activar planes pagos ni reutilizar proyectos existentes; falta probar Cloudflare y PostgreSQL reales. Revisar PR #51 y sus checks en el head vigente.
+**Siguiente acción:** verificar plan gratuito Cloudflare y desplegar probe aislado; validar conexión PostgreSQL desde runtime, auth y RLS. Supabase ya creado y SQL básico aprobado. No generar gastos.
 
 **Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
 
@@ -94,3 +94,7 @@ LUNA-003/004/005 siguen condicionadas a utilidad demostrada. LUNA-001 no necesit
 ## Continuidad obligatoria
 Cada bloque deja ID/estado, fecha, repo/rama/base/head, PR, pruebas y denominadores, evidencia real o sintética, límites, decisión y siguiente acción.
 Para un nuevo chat basta: “Continúa AEOS desde docs/control/NEXT_SESSION_HANDOFF.md en Franchute10/autonomous-agent-economy; verifica GitHub y ejecuta la siguiente tarjeta con presupuesto incremental USD 0”.
+
+
+## Actualización S0-03 — 2026-11-25
+2026-11-25: owner explicitly authorized isolated Supabase aeos-starter in São Paulo at USD 0/month, no upgrades or additional charges. Quote rechecked at USD 0; project created, ACTIVE_HEALTHY verified independently. Management SQL SELECT 1 returned connectivity=1, PostgreSQL 17.12, database postgres. Security advisor returned zero lints on empty project. No application schema, auth flow, Cloudflare connection, or RLS tested yet. Other projects untouched.
