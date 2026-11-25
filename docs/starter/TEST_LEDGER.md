@@ -1,6 +1,6 @@
 # AEOS Starter — test ledger
 
-**Corte:** 2026-11-24. Este registro separa pruebas históricas de AEOS Core, LIVE y Commercial Lead Engine de las futuras pruebas de Starter.
+**Corte:** 2026-11-25. Este registro separa pruebas históricas de AEOS Core, LIVE y Commercial Lead Engine de las futuras pruebas de Starter.
 
 ## Evidencia previa consultada
 
@@ -20,10 +20,13 @@
 | Cloudflare inventory | PASS — lectura | No hay despliegue AEOS dedicado ni configuraciones AEOS de D1, Queues, Workflows o Hyperdrive. |
 | Supabase inventory | PASS — lectura | No se encontró proyecto dedicado a AEOS; no se reutilizaron proyectos existentes ni se creó uno nuevo. |
 | Compatibilidad de plataforma | REVIEWED | Documentación oficial confirma FastAPI/Python Workers, Workflows Python, Hyperdrive/PostgreSQL y Workers AI. La documentación no sustituye pruebas runtime. |
+| Supabase cotización | PASS — lectura | 2026-11-25: proyecto nuevo USD 0/mes; creación pendiente. |
+| CI PR #51 (head anterior) | 2/2 checks PASS | SHA 8951ee99b6a2c6c691f89a7763d65f3889d60c30; [push CI](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45526510310), [PR CI](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45526546146). |
+| Probe ASGI local | 4/4 PASS | Commit 9642f2ae957e7f5ac0c93eb1553c34c36f0669b9; Python 3.13.5; FastAPI 0.128.2, httpx 0.28.1. Ver [S0-03](S0-03_TECHNICAL_SPIKE.md). No es un despliegue. |
 | Model Gateway | NOT RUN | No se ejecutó inferencia ni se consumió cuota. |
 | Deploy / PostgreSQL / RLS E2E | NOT RUN | No se creó infraestructura ni se desplegó código. |
 
-Estos checks son descubrimiento de entorno, no pruebas de aceptación del producto. No cambian el estado de los tests T-001 a T-010.
+Estos checks son descubrimiento de entorno y prueba local aislada, no pruebas de aceptación del producto. No cambian el estado de los tests T-001 a T-010.
 
 ## Pruebas Starter
 Aún no ejecutadas. No declarar PASS hasta registrar SHA, entorno, comando y resultado.
