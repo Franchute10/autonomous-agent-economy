@@ -4,9 +4,5 @@
   "main": "src/worker.py",
   "compatibility_date": "2026-11-25",
   "compatibility_flags": ["python_workers"],
-  "workers_dev": true,
-  "limits": {
-    "cpu_ms": 10,
-    "subrequests": 10
-  }
+  "workers_dev": true
 }
