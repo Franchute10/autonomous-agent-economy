@@ -85,3 +85,9 @@ El propietario debe aprobar o corregir la arquitectura candidata. Después:
 - Se ejecutó un probe ASGI local, código en [health_smoke.py](../../spikes/starter_s0_03/health_smoke.py), commit 9642f2ae957e7f5ac0c93eb1553c34c36f0669b9. Python 3.13.5, FastAPI 0.128.2, httpx 0.28.1, Starlette 0.50.0. Comando reproducible tras instalar FastAPI==0.128.2 y httpx==0.28.1 en un entorno aislado: `python spikes/starter_s0_03/health_smoke.py`. Resultado 4/4 PASS: liveness HTTP 200, readiness HTTP 503 mientras faltan dependencias, POST /tasks HTTP 404, POST /healthz HTTP 405. SHA256 del archivo probado: f2c5182f96f44871d01bc2549c9406288cbcf2bf6cf2018ee6f3a3648e407e70. No se modificaron dependencias del Core.
 - El entorno local de ejecución no resolvió github.com; no fue posible clonar ni correr una suite completa del repositorio aquí. El probe se ejecutó como archivo aislado, y se verificó su contenido tras subirlo a GitHub.
 - S0-03 sigue IN_REVIEW/BLOCKED en aprovisionamiento. Falta confirmar creación gratuita, validar plan/cuota Cloudflare, desplegar y probar conexión PostgreSQL, auth y RLS. No se ha probado Workers, Hyperdrive ni IA en vivo.
+
+
+## 8. Provisioning evidence
+
+2026-11-25: owner explicitly authorized isolated Supabase aeos-starter in São Paulo at USD 0/month, no upgrades or additional charges. Quote rechecked at USD 0; project created, ACTIVE_HEALTHY verified independently. Management SQL SELECT 1 returned connectivity=1, PostgreSQL 17.12, database postgres. Security advisor returned zero lints on empty project. No application schema, auth flow, Cloudflare connection, or RLS tested yet. Other projects untouched.
+Next: validate free Cloudflare entitlement and deploy isolated health probe; verify actual PostgreSQL connection from runtime before closing S0-03.
