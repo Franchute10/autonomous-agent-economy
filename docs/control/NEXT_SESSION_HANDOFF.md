@@ -15,9 +15,9 @@ El propietario ha reorientado el trabajo al lanzamiento de un único producto Sa
 - [Issue principal #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
 - [PR de planificación #50](https://github.com/Franchute10/autonomous-agent-economy/pull/50), integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`.
 
-**Estado:** planificación baseline integrada en main. Checkpoint confirmado: Comercial, todos los departamentos visibles, objetivo 24-12-2026. [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) conserva decisiones, spike, cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS; aún no integrado en main. No hay servicio desplegado. Presupuesto incremental autorizado: USD 0.
+**Estado vigente (2026-11-25, S0-04):** PR #52 (draft, stacked on #51). Cloudflare Python Worker deployed in bootstrap build 9d98f04b-eb5e-48c7-9a2f-78e01cb7c54c (4 tests passed). Auth module and tests committed; GET /api/v1/me wired at 3698fb49026700bc9a085a28ea628afd2be9c50f. Supabase URL and publishable key configured as Worker bindings (no admin key). Auth build 17123a5b-06b8-4d05-a03f-7b3e9f7adaf4 initiated and running at last check. Verify final build, logs and live HTTP before claiming authentication works. Next: positive login and negative token checks, then organization onboarding using canonical Core schema/migrations and membership RLS. USD 0; protect Lumen and ferreteria domain. No AI inference or external actions yet.
 
-**Siguiente acción:** verificar el plan Workers Free (Billing Read faltante), comprobar URL estática y desplegar API Python aislada cuando se confirme coste cero; después probar conexión PostgreSQL real desde runtime y Auth. RLS privado 7/7 PASS; Pages estático desplegado, no API. No ampliar alcance ni generar cargos.
+**Siguiente acción:** verificar build de autenticación 17123a5b, probar /health y /api/v1/me; después implementar onboarding de organizaciones con aislamiento RLS real. Ver PR #52 y #51. No modificar otros proyectos.
 
 **Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
 
