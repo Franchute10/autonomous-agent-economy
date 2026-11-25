@@ -12,6 +12,19 @@
 | Commercial Lead Engine | a647263bcde2 | 880 passed reportados en validación 2026-11-20 | Tests de motor CLI en esa rama | API, multi-tenancy, SaaS o leads vendibles |
 | Commercial Lead Engine | PR #1/#2 | Abiertos/apilados al corte | Propuestas de captura y evaluación de intención | Merge, fuente autorizada universal o utilidad comercial repetible |
 
+## S0-03 — descubrimiento de infraestructura (solo lectura)
+
+| Check | Resultado | Evidencia / límite |
+|---|---|---|
+| Cloudflare connector/API | PASS — lectura | Identidad y cuenta consultadas; no se modificó ningún recurso. |
+| Cloudflare inventory | PASS — lectura | No hay despliegue AEOS dedicado ni configuraciones AEOS de D1, Queues, Workflows o Hyperdrive. |
+| Supabase inventory | PASS — lectura | No se encontró proyecto dedicado a AEOS; no se reutilizaron proyectos existentes ni se creó uno nuevo. |
+| Compatibilidad de plataforma | REVIEWED | Documentación oficial confirma FastAPI/Python Workers, Workflows Python, Hyperdrive/PostgreSQL y Workers AI. La documentación no sustituye pruebas runtime. |
+| Model Gateway | NOT RUN | No se ejecutó inferencia ni se consumió cuota. |
+| Deploy / PostgreSQL / RLS E2E | NOT RUN | No se creó infraestructura ni se desplegó código. |
+
+Estos checks son descubrimiento de entorno, no pruebas de aceptación del producto. No cambian el estado de los tests T-001 a T-010.
+
 ## Pruebas Starter
 Aún no ejecutadas. No declarar PASS hasta registrar SHA, entorno, comando y resultado.
 
