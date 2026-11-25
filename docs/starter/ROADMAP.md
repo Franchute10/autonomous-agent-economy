@@ -11,7 +11,7 @@ Fuente normativa: [AEOS_STARTER_MVP_PLAN.md](AEOS_STARTER_MVP_PLAN.md). Issue: [
 |---|---:|---|---|---|
 | S0-01 | 0 | Baseline GitHub, ramas y riesgos | DONE | AEOS main eaa8c525; LIVE de2d211b; motor main/ramas comparados; plan documenta divergencia |
 | S0-02 | 0 | Alcance Starter y exclusiones | DONE | Plan integrado en main mediante PR #50 / commit db041a62; decisiones de producto confirmadas en DECISION_LOG.md |
-| S0-03 | 0 | Confirmar departamento, despliegue, auth, DB y modelo | IN_REVIEW | Comercial y alcance de catálogo confirmados; spike técnico Cloudflare/Supabase documentado. Supabase cotizó USD 0/mes; probe ASGI local 4/4 PASS; falta confirmar creación, desplegar y probar PostgreSQL/Auth/IA. PR #51; no se crearon recursos |
+| S0-03 | 0 | Confirmar departamento, despliegue, auth, DB y modelo | IN_PROGRESS | Supabase dedicado creado a USD 0/mes; ACTIVE_HEALTHY; SQL connectivity PASS; falta runtime remoto, auth, RLS y modelo |
 | S1-01 | 1 | Branch de implementación desde main e integración selectiva | TODO | No iniciar hasta cerrar S0-03 y revisar CI/PR |
 | S1-02 | 1 | Auth, usuario, organización y membership | TODO | Registro/login y creación de tenant |
 | S1-03 | 1 | Aislamiento multi-tenant PostgreSQL/RLS | TODO | Tests cross-tenant sobre PostgreSQL real |
