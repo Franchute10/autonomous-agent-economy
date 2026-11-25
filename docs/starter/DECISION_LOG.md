@@ -13,3 +13,4 @@
 
 ## Regla
 Toda modificación de alcance, arquitectura, fecha, gasto o autonomía se registra aquí antes de implementarse. Las decisiones confirmadas no se infieren de sugerencias del asistente.
+| D-009 | 2026-11-25 | Crear Supabase aeos-starter aislado en São Paulo a USD 0/mes | CONFIRMADA | Autorización expresa; sin upgrades ni cargos adicionales |
