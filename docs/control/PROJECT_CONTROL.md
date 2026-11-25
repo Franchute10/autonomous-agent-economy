@@ -17,7 +17,7 @@ Fuente de verdad:
 
 **Estado:** baseline de planificación integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`; checkpoint de producto completado. Comercial es el único departamento con workflow completo previsto para v0.1; todos los departamentos serán visibles en el catálogo. Fecha objetivo confirmada: 2026-12-24, sujeta a gates y no garantizada. Gasto incremental: USD 0 hasta aprobación expresa.
 
-**Siguiente acción:** [spike S0-03](../starter/S0-03_TECHNICAL_SPIKE.md) en PR #51: cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS. Confirmar creación del proyecto independiente antes de aprovisionar y validar PostgreSQL/Auth. No habilitar cargos, ni consumir modelos pagados.
+**Siguiente acción:** verificar plan gratuito Cloudflare y desplegar probe aislado; validar conexión PostgreSQL desde runtime, auth y RLS. Supabase ya creado y SQL básico aprobado. No generar gastos.
 
 AEOS LIVE / diagnóstico web / pilotos de oportunidades de EE. UU. quedan preservados como línea experimental separada y pausada respecto al Starter. No mezclar sus clientes, fuentes ni métricas con el producto peruano.
 
@@ -73,3 +73,7 @@ GitHub conserva tareas, decisiones, código y evidencia resumida. Un documento d
 Main contiene el control canónico. LIVE contiene una línea candidata aún no integrada a main. Verificar ambos antes de editar; no confundir merge a LIVE con release.
 
 Al cerrar cada tarea: registrar ID, estado, fecha, repo/rama/SHA, PR, pruebas con denominadores, evidencia real o sintética, decisión y siguiente acción. No marcar DONE por escribir un plan.
+
+
+## Actualización S0-03 — 2026-11-25
+2026-11-25: owner explicitly authorized isolated Supabase aeos-starter in São Paulo at USD 0/month, no upgrades or additional charges. Quote rechecked at USD 0; project created, ACTIVE_HEALTHY verified independently. Management SQL SELECT 1 returned connectivity=1, PostgreSQL 17.12, database postgres. Security advisor returned zero lints on empty project. No application schema, auth flow, Cloudflare connection, or RLS tested yet. Other projects untouched.
