@@ -1,5 +1,5 @@
 # AEOS — Continuidad vigente
-Actualizado: 2026-11-24 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
+Actualizado: 2026-11-25 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 
 ## PRIORIDAD ACTUAL — AEOS STARTER MVP
 
@@ -15,9 +15,9 @@ El propietario ha reorientado el trabajo al lanzamiento de un único producto Sa
 - [Issue principal #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
 - [PR de planificación #50](https://github.com/Franchute10/autonomous-agent-economy/pull/50), integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`.
 
-**Estado:** planificación baseline integrada en main; implementación del Starter aún no iniciada. El primer departamento operativo recomendado es Comercial, pendiente de confirmación. Fecha objetivo 24-12-2026, sujeta a gates y capacidad. Presupuesto incremental autorizado: USD 0 hasta aprobación expresa.
+**Estado:** planificación baseline integrada en main. Checkpoint confirmado: Comercial, todos los departamentos visibles, objetivo 24-12-2026. [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) conserva decisiones, spike, cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS; aún no integrado en main. No hay servicio desplegado. Presupuesto incremental autorizado: USD 0.
 
-**Siguiente acción única:** cerrar checkpoint STARTER-00 con el propietario (departamento inicial, alcance de los nueve departamentos visibles vs. uno funcional, presupuesto de hosting/modelo y disponibilidad técnica). Después ejecutar S0-03: spike de auth, hosting, PostgreSQL y modelo, sin tocar LIVE ni worktrees locales.
+**Siguiente acción única:** tras confirmar con el propietario la creación del proyecto Supabase exclusivo para AEOS a USD 0/mes en su organización existente, aprovisionar y comprobar ACTIVE_HEALTHY. Ver [spike S0-03](../starter/S0-03_TECHNICAL_SPIKE.md). No activar planes pagos ni reutilizar proyectos existentes; falta probar Cloudflare y PostgreSQL reales. Revisar PR #51 y sus checks en el head vigente.
 
 **Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
 
