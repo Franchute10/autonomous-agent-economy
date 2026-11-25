@@ -1,6 +1,6 @@
 # AEOS — Control de producto
 
-Actualizado: 2026-11-24 (America/Lima).
+Actualizado: 2026-11-25 (America/Lima).
 
 ## Prioridad vigente: AEOS Starter
 
@@ -17,7 +17,7 @@ Fuente de verdad:
 
 **Estado:** baseline de planificación integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`; checkpoint de producto completado. Comercial es el único departamento con workflow completo previsto para v0.1; todos los departamentos serán visibles en el catálogo. Fecha objetivo confirmada: 2026-12-24, sujeta a gates y no garantizada. Gasto incremental: USD 0 hasta aprobación expresa.
 
-**Siguiente acción:** revisar y aprobar la arquitectura candidata del [spike S0-03](../starter/S0-03_TECHNICAL_SPIKE.md). Después, consultar el coste de un proyecto Supabase aislado y aprovisionar solo si el coste y la autorización cumplen el presupuesto. No desplegar ni consumir modelos pagados antes de esa aprobación.
+**Siguiente acción:** [spike S0-03](../starter/S0-03_TECHNICAL_SPIKE.md) en PR #51: cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS. Confirmar creación del proyecto independiente antes de aprovisionar y validar PostgreSQL/Auth. No habilitar cargos, ni consumir modelos pagados.
 
 AEOS LIVE / diagnóstico web / pilotos de oportunidades de EE. UU. quedan preservados como línea experimental separada y pausada respecto al Starter. No mezclar sus clientes, fuentes ni métricas con el producto peruano.
 
