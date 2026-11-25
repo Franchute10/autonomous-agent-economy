@@ -7,7 +7,6 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-    "pywrangler",
     "workers-py",
     "workers-runtime-sdk",
     "pytest>=8,<9",
