@@ -45,3 +45,7 @@ Aún no ejecutadas. No declarar PASS hasta registrar SHA, entorno, comando y res
 | T-010 | Piloto y evaluación de usuario | Perú | TODO | — |
 
 Cada nueva ejecución añade una fila con fecha, repo/rama/SHA, comando, entorno, passed/failed/skipped, link CI/log, evidencia real o sintética y decisión. No sobrescribir fallos históricos.
+
+## 2026-11-25 — Supabase provisioning
+
+2026-11-25: owner explicitly authorized isolated Supabase aeos-starter in São Paulo at USD 0/month, no upgrades or additional charges. Quote rechecked at USD 0; project created, ACTIVE_HEALTHY verified independently. Management SQL SELECT 1 returned connectivity=1, PostgreSQL 17.12, database postgres. Security advisor returned zero lints on empty project. No application schema, auth flow, Cloudflare connection, or RLS tested yet. Other projects untouched.
