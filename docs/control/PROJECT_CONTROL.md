@@ -15,9 +15,9 @@ Fuente de verdad:
 - [Release checklist](../starter/RELEASE_CHECKLIST.md)
 - [Issue #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
 
-**Estado:** baseline de planificación integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`; implementación Starter no iniciada. Primer departamento recomendado: Comercial, pendiente de confirmación. Fecha objetivo: 2026-12-24, no garantía. Gasto incremental: USD 0 hasta aprobación expresa.
+**Estado:** baseline de planificación integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`; checkpoint de producto completado. Comercial es el único departamento con workflow completo previsto para v0.1; todos los departamentos serán visibles en el catálogo. Fecha objetivo confirmada: 2026-12-24, sujeta a gates y no garantizada. Gasto incremental: USD 0 hasta aprobación expresa.
 
-**Siguiente acción:** STARTER-00 checkpoint del propietario; luego S0-03 spike de autenticación, despliegue, PostgreSQL y proveedor de IA.
+**Siguiente acción:** revisar y aprobar la arquitectura candidata del [spike S0-03](../starter/S0-03_TECHNICAL_SPIKE.md). Después, consultar el coste de un proyecto Supabase aislado y aprovisionar solo si el coste y la autorización cumplen el presupuesto. No desplegar ni consumir modelos pagados antes de esa aprobación.
 
 AEOS LIVE / diagnóstico web / pilotos de oportunidades de EE. UU. quedan preservados como línea experimental separada y pausada respecto al Starter. No mezclar sus clientes, fuentes ni métricas con el producto peruano.
 
