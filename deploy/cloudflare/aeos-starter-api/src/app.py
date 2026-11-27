@@ -20,7 +20,9 @@ def route(method: str, path: str) -> tuple[int, dict[str, object]]:
             "release": RELEASE,
             "stage": "bootstrap",
             "database_connected": False,
-            "authentication_enabled": False,
+            "authentication_endpoint_implemented": True,
+            "authentication_live_verified": False,
+            "organization_membership_enabled": False,
             "model_inference_enabled": False,
             "agent_execution_enabled": False,
         }
@@ -29,10 +31,15 @@ def route(method: str, path: str) -> tuple[int, dict[str, object]]:
         return 200, {
             "service": SERVICE,
             "release": RELEASE,
-            "available": ["health", "capability_catalog"],
+            "available": [
+                "health",
+                "capability_catalog",
+                "supabase_identity_endpoint",
+            ],
             "not_yet_available": [
-                "authentication",
-                "organizations",
+                "organization_onboarding",
+                "organization_membership",
+                "tenant_persistence",
                 "task_persistence",
                 "workflow_runtime",
                 "agent_invocations",
