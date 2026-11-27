@@ -1,25 +1,63 @@
 # AEOS — Continuidad vigente
-Actualizado: 2026-11-25 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
+Actualizado: 2026-11-27 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 
-## PRIORIDAD ACTUAL — AEOS STARTER MVP
+## Prioridad y separación de producto
 
-El propietario ha reorientado el trabajo al lanzamiento de un único producto SaaS inicial para Perú: **AEOS Starter**, con autonomía supervisada. No construir tres planes comerciales ni billing recurrente en el MVP.
+- **AEOS Core:** kernel organizacional/económico para organizaciones de agentes: organización, roles, autoridad, gobernanza, economía, workflows, runtime, evidencia, auditoría y aprendizaje. La tesis es construir una organización gobernada, no un enjambre de prompts.
+- **AEOS Starter:** primer producto SaaS funcional, mercado inicial Perú, autonomía supervisada. Comercial es el único departamento previsto con workflow completo end-to-end en v0.1; los demás se muestran como catálogo, sin simular que ya operan. No abrir Growth/Business ni billing recurrente en este MVP.
+- **Agentes Mype:** visión/capa de aplicación de AEOS para que una MYPE opere con capacidades de una empresa mayor. No sustituye AEOS Core ni se convierte en runtime o producto paralelo que compita con Starter.
+- **AEOS LIVE y Commercial Lead Engine:** líneas separadas; no mezclar sus pilotos, fuentes, empresas, métricas o código con Starter sin una tarea e interfaz aprobadas.
 
-**Fuente de verdad del nuevo producto:**
-- [Índice de control Starter](../starter/README.md)
-- [Plan de MVP y arquitectura](../starter/AEOS_STARTER_MVP_PLAN.md)
-- [Roadmap de 24 hitos](../starter/ROADMAP.md)
-- [Registro de decisiones](../starter/DECISION_LOG.md)
+## Fuente de verdad y control
+
+- [Índice Starter](../starter/README.md)
+- [Plan Starter](../starter/AEOS_STARTER_MVP_PLAN.md)
+- [Roadmap Starter](../starter/ROADMAP.md)
+- [Decision log](../starter/DECISION_LOG.md)
 - [Test ledger](../starter/TEST_LEDGER.md)
-- [Checklist de release](../starter/RELEASE_CHECKLIST.md)
+- [Project control](PROJECT_CONTROL.md)
 - [Issue principal #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
-- [PR de planificación #50](https://github.com/Franchute10/autonomous-agent-economy/pull/50), integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`.
+- [Issue AEOS-ARCH-001 #53 — integración selectiva ECC](https://github.com/Franchute10/autonomous-agent-economy/issues/53)
 
-**Estado vigente (2026-11-25, S0-04):** PR #52 (draft, stacked on #51). Cloudflare Python Worker deployed in bootstrap build 9d98f04b-eb5e-48c7-9a2f-78e01cb7c54c (4 tests passed). Auth module and tests committed; GET /api/v1/me wired at 3698fb49026700bc9a085a28ea628afd2be9c50f. Supabase URL and publishable key configured as Worker bindings (no admin key). Auth build 17123a5b-06b8-4d05-a03f-7b3e9f7adaf4 initiated and running at last check. Verify final build, logs and live HTTP before claiming authentication works. Next: positive login and negative token checks, then organization onboarding using canonical Core schema/migrations and membership RLS. USD 0; protect Lumen and ferreteria domain. No AI inference or external actions yet.
+GitHub es la fuente de verdad. El chat ayuda a decidir y ejecutar, pero no sustituye issues, PR, commits, pruebas ni este handoff.
 
-**Siguiente acción:** verificar build de autenticación 17123a5b, probar /health y /api/v1/me; después implementar onboarding de organizaciones con aislamiento RLS real. Ver PR #52 y #51. No modificar otros proyectos.
+## Estado de GitHub verificado — 2026-11-27
 
-**Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
+Repositorio: `Franchute10/autonomous-agent-economy`; rama por defecto: `main`.
+
+| Elemento | Base | Head | Estado |
+|---|---|---|---|
+| main | — | `1ef00bacd00a14d7e79a4f558c4fd2987307c9ee` | Rama canónica al momento de la consulta |
+| [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) | `main` | `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d` | Draft; S0-03; no integrado |
+| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | rama de PR #51 | `4abeed162de02b44ece913c7edcaf75f5181b24f` | Draft; S0-04; no integrado |
+| [Issue #53](https://github.com/Franchute10/autonomous-agent-economy/issues/53) | — | — | Abierta; QUEUED, bloqueada por #51/#52 |
+
+El endpoint de estado combinado consultado para los heads de #51 y #52 no devolvió entradas de status. **No inferir CI verde**: revisar GitHub Actions, checks, builds, logs y pruebas en los SHAs vigentes antes de afirmar éxito. La última nota de #52 decía que el build de autenticación estaba en curso; verificar el estado real, /health y /api/v1/me antes de afirmar que Auth funciona.
+
+## Siguiente secuencia técnica
+
+1. Verificar el estado actual de PR #51 y sus checks; resolver primero su base en `main`.
+2. Verificar/reconciliar PR #52 después de #51; probar el build, /health, /api/v1/me, login válido, token inválido y errores upstream. No afirmar onboarding, tenant membership ni runtime de agentes hasta probarlos.
+3. No abrir una tercera tarea técnica activa mientras #51 y #52 sigan abiertas. Issue #53 permanece en cola; no ampliar el alcance del Worker para adelantarla.
+4. Cuando #51/#52 estén resueltos, volver a leer el issue #53, verificar el main actual y crear una rama limpia desde el SHA vigente. Implementar los estándares de calidad/seguridad/skills y las pruebas deterministas descritas allí.
+5. Mantener gasto incremental autorizado en USD 0. No desplegar, invocar modelos, añadir servicios ni contratar planes sin autorización expresa.
+
+## Continuidad del chat — activador exacto
+
+Cuando el propietario escriba:
+
+`continua con lo trabajado en el chat: Agentes Mype`
+
+retomar desde este handoff y desde el estado actual de GitHub. No reiniciar el proyecto, no pedir que vuelva a pegar conversaciones o decisiones ya registradas y no asumir que los SHAs de este documento siguen vigentes.
+
+Procedimiento obligatorio al retomar:
+1. Consultar GitHub: main, PR abiertos, issues activos, ramas, base/head SHA, checks/Actions y dependencias.
+2. Leer `AGENTS.md`, `docs/PROJECT_READINESS.md`, `PROJECT_HANDBOOK.md`, `docs/control/PROJECT_CONTROL.md`, este handoff, Starter README/plan/roadmap/test ledger, ADR index y el issue/PR de la siguiente tarea.
+3. Identificar la siguiente tarea no bloqueada y respetar el máximo de dos tareas técnicas activas.
+4. Preservar las decisiones ya confirmadas; preguntar solo si falta una decisión realmente nueva o una autorización necesaria.
+5. Ejecutar trabajo verificable, no limitarse a resumir ni a volver a planificar lo ya aprobado.
+6. Cerrar cada bloque actualizando GitHub: issue, PR, rama, SHA, comandos, entorno, resultados con denominadores, evidencia real/sintética, fallos, riesgos, decisiones, estado y siguiente acción única.
+7. Antes de cambiar de chat o terminar la sesión, actualizar este handoff con el nuevo estado verificado.
 
 ## Retomar
 1. Leer [el índice Starter](../starter/README.md) y [el roadmap](../starter/ROADMAP.md).
