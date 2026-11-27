@@ -74,20 +74,29 @@ def test_identity_rejects_invalid_inputs_before_upstream() -> None:
 
     async def upstream(*args):
         calls.append(args)
-        return 200, {"id": "01aa0000-0000-4000-8000-000000000001", "is_anonymous": False}
+        return 200, {
+            "id": "01aa0000-0000-4000-8000-000000000001",
+            "is_anonymous": False,
+        }
 
     url = "https://testproject.supabase.co"
     key = "sb_publishable_test"
     assert asyncio.run(verify_identity("Basic a.b.c", url, key, upstream))[0] == 401
-    assert asyncio.run(verify_identity("Bearer malformed", url, key, upstream))[0] == 401
+    assert (
+        asyncio.run(verify_identity("Bearer malformed", url, key, upstream))[0] == 401
+    )
     assert (
         asyncio.run(
-            verify_identity("Bearer a.b.c", "http://testproject.supabase.co", key, upstream)
+            verify_identity(
+                "Bearer a.b.c", "http://testproject.supabase.co", key, upstream
+            )
         )[0]
         == 503
     )
     assert (
-        asyncio.run(verify_identity("Bearer a.b.c", url, "anon_legacy_key", upstream))[0]
+        asyncio.run(verify_identity("Bearer a.b.c", url, "anon_legacy_key", upstream))[
+            0
+        ]
         == 503
     )
     assert calls == []
