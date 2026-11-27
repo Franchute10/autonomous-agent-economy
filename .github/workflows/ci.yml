@@ -22,3 +22,12 @@ jobs:
         run: mypy
       - name: Tests
         run: pytest
+      - name: Set up Python 3.13 for Worker adapter
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Worker test runner
+        run: python -m pip install "pytest>=8,<9"
+      - name: Worker adapter tests
+        working-directory: deploy/cloudflare/aeos-starter-api
+        run: python -m pytest
