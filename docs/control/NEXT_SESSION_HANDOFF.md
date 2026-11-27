@@ -56,7 +56,7 @@ El head documental `1011c59530050d1fea1a977c7fbe20d4957bb1d8` obtuvo push run [4
 - Código del PR #52 en `8f28d3836fde9354cd2eb79ae30286015f5d11e7`: Ruff lint/format PASS, mypy PASS, pytest **595 passed / 7 skipped**. El head posterior `d1ee497` añade documentación/handoff y también tiene ambos checks PASS.
 
 **Supabase — verificación actual de solo lectura:**
-- Proyecto `aeos-starter`: ID `ltdarjzxdrwffilmsftm`, región São Paulo (`sa-east-1`), PostgreSQL 17.12, estado `ACTIVE_HEALTHY`.
+- Organización Supabase: plan `free` (confirmado por Management API). Proyecto `aeos-starter`: ID `ltdarjzxdrwffilmsftm`, región São Paulo (`sa-east-1`), PostgreSQL 17.12, estado `ACTIVE_HEALTHY`.
 - Una migración: `20261125053223_starter_s0_03_private_rls_probe`.
 - Única tabla custom: `aeos_spike.tenant_probe`, en esquema privado. No hay tablas de negocio Starter.
 - Security advisor: 0 lints; performance advisor: 0 lints.
@@ -67,7 +67,7 @@ El head documental `1011c59530050d1fea1a977c7fbe20d4957bb1d8` obtuvo push run [4
 - Worker `aeos-starter-api`: subdominio workers.dev `frank-2e`; deployment activo `fba5c2a4-4ef0-4685-8e77-0a396e487074`; versión activa `ec0cab99-437b-47da-bb66-bca749b95776` (version 5), creada/desplegada el 2026-11-25.
 - **Hallazgo crítico:** el contenido descargado del Worker activo contiene el `app.py` bootstrap anterior. Su `/health` reporta `authentication_enabled: false`; `/api/v1/capabilities` no anuncia Auth; no contiene `worker.py`, `auth.py` ni la ruta `/api/v1/me` del código actual del PR #52. Por tanto, el código de PR #52 **no está desplegado**; la versión activa sigue siendo placeholder.
 - La URL configurada del Worker es https://aeos-starter-api.frank-2e.workers.dev, pero no se pudo comprobar HTTP desde esta sesión.
-- Cloudflare Billing Read devuelve HTTP 403 por falta de permiso `billing:read`. El plan Workers Free no está verificado; `usage_model: standard` no demuestra que sea Free.
+- Los seis Workers de la cuenta devuelven `usage_model: standard`. La [documentación oficial de precios de Cloudflare](https://developers.cloudflare.com/workers/platform/pricing/) indica que el Standard usage model está disponible para cuentas Workers Paid, con cargo mínimo de USD 5/mes por cuenta. Esto es evidencia fuerte de que la cuenta podría estar en Paid, pero Billing Read devuelve HTTP 403 por falta de `billing:read`, así que no se pudo confirmar suscripción, factura ni fecha de inicio. Como la cuenta ya contiene otros Workers (Lumen y AC Moreno), no se puede atribuir el cargo base a AEOS. No asumir Free ni aumentar uso hasta que el propietario confirme el estado de facturación.
 
 ### Límites de lo que está probado
 
@@ -77,7 +77,7 @@ La CI es local/sintética. No prueba despliegue del código actual de PR #52, HT
 
 1. Resolver la dependencia PR #51 → PR #52 mediante revisión humana. Ambos siguen Draft; no hacer merge automáticamente.
 2. Verificar manualmente desde navegador la URL estática y el endpoint configurado del Worker. No enviar tokens ni datos sensibles en capturas.
-3. Obtener confirmación del plan Workers Free desde el dashboard o conceder temporalmente el permiso de solo lectura `billing:read`. Mientras no se confirme coste cero, no desplegar otra versión, no configurar servicios metered y no invocar Workers AI.
+3. Confirmar en el dashboard/factura de Cloudflare si ya existe un plan Workers Paid (los metadatos `standard` lo sugieren) y si el cargo mínimo USD 5/mes es preexistente o incremental. La integración necesita `billing:read` para comprobarlo. No cambiar el plan, no desplegar otra versión, no configurar servicios metered ni invocar Workers AI hasta que el propietario confirme el coste aceptable.
 4. Cuando el coste cero esté verificado, desplegar el código ya probado del PR #52 sobre el Worker existente (sin crear otro recurso) y ejecutar smoke tests HTTP: health/capabilities, /api/v1/me sin token, token malformado, inválido, expirado y un test user controlado si el propietario lo autoriza. Registrar status, payload sanitizado, SHA y versión desplegada. No declarar Auth real antes de esos checks.
 5. Probar conexión PostgreSQL desde el runtime y membership/RLS con dos tenants sintéticos; separar la prueba de identidad de la autorización organizacional.
 6. Mantener AEOS-ARCH-001 (#53) en QUEUED mientras #51/#52 no estén resueltos. Después crear rama limpia desde el main vigente e implementar estándares ECC de calidad, seguridad, skills y evaluaciones deterministas.
