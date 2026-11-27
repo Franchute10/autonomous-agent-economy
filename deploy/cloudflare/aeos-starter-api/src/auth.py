@@ -1,4 +1,5 @@
 """Fail-closed Supabase user verification; never trust local JWT claims."""
+
 import re
 from uuid import UUID
 
