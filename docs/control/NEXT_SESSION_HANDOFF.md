@@ -29,7 +29,7 @@ Repositorio: `Franchute10/autonomous-agent-economy`; rama por defecto: `main`.
 |---|---|---|---|
 | main | — | `1ef00bacd00a14d7e79a4f558c4fd2987307c9ee` | Rama canónica al momento de la consulta |
 | [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) | `main` | head registrado `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d` | Draft; S0-03; no integrado. Verificar checks vigentes |
-| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | rama de PR #51 | código validado en `8f28d3836fde9354cd2eb79ae30286015f5d11e7` | Draft; S0-04; no integrado |
+| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | `product/aeos-starter-s0-03-20261125` | head `d1ee4978c8b58b2d74515e136061bc6fedb995cd` | Draft; S0-04; no integrado |
 | [Issue #53](https://github.com/Franchute10/autonomous-agent-economy/issues/53) | — | — | Abierta; QUEUED, bloqueada por #51/#52 |
 
 ### Validación de PR #52
@@ -48,19 +48,40 @@ Fallos previos del mismo PR, ya corregidos en el candidato validado:
 
 El commit de este handoff actualiza documentación en la misma rama de PR #52 y puede generar una nueva ejecución CI. Por eso, **el SHA exacto del head de la rama siempre debe consultarse en GitHub al retomar**; el SHA anterior identifica el candidato de código cuya CI se verificó, no necesariamente el head posterior a este cambio documental.
 
+### CI y evidencia de infraestructura — 2026-11-27
+
+**CI verificada:**
+- PR #51, head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`: push run [45557284664](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45557284664) PASS; PR run [45554584495](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554584495) PASS; push run [45554576178](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554576178) PASS.
+- PR #52, head `d1ee4978c8b58b2d74515e136061bc6fedb995cd`: push run [46081207592](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46081207592) PASS; PR run [46081211919](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46081211919) PASS.
+- Código del PR #52 en `8f28d3836fde9354cd2eb79ae30286015f5d11e7`: Ruff lint/format PASS, mypy PASS, pytest **595 passed / 7 skipped**. El head posterior `d1ee497` añade documentación/handoff y también tiene ambos checks PASS.
+
+**Supabase — verificación actual de solo lectura:**
+- Proyecto `aeos-starter`: ID `ltdarjzxdrwffilmsftm`, región São Paulo (`sa-east-1`), PostgreSQL 17.12, estado `ACTIVE_HEALTHY`.
+- Una migración: `20261125053223_starter_s0_03_private_rls_probe`.
+- Única tabla custom: `aeos_spike.tenant_probe`, en esquema privado. No hay tablas de negocio Starter.
+- Security advisor: 0 lints; performance advisor: 0 lints.
+- El probe RLS registrado fue **7/7 PASS** con identidades/datos sintéticos, writes denegados y rollback; no demuestra Auth real, membership ni autorización de tenants en la API.
+
+**Cloudflare — verificación actual de solo lectura:**
+- Pages `aeos-starter-preview`: deployment `264d0cc8-5c6d-4e6e-8e4f-bf98ccac6106`, SHA `2373804b0882963d0c456f590c316474a45d5893`, cinco etapas exitosas, `uses_functions=false`. URL: https://264d0cc8.aeos-starter-preview.pages.dev. No se pudo verificar su respuesta HTTP desde esta sesión.
+- Worker `aeos-starter-api`: subdominio workers.dev `frank-2e`; deployment activo `fba5c2a4-4ef0-4685-8e77-0a396e487074`; versión activa `ec0cab99-437b-47da-bb66-bca749b95776` (version 5), creada/desplegada el 2026-11-25.
+- **Hallazgo crítico:** el contenido descargado del Worker activo contiene el `app.py` bootstrap anterior. Su `/health` reporta `authentication_enabled: false`; `/api/v1/capabilities` no anuncia Auth; no contiene `worker.py`, `auth.py` ni la ruta `/api/v1/me` del código actual del PR #52. Por tanto, el código de PR #52 **no está desplegado**; la versión activa sigue siendo placeholder.
+- La URL configurada del Worker es https://aeos-starter-api.frank-2e.workers.dev, pero no se pudo comprobar HTTP desde esta sesión.
+- Cloudflare Billing Read devuelve HTTP 403 por falta de permiso `billing:read`. El plan Workers Free no está verificado; `usage_model: standard` no demuestra que sea Free.
+
 ### Límites de lo que está probado
 
-La CI usa pruebas locales/sintéticas. No demuestra que el Worker actual esté desplegado con éxito, que un login real funcione, que el endpoint /api/v1/me haya aceptado una sesión real, que exista membership/onboarding de organizaciones, aislamiento RLS desde el Worker, conexión de base de datos, Model Gateway ni ejecución de agentes. El health reporta explícitamente que el endpoint de identidad está implementado, pero aún no tiene verificación live. No afirmar esas capacidades hasta ejecutar pruebas remotas y guardar su evidencia.
-
-PR #51 debe verificarse contra su head vigente; checks antiguos de otros SHAs no equivalen a CI actual. Respetar la dependencia #51 → #52 y no hacer merge sin autorización explícita.
+La CI es local/sintética. No prueba despliegue del código actual de PR #52, HTTP reachability, login real, aceptación de token, conexión PostgreSQL desde Worker, membership/onboarding, RLS desde el runtime, Model Gateway, workflows durables ni ejecución de agentes. La versión desplegada de Cloudflare es un placeholder antiguo y no debe confundirse con el código de la rama. No leer ni copiar valores de secretos.
 
 ## Siguiente secuencia técnica
 
-1. Verificar PR #51, su head actual y GitHub Actions; resolver primero su base en `main`.
-2. Reconciliar PR #52 después de #51; comprobar build/deployment, /health, /api/v1/me con tokens válidos e inválidos, falta de bindings y fallos upstream. Después implementar onboarding/membership y RLS real como tarea separada.
-3. No abrir una tercera tarea técnica activa mientras #51 y #52 sigan abiertas. Issue #53 permanece en cola; no ampliar el alcance del Worker para adelantarla.
-4. Cuando #51/#52 estén resueltos, volver a leer el issue #53, verificar el main actual y crear una rama limpia desde el SHA vigente. Implementar estándares de calidad/seguridad/skills y pruebas deterministas descritas allí.
-5. Mantener gasto incremental autorizado en USD 0. No desplegar, invocar modelos, añadir servicios ni contratar planes sin autorización expresa.
+1. Resolver la dependencia PR #51 → PR #52 mediante revisión humana. Ambos siguen Draft; no hacer merge automáticamente.
+2. Verificar manualmente desde navegador la URL estática y el endpoint configurado del Worker. No enviar tokens ni datos sensibles en capturas.
+3. Obtener confirmación del plan Workers Free desde el dashboard o conceder temporalmente el permiso de solo lectura `billing:read`. Mientras no se confirme coste cero, no desplegar otra versión, no configurar servicios metered y no invocar Workers AI.
+4. Cuando el coste cero esté verificado, desplegar el código ya probado del PR #52 sobre el Worker existente (sin crear otro recurso) y ejecutar smoke tests HTTP: health/capabilities, /api/v1/me sin token, token malformado, inválido, expirado y un test user controlado si el propietario lo autoriza. Registrar status, payload sanitizado, SHA y versión desplegada. No declarar Auth real antes de esos checks.
+5. Probar conexión PostgreSQL desde el runtime y membership/RLS con dos tenants sintéticos; separar la prueba de identidad de la autorización organizacional.
+6. Mantener AEOS-ARCH-001 (#53) en QUEUED mientras #51/#52 no estén resueltos. Después crear rama limpia desde el main vigente e implementar estándares ECC de calidad, seguridad, skills y evaluaciones deterministas.
+7. Mantener gasto incremental USD 0. No merges, despliegues, upgrades ni inferencia pagada sin autorización expresa.
 
 ## Continuidad del chat — activador exacto
 
