@@ -12,7 +12,12 @@ from auth import verify_identity
 
 async def request_user(url, key, token):
     response = await asyncio.wait_for(
-        fetch(url, method="GET", headers={"apikey": key, "Authorization": "Bearer " + token}, redirect="error"),
+        fetch(
+            url,
+            method="GET",
+            headers={"apikey": key, "Authorization": "Bearer " + token},
+            redirect="error",
+        ),
         timeout=8,
     )
     return response.status, await response.json() if response.status == 200 else None
