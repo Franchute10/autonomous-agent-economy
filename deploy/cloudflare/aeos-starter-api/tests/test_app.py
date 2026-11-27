@@ -51,9 +51,7 @@ def test_identity_gate() -> None:
     key = "sb_publishable_test"
     assert asyncio.run(verify_identity(None, url, key, upstream))[0] == 401
     assert (
-        asyncio.run(verify_identity("Bearer a.b.c", url, "sb_secret_test", upstream))[
-            0
-        ]
+        asyncio.run(verify_identity("Bearer a.b.c", url, "sb_secret_test", upstream))[0]
         == 503
     )
     assert calls == []
