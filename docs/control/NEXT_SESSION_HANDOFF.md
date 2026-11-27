@@ -67,21 +67,22 @@ El head documental `1011c59530050d1fea1a977c7fbe20d4957bb1d8` obtuvo push run [4
 - Worker `aeos-starter-api`: subdominio workers.dev `frank-2e`; deployment activo `fba5c2a4-4ef0-4685-8e77-0a396e487074`; versión activa `ec0cab99-437b-47da-bb66-bca749b95776` (version 5), creada/desplegada el 2026-11-25.
 - **Hallazgo crítico:** el contenido descargado del Worker activo contiene el `app.py` bootstrap anterior. Su `/health` reporta `authentication_enabled: false`; `/api/v1/capabilities` no anuncia Auth; no contiene `worker.py`, `auth.py` ni la ruta `/api/v1/me` del código actual del PR #52. Por tanto, el código de PR #52 **no está desplegado**; la versión activa sigue siendo placeholder.
 - La URL configurada del Worker es https://aeos-starter-api.frank-2e.workers.dev, pero no se pudo comprobar HTTP desde esta sesión.
-- Los seis Workers de la cuenta devuelven `usage_model: standard`. La [documentación oficial de precios de Cloudflare](https://developers.cloudflare.com/workers/platform/pricing/) indica que el Standard usage model está disponible para cuentas Workers Paid, con cargo mínimo de USD 5/mes por cuenta. Esto es evidencia fuerte de que la cuenta podría estar en Paid, pero Billing Read devuelve HTTP 403 por falta de `billing:read`, así que no se pudo confirmar suscripción, factura ni fecha de inicio. Como la cuenta ya contiene otros Workers (Lumen y AC Moreno), no se puede atribuir el cargo base a AEOS. No asumir Free ni aumentar uso hasta que el propietario confirme el estado de facturación.
+- **El propietario confirmó con dos capturas del dashboard (2026-11-27) que la cuenta está en Workers Free:** la pestaña `Límites de gasto` muestra Workers y Durable Objects en `Nivel gratuito`; `Suscripciones` muestra `Workers Free — Activo`, ofrece `Actualizar a Workers Paid` por USD 5/mes más uso y no tiene método de pago registrado. No existe suscripción Paid ni gasto activo según el dashboard. La inferencia anterior basada en `usage_model: standard` fue incorrecta: ese campo de configuración/API no debe usarse por sí solo para inferir la suscripción de la cuenta. La evidencia del dashboard prevalece. Mantener el límite de gasto incremental USD 0 y no habilitar productos de pago.
 
 ### Límites de lo que está probado
 
-La CI es local/sintética. No prueba despliegue del código actual de PR #52, HTTP reachability, login real, aceptación de token, conexión PostgreSQL desde Worker, membership/onboarding, RLS desde el runtime, Model Gateway, workflows durables ni ejecución de agentes. La versión desplegada de Cloudflare es un placeholder antiguo y no debe confundirse con el código de la rama. No leer ni copiar valores de secretos.
+La CI es local/sintética. No prueba despliegue del código actual de PR #52, HTTP reachability, login real, aceptación de token, conexión PostgreSQL desde Worker, membership/onboarding, RLS desde el runtime, Model Gateway, workflows durables ni ejecución de agentes. La versión desplegada de Cloudflare es un placeholder antiguo y no debe confundirse con el código de la rama. No leer ni copiar valores de secretos. El plan Free permite ejecutar el Worker dentro de los límites documentados: 100.000 requests/día, 10 ms CPU/request, 128 MB memoria y 50 subrequests/request; diseñar y probar dentro de esos límites.
 
 ## Siguiente secuencia técnica
 
 1. Resolver la dependencia PR #51 → PR #52 mediante revisión humana. Ambos siguen Draft; no hacer merge automáticamente.
 2. Verificar manualmente desde navegador la URL estática y el endpoint configurado del Worker. No enviar tokens ni datos sensibles en capturas.
-3. Confirmar en el dashboard/factura de Cloudflare si ya existe un plan Workers Paid (los metadatos `standard` lo sugieren) y si el cargo mínimo USD 5/mes es preexistente o incremental. La integración necesita `billing:read` para comprobarlo. No cambiar el plan, no desplegar otra versión, no configurar servicios metered ni invocar Workers AI hasta que el propietario confirme el coste aceptable.
-4. Cuando el coste cero esté verificado, desplegar el código ya probado del PR #52 sobre el Worker existente (sin crear otro recurso) y ejecutar smoke tests HTTP: health/capabilities, /api/v1/me sin token, token malformado, inválido, expirado y un test user controlado si el propietario lo autoriza. Registrar status, payload sanitizado, SHA y versión desplegada. No declarar Auth real antes de esos checks.
-5. Probar conexión PostgreSQL desde el runtime y membership/RLS con dos tenants sintéticos; separar la prueba de identidad de la autorización organizacional.
-6. Mantener AEOS-ARCH-001 (#53) en QUEUED mientras #51/#52 no estén resueltos. Después crear rama limpia desde el main vigente e implementar estándares ECC de calidad, seguridad, skills y evaluaciones deterministas.
-7. Mantener gasto incremental USD 0. No merges, despliegues, upgrades ni inferencia pagada sin autorización expresa.
+3. El dashboard del propietario ya confirmó Workers Free y ausencia de método de pago. Python Workers es compatible con el runtime de Workers; respetar el límite Free de 100.000 requests/día y 10 ms CPU/request. No habilitar Workers AI, Durable Objects pagos, Containers, Hyperdrive ni servicios metered.
+4. Subir el código probado del PR #52 como una **nueva versión no desplegada** del Worker existente, usando el endpoint de Version Upload y `keep_bindings: ["secret_text"]` para preservar los dos secretos existentes sin leerlos ni sobrescribirlos. Probar la URL de versión (health/capabilities y /api/v1/me sin token); solo si pasa, crear deployment al 100% del tráfico. No crear otro Worker ni modificar DNS.
+5. Después del deployment, repetir smoke tests HTTP y registrar status, payload sanitizado, SHA y version ID. No declarar Auth real antes de probar con un usuario sintético controlado si el propietario lo autoriza.
+6. Probar conexión PostgreSQL desde el runtime y membership/RLS con dos tenants sintéticos; separar la prueba de identidad de la autorización organizacional.
+7. Mantener AEOS-ARCH-001 (#53) en QUEUED mientras #51/#52 no estén resueltos. Después crear rama limpia desde el main vigente e implementar estándares ECC de calidad, seguridad, skills y evaluaciones deterministas.
+8. Mantener gasto incremental USD 0. No upgrades, inferencia pagada ni servicios metered.
 
 ## Continuidad del chat — activador exacto
 
@@ -108,7 +109,7 @@ Procedimiento obligatorio al retomar:
 
 Este handoff gobierna la siguiente acción. Los apartados históricos posteriores preservan el piloto LIVE anterior y no sustituyen la prioridad Starter vigente.
 
-Actualizado: 2026-11-21 (America/Lima). Planificación y ejecución focal; continuar con el modelo disponible.
+Actualizado: 2026-11-27 (America/Lima). Planificación y ejecución focal; continuar con el modelo disponible.
 
 ## Retomar
 1. Leer este archivo y [el plan ejecutable](LUNA_EXECUTION_PLAN.md).
