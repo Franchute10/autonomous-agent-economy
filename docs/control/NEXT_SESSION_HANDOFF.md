@@ -29,7 +29,7 @@ Repositorio: `Franchute10/autonomous-agent-economy`; rama por defecto: `main`.
 |---|---|---|---|
 | main | — | `1ef00bacd00a14d7e79a4f558c4fd2987307c9ee` | Rama canónica al momento de la consulta |
 | [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) | `main` | head registrado `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d` | Draft; S0-03; no integrado. Verificar checks vigentes |
-| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | `product/aeos-starter-s0-03-20261125` | head `1011c59530050d1fea1a977c7fbe20d4957bb1d8` | Draft; S0-04; no integrado |
+| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | `product/aeos-starter-s0-03-20261125` | SHA dinámico: consultar el head vivo de GitHub; último candidato de código probado `8f28d3836fde9354cd2eb79ae30286015f5d11e7` | Draft; S0-04; no integrado |
 | [Issue #53](https://github.com/Franchute10/autonomous-agent-economy/issues/53) | — | — | Abierta; QUEUED, bloqueada por #51/#52 |
 
 ### Validación de PR #52
@@ -46,13 +46,13 @@ Fallos previos del mismo PR, ya corregidos en el candidato validado:
 - Run 46080525054: Ruff E402 por imports de tests fuera de cabecera.
 - Run 46080659280: Ruff format en auth.py, worker.py y test_app.py.
 
-El head actual de PR #52 es `1011c59530050d1fea1a977c7fbe20d4957bb1d8`; en ese head, push run [46082800734](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082800734) y PR run [46082802373](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082802373) PASS. Los commits posteriores actualizaron handoff, readiness y handbook. El candidato de código probado sigue siendo `8f28d3836fde9354cd2eb79ae30286015f5d11e7`. Consultar siempre el head vivo en GitHub antes de continuar.
+El head documental `1011c59530050d1fea1a977c7fbe20d4957bb1d8` obtuvo push run [46082800734](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082800734) y PR run [46082802373](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082802373), ambos PASS. Después se añadió este checkpoint de handoff a la misma rama, lo que genera un nuevo head y una nueva ejecución CI. **El SHA exacto del head posterior a este documento debe consultarse en GitHub; no se auto-referencia el SHA de un archivo dentro del commit que lo crea.** El candidato de código probado sigue siendo `8f28d3836fde9354cd2eb79ae30286015f5d11e7`.
 
 ### CI y evidencia de infraestructura — 2026-11-27
 
 **CI verificada:**
 - PR #51, head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`: push run [45557284664](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45557284664) PASS; PR run [45554584495](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554584495) PASS; push run [45554576178](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554576178) PASS.
-- PR #52, current head `1011c59530050d1fea1a977c7fbe20d4957bb1d8`: push run [46082800734](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082800734) PASS; PR run [46082802373](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082802373) PASS.
+- PR #52, documentation head `1011c59530050d1fea1a977c7fbe20d4957bb1d8`: push run [46082800734](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082800734) PASS; PR run [46082802373](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082802373) PASS. A later handoff checkpoint on the same branch requires a fresh head/CI check.
 - Código del PR #52 en `8f28d3836fde9354cd2eb79ae30286015f5d11e7`: Ruff lint/format PASS, mypy PASS, pytest **595 passed / 7 skipped**. El head posterior `d1ee497` añade documentación/handoff y también tiene ambos checks PASS.
 
 **Supabase — verificación actual de solo lectura:**
