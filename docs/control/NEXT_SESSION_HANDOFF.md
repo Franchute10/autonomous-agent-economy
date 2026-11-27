@@ -25,21 +25,41 @@ GitHub es la fuente de verdad. El chat ayuda a decidir y ejecutar, pero no susti
 
 Repositorio: `Franchute10/autonomous-agent-economy`; rama por defecto: `main`.
 
-| Elemento | Base | Head | Estado |
+| Elemento | Base | Referencia comprobada | Estado |
 |---|---|---|---|
 | main | — | `1ef00bacd00a14d7e79a4f558c4fd2987307c9ee` | Rama canónica al momento de la consulta |
-| [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) | `main` | `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d` | Draft; S0-03; no integrado |
-| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | rama de PR #51 | `4abeed162de02b44ece913c7edcaf75f5181b24f` | Draft; S0-04; no integrado |
+| [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) | `main` | head registrado `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d` | Draft; S0-03; no integrado. Verificar checks vigentes |
+| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | rama de PR #51 | código validado en `8f28d3836fde9354cd2eb79ae30286015f5d11e7` | Draft; S0-04; no integrado |
 | [Issue #53](https://github.com/Franchute10/autonomous-agent-economy/issues/53) | — | — | Abierta; QUEUED, bloqueada por #51/#52 |
 
-El endpoint de estado combinado consultado para los heads de #51 y #52 no devolvió entradas de status. **No inferir CI verde**: revisar GitHub Actions, checks, builds, logs y pruebas en los SHAs vigentes antes de afirmar éxito. La última nota de #52 decía que el build de autenticación estaba en curso; verificar el estado real, /health y /api/v1/me antes de afirmar que Auth funciona.
+### Validación de PR #52
+
+El candidato de código `8f28d3836fde9354cd2eb79ae30286015f5d11e7` obtuvo:
+- GitHub Actions CI push: run [46081019608](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46081019608) — PASS.
+- GitHub Actions CI pull request: run [46081025651](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46081025651) — PASS.
+- Ruff lint: PASS.
+- Ruff format: PASS (204 archivos ya formateados).
+- Mypy: PASS.
+- Pytest: **595 passed, 7 skipped**.
+
+Fallos previos del mismo PR, ya corregidos en el candidato validado:
+- Run 46080525054: Ruff E402 por imports de tests fuera de cabecera.
+- Run 46080659280: Ruff format en auth.py, worker.py y test_app.py.
+
+El commit de este handoff actualiza documentación en la misma rama de PR #52 y puede generar una nueva ejecución CI. Por eso, **el SHA exacto del head de la rama siempre debe consultarse en GitHub al retomar**; el SHA anterior identifica el candidato de código cuya CI se verificó, no necesariamente el head posterior a este cambio documental.
+
+### Límites de lo que está probado
+
+La CI usa pruebas locales/sintéticas. No demuestra que el Worker actual esté desplegado con éxito, que un login real funcione, que el endpoint /api/v1/me haya aceptado una sesión real, que exista membership/onboarding de organizaciones, aislamiento RLS desde el Worker, conexión de base de datos, Model Gateway ni ejecución de agentes. El health reporta explícitamente que el endpoint de identidad está implementado, pero aún no tiene verificación live. No afirmar esas capacidades hasta ejecutar pruebas remotas y guardar su evidencia.
+
+PR #51 debe verificarse contra su head vigente; checks antiguos de otros SHAs no equivalen a CI actual. Respetar la dependencia #51 → #52 y no hacer merge sin autorización explícita.
 
 ## Siguiente secuencia técnica
 
-1. Verificar el estado actual de PR #51 y sus checks; resolver primero su base en `main`.
-2. Verificar/reconciliar PR #52 después de #51; probar el build, /health, /api/v1/me, login válido, token inválido y errores upstream. No afirmar onboarding, tenant membership ni runtime de agentes hasta probarlos.
+1. Verificar PR #51, su head actual y GitHub Actions; resolver primero su base en `main`.
+2. Reconciliar PR #52 después de #51; comprobar build/deployment, /health, /api/v1/me con tokens válidos e inválidos, falta de bindings y fallos upstream. Después implementar onboarding/membership y RLS real como tarea separada.
 3. No abrir una tercera tarea técnica activa mientras #51 y #52 sigan abiertas. Issue #53 permanece en cola; no ampliar el alcance del Worker para adelantarla.
-4. Cuando #51/#52 estén resueltos, volver a leer el issue #53, verificar el main actual y crear una rama limpia desde el SHA vigente. Implementar los estándares de calidad/seguridad/skills y las pruebas deterministas descritas allí.
+4. Cuando #51/#52 estén resueltos, volver a leer el issue #53, verificar el main actual y crear una rama limpia desde el SHA vigente. Implementar estándares de calidad/seguridad/skills y pruebas deterministas descritas allí.
 5. Mantener gasto incremental autorizado en USD 0. No desplegar, invocar modelos, añadir servicios ni contratar planes sin autorización expresa.
 
 ## Continuidad del chat — activador exacto
