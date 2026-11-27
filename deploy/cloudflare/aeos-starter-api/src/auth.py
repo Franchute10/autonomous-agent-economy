@@ -31,8 +31,13 @@ async def verify_identity(header, url, key, request_user):
             return 401, {"error": "invalid_session"}
         if status != 200:
             return 503, {"error": "authentication_unavailable"}
-        if not isinstance(user, dict) or user.get("is_anonymous") is not False:
+        if not isinstance(user, dict):
+            return 503, {"error": "authentication_unavailable"}
+        anonymous = user.get("is_anonymous")
+        if anonymous is True:
             return 403, {"error": "permanent_account_required"}
+        if anonymous is not False:
+            return 503, {"error": "authentication_unavailable"}
         identity = str(UUID(user["id"]))
     except Exception:
         return 503, {"error": "authentication_unavailable"}
