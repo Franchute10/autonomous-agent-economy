@@ -87,6 +87,7 @@ class Default(WorkerEntrypoint):
             status, payload = await organizations(
                 request.method,
                 raw_body,
+                request.headers.get("Idempotency-Key"),
                 authorization,
                 supabase_url,
                 publishable_key,
