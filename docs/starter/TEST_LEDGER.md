@@ -70,3 +70,16 @@ Cada nueva ejecución añade una fila con fecha, repo/rama/SHA, comando, entorno
 | CI PR #52 | PASS | PR run 46089162095 para head `41f5cd539e66de80515871dd6b281599d98a74f8`; verificar de nuevo tras cambios de base/head. |
 
 La cuenta Workers Free y la ausencia de método de pago fueron confirmadas por el propietario en el dashboard. Estos GET de smoke se hicieron dentro de los recursos Free existentes; no se activó facturación ni se alteraron secretos.
+
+
+## 2026-11-28 — S1-02 organización y RLS
+
+| Check | Resultado | SHA / alcance |
+|---|---|---|
+| GitHub Actions CI | PASS, run #486 | `6c2d4db78c659ccd852f0956933b02fc00b868eb`; Ruff, format, mypy, core/Worker tests y empaquetado según pipeline. | 
+| Supabase migrations | PASS | `20261128032248 starter_organizations_memberships_idempotent` y `20261128032620 fix_create_organization_conflict_target`, proyecto Free `aeos-starter`. | 
+| SQL sintético transaccional | PASS | Dos usuarios UUID sintéticos; replay idempotente, creación de membership owner, aislamiento A/B y bloqueo de insert directo bajo rol authenticated. `ROLLBACK`; comprobación posterior: 0 organizaciones, 0 memberships y 0 usuarios sintéticos. | 
+| Seguridad Supabase | REVIEWED | Una advertencia para la RPC `SECURITY DEFINER`, intencional y restringida a identidad `auth.uid()`, `search_path` fijo y sin SQL dinámico. | 
+| API real desde Worker / sesión válida | NOT RUN | No hubo deploy de nueva versión ni sesión de usuario; no afirmar auth E2E. | 
+
+La primera prueba SQL detectó referencia ambigua a `organization_id` en `ON CONFLICT`; se agregó y aplicó una migración correctiva usando la constraint primaria explícita. La prueba completa pasó tras la corrección. No se ejecutó inferencia de modelo ni hubo tráfico de producción.
