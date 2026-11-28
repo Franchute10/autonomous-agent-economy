@@ -1,12 +1,7 @@
 from pathlib import Path
 
 
-PREVIEW = (
-    Path(__file__).resolve().parents[1]
-    / "spikes"
-    / "starter_s0_03"
-    / "preview"
-)
+PREVIEW = Path(__file__).resolve().parents[1] / "spikes" / "starter_s0_03" / "preview"
 
 
 def test_preview_has_auth_org_forms_and_secure_headers() -> None:
