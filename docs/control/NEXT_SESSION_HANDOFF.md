@@ -78,6 +78,16 @@ El head documental `1011c59530050d1fea1a977c7fbe20d4957bb1d8` obtuvo push run [4
 - Se añadió a CI una etapa explícita que ejecuta `uv sync --all-groups`, `uv run pywrangler sync` y verifica `python_modules/workers/__init__.py` y `python_modules/_workers_sdk_patch_loader.pth`.
 - Commit de dependencias: `7f13b3a89a6afb64bf3045255f01227640a310f1`; commit del workflow CI: `af99ae18de851a407d0a1d3184920b2a37004f8c`. CI push `46085765986` y PR `46085768182` estaban en ejecución al guardar este checkpoint. No declarar PASS hasta verificar ambos resultados.
 
+### Worker versión 6 — SDK empaquetado y staged (2026-11-27)
+
+- Se subió correctamente una versión no desplegada al Worker existente `aeos-starter-api`, usando el SDK oficial de `cloudflare/workers-py` (runtime-sdk 1.9.7) bajo `python_modules/`.
+- Version ID: `4bd80ea2-7f08-4440-b8d0-62daeb2c6cdf`; número 6; `has_preview=true`; source `api`; handlers `fetch`.
+- Código: `worker.py`, `app.py`, `auth.py`; SDK empaquetado con módulos `workers` y loader `.pth`. Se conservó `compatibility_date=2026-11-25` y flag `python_workers`.
+- Se usó `keep_bindings: ["secret_text"]`. La respuesta de versión y la configuración actual confirman que siguen presentes las dos bindings `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY`; no se leyeron ni modificaron sus valores.
+- URL de versión: https://4bd80ea2-aeos-starter-api.frank-2e.workers.dev
+- La deployment activa sigue siendo `fba5c2a4-4ef0-4685-8e77-0a396e487074`, versión 5 `ec0cab99-437b-47da-bb66-bca749b95776`, al 100%. La versión 6 **no recibe tráfico de producción**.
+- La prueba HTTP automatizada desde esta sesión no es posible: el acceso web no resuelve el hostname `workers.dev`, y los sandboxes de ejecución bloquean requests salientes a ese hostname. No inferir funcionamiento a partir de `has_preview=true` ni de una carga exitosa. El propietario debe abrir los tres endpoints read-only indicados en el chat; después se podrá desplegar al 100% si las respuestas son correctas.
+
 ### Límites de lo que está probado
 
 La CI es local/sintética. No prueba despliegue del código actual de PR #52, HTTP reachability, login real, aceptación de token, conexión PostgreSQL desde Worker, membership/onboarding, RLS desde el runtime, Model Gateway, workflows durables ni ejecución de agentes. La versión desplegada de Cloudflare es un placeholder antiguo y no debe confundirse con el código de la rama. No leer ni copiar valores de secretos. El plan Free permite ejecutar el Worker dentro de los límites documentados: 100.000 requests/día, 10 ms CPU/request, 128 MB memoria y 50 subrequests/request; diseñar y probar dentro de esos límites.
@@ -87,8 +97,8 @@ La CI es local/sintética. No prueba despliegue del código actual de PR #52, HT
 1. Resolver la dependencia PR #51 → PR #52 mediante revisión humana. Ambos siguen Draft; no hacer merge automáticamente.
 2. Verificar manualmente desde navegador la URL estática y el endpoint configurado del Worker. No enviar tokens ni datos sensibles en capturas.
 3. El dashboard del propietario ya confirmó Workers Free y ausencia de método de pago. Python Workers es compatible con el runtime de Workers; respetar el límite Free de 100.000 requests/día y 10 ms CPU/request. No habilitar Workers AI, Durable Objects pagos, Containers, Hyperdrive ni servicios metered.
-4. Confirmar que la nueva etapa CI de `pywrangler sync` pasa y que genera `python_modules/` con el SDK. Subir el código y el vendor SDK del PR #52 como una **nueva versión no desplegada** del Worker existente, usando Version Upload y `keep_bindings: ["secret_text"]` para preservar los dos secretos existentes sin leerlos ni sobrescribirlos. Probar la URL de versión (health/capabilities y /api/v1/me sin token); solo si pasa, crear deployment al 100% del tráfico. No crear otro Worker ni modificar DNS.
-5. Después del deployment, repetir smoke tests HTTP y registrar status, payload sanitizado, SHA y version ID. No declarar Auth real antes de probar con un usuario sintético controlado si el propietario lo autoriza.
+4. La versión 6 ya está cargada y staged. El propietario debe comprobar la URL de versión: `/health` 200, `/api/v1/capabilities` 200 y `/api/v1/me` sin token 401. No enviar token real. Si cualquiera falla, no desplegar; corregir código y volver a subir otra versión staged preservando `secret_text`.
+5. Solo tras smoke tests aprobados, crear deployment con versión 6 al 100% del tráfico. Después repetir smoke tests en la URL estable y registrar status, payload sanitizado, SHA, version ID y deployment ID. No declarar Auth real antes de probar con un usuario sintético controlado si el propietario lo autoriza.
 6. Probar conexión PostgreSQL desde el runtime y membership/RLS con dos tenants sintéticos; separar la prueba de identidad de la autorización organizacional.
 7. Mantener AEOS-ARCH-001 (#53) en QUEUED mientras #51/#52 no estén resueltos. Después crear rama limpia desde el main vigente e implementar estándares ECC de calidad, seguridad, skills y evaluaciones deterministas.
 8. Mantener gasto incremental USD 0. No upgrades, inferencia pagada ni servicios metered.
