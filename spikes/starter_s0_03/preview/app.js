@@ -1,8 +1,9 @@
 "use strict";
 
-const API_BASE = "https://aeos-starter-api.frank-2e.workers.dev";
+const API_BASE = window.AEOS_API_BASE || "https://aeos-starter-api.frank-2e.workers.dev";
 const ACCESS_TOKEN_KEY = "aeos_access_token";
 const statusElement = document.getElementById("status");
+const workspaceStatusElement = document.getElementById("workspace-status");
 const authPanel = document.getElementById("auth-panel");
 const workspacePanel = document.getElementById("workspace-panel");
 const loginForm = document.getElementById("login-form");
@@ -12,8 +13,9 @@ const organizationList = document.getElementById("organization-list");
 let authConfig = null;
 
 function setStatus(message, kind) {
-  statusElement.textContent = message;
-  statusElement.dataset.kind = kind || "info";
+  const target = workspacePanel && !workspacePanel.hidden ? workspaceStatusElement : statusElement;
+  target.textContent = message;
+  target.dataset.kind = kind || "info";
 }
 
 function setBusy(form, busy) {
