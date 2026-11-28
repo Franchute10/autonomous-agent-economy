@@ -1,3 +1,19 @@
+## Continuidad AEOS Starter — 2026-11-28 (America/Lima)
+
+### Estado verificado
+- `main` incorpora PR #54; base de PR #55 `78bb383e03999d52b658dc99857c9dbdd6fef5d0`.
+- PR #55 (`feat/starter-org-onboarding-s0-03`) listo para revisión. Head antes de esta actualización documental: `6c2d4db78c659ccd852f0956933b02fc00b868eb`; CI #486 PASS.
+- Proyecto Supabase `aeos-starter` (Free) tiene organizaciones y membresías con RLS; migración original y correctiva aplicadas.
+- Prueba SQL con dos tenants sintéticos: idempotencia, membership owner, aislamiento y denegación de insert directo PASS; rollback confirmado con 0 organizaciones, 0 memberships y 0 usuarios sintéticos.
+- El asesor de seguridad marca una advertencia para la función `SECURITY DEFINER` ejecutable por authenticated. Está documentada como intencional y acotada; revisar nuevamente al endurecer antes de pilotos externos.
+- Worker permanece sin nueva versión; no hubo tráfico, secretos, inferencia ni gasto adicional.
+
+### No verificado
+Sesión Supabase válida, API organizations desde Worker, signup/login, UI, autorización desde runtime, perfil/artefactos, runtime de agentes, modelo real y workflow Comercial E2E.
+
+### Siguiente paso
+Solicitar autorización explícita para fusionar PR #55. Tras el merge, continuar S0-03/S1-02: preparar Worker candidate preservando bindings, probar con signup sintético a través de una interfaz web segura y validar Auth/PostgREST/RLS desde runtime antes de cambiar tráfico. Workers Free y USD 0 permanecen obligatorios.
+
 ## Continuidad después de abrir el PR — 2026-11-27 (America/Lima)
 
 - Issue #53 está propuesta en [PR #54](https://github.com/Franchute10/autonomous-agent-economy/pull/54), rama `docs/aeos-arch-001-agent-quality-security-20261128`, contra `main` en `4a6979c5d1e15eba22df246b8d5c0c4a8d5deb53`.
