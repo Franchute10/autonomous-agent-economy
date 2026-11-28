@@ -15,7 +15,7 @@ def test_preview_has_auth_org_forms_and_secure_headers() -> None:
     assert "localStorage" not in script
     assert "console.log" not in script
     assert "crypto.randomUUID()" in script
-    assert "credentials: \"omit\"" in script
+    assert 'credentials: "omit"' in script
     assert "frame-ancestors 'none'" in headers
     assert "service_role" not in script.lower()
     assert "sb_secret_" not in script
