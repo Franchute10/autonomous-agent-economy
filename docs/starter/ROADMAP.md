@@ -11,7 +11,7 @@ Fuente normativa: [AEOS_STARTER_MVP_PLAN.md](AEOS_STARTER_MVP_PLAN.md). Issue: [
 |---|---:|---|---|---|
 | S0-01 | 0 | Baseline GitHub, ramas y riesgos | DONE | AEOS main eaa8c525; LIVE de2d211b; motor main/ramas comparados; plan documenta divergencia |
 | S0-02 | 0 | Alcance Starter y exclusiones | DONE | Plan integrado en main mediante PR #50 / commit db041a62; decisiones de producto confirmadas en DECISION_LOG.md |
-| S0-03 | 0 | Confirmar departamento, despliegue, auth, DB y modelo | IN_PROGRESS | Supabase healthy; RLS probe 7/7 PASS; static Pages deploy success, HTTP not verified; Workers billing read blocked; runtime/Auth/model pending |
+| S0-03 | 0 | Confirmar departamento, despliegue, auth, DB y modelo | IN_PROGRESS | Supabase healthy; private RLS probe 7/7 PASS; Pages HTTP 200; Workers Free confirmed; Worker v6 smoke 200/200/401. Valid Auth, tenant authorization, DB from Worker and E2E remain unverified. |
 | S1-01 | 1 | Branch de implementación desde main e integración selectiva | TODO | No iniciar hasta cerrar S0-03 y revisar CI/PR |
 | S1-02 | 1 | Auth, usuario, organización y membership | TODO | Registro/login y creación de tenant |
 | S1-03 | 1 | Aislamiento multi-tenant PostgreSQL/RLS | TODO | Tests cross-tenant sobre PostgreSQL real |
@@ -48,9 +48,7 @@ Fuente normativa: [AEOS_STARTER_MVP_PLAN.md](AEOS_STARTER_MVP_PLAN.md). Issue: [
 
 ## Actualización operativa — 2026-11-27 (America/Lima)
 
-Esta actualización prevalece sobre el corte histórico del 2026-11-25:
-
-- **S0-03:** IN_PROGRESS, no DONE. Supabase `aeos-starter` está saludable; la prueba RLS privada sintética fue 7/7 PASS y no dejó filas. El preview estático respondió HTTP 200.
-- El propietario confirmó Workers Free activo, sin método de pago ni gasto; no se contrató un plan ni se habilitaron servicios de pago. El Worker existente `aeos-starter-api` versión 6 está al 100% y respondió `/health` 200, `/api/v1/capabilities` 200 y `/api/v1/me` sin token 401, antes y después de activar la versión.
-- Esto no verifica un token Supabase válido, membership/aislamiento multi-tenant, conexión PostgreSQL desde el Worker ni flujo E2E. La inferencia y ejecución de agentes siguen deshabilitadas.
-- PR #51 y #52 continúan abiertos en Draft; Issue #53 está bloqueada por ambos. Resolverlos según el orden registrado antes de abrir la rama de Issue #53. Presupuesto incremental: USD 0.
+- **Main:** PR #51 y PR #52 integrados; head `4a6979c5d1e15eba22df246b8d5c0c4a8d5deb53`; push CI run [46098462896](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46098462896) — PASS.
+- **S0-03:** sigue IN_PROGRESS. No marcar autenticación real, tenant authorization, conexión PostgreSQL desde Worker ni E2E como verificados. Workers Free y gasto incremental USD 0 siguen vigentes.
+- **AEOS-ARCH-001 / Issue #53:** PR #54 abierto desde `docs/aeos-arch-001-agent-quality-security-20261128` contra `main`; head previo a este refresh: `ce078157db6b4a40d3cfcde54e1c4066718432a2`; push CI [46099493372](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46099493372) y PR CI [46099497267](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46099497267) — PASS. Scope documental: calidad, contrato de skills, evaluaciones reproducibles y matriz de seguridad. El refresh produce un nuevo head; comprobar SHA/CI en GitHub.
+- La arquitectura y los tests documentados no equivalen a implementación de runtime, memoria, autorización ni evaluador. Después del PR de Issue #53, el siguiente trabajo seguirá el roadmap sin cerrar S0-03 por inferencia.

@@ -9,6 +9,10 @@ Este directorio es la fuente de verdad del MVP Starter.
 5. [Test ledger y evidencia de validación](TEST_LEDGER.md)
 6. [Checklist de release](RELEASE_CHECKLIST.md)
 
+## Calidad, skills y seguridad
+
+AEOS Starter follows the [AEOS agent quality standard](../architecture/AGENT_QUALITY_STANDARD.md) and [agent/skill contract](../domain/AGENT_SKILL_CONTRACT.md). Evaluation format and security cases are documented in [evaluation records](../evals/README.md), [synthetic eval fixtures](../../tests/evals/README.md), and [the security matrix](../../tests/security/README.md). These documents define controls; they do not imply that the Starter runtime implements them.
+
 ## Entrada de continuidad
 
 - Issue principal: [AEOS #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)

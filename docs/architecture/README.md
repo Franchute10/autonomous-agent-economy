@@ -31,3 +31,13 @@ decisions.
 
 No detailed AEOS models are defined yet. The baseline is approved, but the
 capabilities it describes are not implemented by this documentation task.
+
+
+## Agent quality, skills, evaluation and security
+
+- [Agent quality standard](AGENT_QUALITY_STANDARD.md) — hard gates, reproducible baselines, evidence levels, and promotion/rollback criteria.
+- [Agent and skill contract](../domain/AGENT_SKILL_CONTRACT.md) — versioned declarations and run-record requirements; capabilities do not grant permission.
+- [Evaluation records](../evals/README.md) and [synthetic evaluation fixture format](../../tests/evals/README.md).
+- [Security threat and test matrix](../../tests/security/README.md).
+
+These are specifications and review criteria, not proof that an evaluator, memory service, authorization gateway, or agent runtime is implemented. See the code and ADRs for current implementation status.
