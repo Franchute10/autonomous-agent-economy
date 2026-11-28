@@ -1,17 +1,18 @@
 # AEOS Starter API — Cloudflare Python Worker
 
-This is a separate runtime for AEOS Starter. It does not modify the existing `lumen` Worker or the `ferreteriaconstruyeperu.com` zone. Cloudflare Workers is the intended runtime; the Python Worker entrypoint is not a Vercel Python function.
+This is the isolated runtime for AEOS Starter. It does not modify the existing `lumen` Worker or the `ferreteriaconstruyeperu.com` zone. Cloudflare Workers is the intended runtime; this Python Worker is not a Vercel Python function.
 
-## Current scope
+## Candidate scope
 
-- Python Worker entrypoint using Cloudflare's `workers` runtime.
-- `GET /health` and `GET /api/v1/capabilities` report implemented and unverified states separately.
-- `GET /api/v1/me` validates a bearer token through Supabase Auth's `/auth/v1/user` endpoint and returns only the canonical user ID.
-- Candidate PR #55 adds `GET /api/v1/organizations` and `POST /api/v1/organizations`. The list query is scoped to the user ID verified by Supabase Auth. Creation uses an authenticated PostgREST RPC, an idempotency UUID, and server-derived `auth.uid()`; client-supplied user and organization IDs are ignored.
-- The candidate migration creates organizations and memberships with PostgreSQL RLS and an atomic owner-membership insert.
-- Supabase URL and publishable key are Worker bindings. No service-role/admin key is used.
+- Python Worker health and capability routes.
+- `GET /api/v1/public-config` exposes only the public Supabase URL and publishable key needed by the static signup/login page; it never returns a service-role key.
+- `GET /api/v1/me` verifies bearer sessions through Supabase Auth.
+- `GET/POST /api/v1/organizations` lists and creates organizations through user-scoped PostgREST and RLS.
+- Browser CORS is limited to HTTPS origins on the dedicated `aeos-starter-preview.pages.dev` project. No credentials cookies or arbitrary origins are allowed.
+- The static preview uses Supabase Auth signup/password login, keeps the access token in tab-scoped sessionStorage, and supports organization creation/listing.
+- Organization idempotency, tenant RLS, bounded input validation, and sanitized upstream failures.
 
-The organization API is not live-ready until the migration is applied to the dedicated `aeos-starter` project, real PostgreSQL RLS checks pass, and a staged Worker version passes runtime checks. At this checkpoint, no valid Supabase session or database request from the Worker has been verified. Do not send customer data or claim live authentication based on unit tests.
+The code is a candidate. A valid Supabase session and browser-to-Worker database request are not yet verified. Do not claim production readiness until that full flow passes. Do not use customer information.
 
 ## Local checks
 
@@ -21,21 +22,13 @@ From this directory:
 uv run pytest
 ```
 
-## Deploy
+## Deploy boundaries
 
-Cloudflare documents Python Workers through `pywrangler`:
+Keep the Worker on the confirmed Workers Free plan. Stage versions only; do not change traffic until health, capability, Auth, and organization checks pass. Preserve existing secret bindings with `keep_bindings`; never read or print their values. No paid bindings, model calls, or service upgrades.
 
-```bash
-uv run pywrangler deploy
-```
+## Next gates
 
-Keep the Worker on the confirmed Workers Free plan and within its free limits. Do not add paid bindings or upgrade plans.
-
-## Next implementation gates
-
-1. Apply the reviewed migration to the dedicated Supabase project and run synthetic two-tenant RLS and idempotency checks in a rolled-back transaction.
-2. Stage a Worker version and verify missing/invalid/valid session behavior and organization reads/creation without using real customer data.
-3. Build the browser signup/login and organization onboarding experience.
-4. Add durable task/workflow persistence and the AEOS runtime using the canonical domain state machines.
-5. Add evidence capture, human approval, and audit history. No automatic external messages.
-6. Add a model adapter only within the confirmed free allocation and with per-run limits; stop if the free quota is exhausted.
+1. Verify the staged Worker public config and unauthenticated route statuses.
+2. Validate signup/login and organization API with a dedicated synthetic account, then remove it.
+3. Run a two-tenant browser/API flow against PostgreSQL RLS.
+4. Continue with business profile and tenant-scoped artefacts, then the durable task runtime and supervised Commercial workflow.
