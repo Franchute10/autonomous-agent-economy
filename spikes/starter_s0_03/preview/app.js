@@ -44,17 +44,28 @@ async function readJson(response) {
 }
 
 async function loadConfig() {
-  const response = await fetch(API_BASE + "/api/v1/public-config", {
+  let response;
+  try {
+    response = await fetch(API_BASE + "/api/v1/public-config", {
     method: "GET",
     credentials: "omit",
     cache: "no-store",
     headers: { Accept: "application/json" }
   });
-  const data = await readJson(response);
-  if (!response.ok || !data || !data.supabase_url || !data.supabase_publishable_key) {
-    throw new Error("configuration_unavailable");
+    const data = await readJson(response);
+    if (!response.ok) {
+      throw new Error("configuration_http_" + response.status);
+    }
+    if (!data || !data.supabase_url || !data.supabase_publishable_key) {
+      throw new Error("configuration_invalid_response");
+    }
+    authConfig = data;
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("configuration_")) {
+      throw error;
+    }
+    throw new Error("configuration_request_failed");
   }
-  authConfig = data;
 }
 
 async function authRequest(path, payload) {
@@ -223,8 +234,12 @@ async function start() {
     } else {
       showAuth("");
     }
-  } catch {
-    showAuth("El acceso está temporalmente fuera de servicio.");
+  } catch (error) {
+    const reason =
+      error instanceof Error && error.message.startsWith("configuration_")
+        ? " (" + error.message + ")"
+        : "";
+    showAuth("El acceso está temporalmente fuera de servicio" + reason + ".");
   }
 }
 void start();
