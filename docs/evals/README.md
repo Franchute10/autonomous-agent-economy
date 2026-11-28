@@ -11,3 +11,8 @@ These documents define a future evaluation format; they are not an implemented e
 For every comparison, preserve the exact commit, dataset and case versions, evaluator, environment, policy configuration, and agent/skill versions. Report every attempted case, including errors and timeouts. Keep human acceptance separate from benchmark scores and from user outcomes. LLM-as-judge is supplemental and must be calibrated; it cannot promote itself.
 
 No evaluation harness, quality store, promotion service, or runtime is claimed to exist until code and checks demonstrate it.
+
+
+## Learning and memory
+
+Evaluation results can inform a candidate lesson, but they do not update shared memory, skills, or policy automatically. Keep raw run records immutable and lessons scoped to the organization/project that produced them. Promotion across projects requires explicit owner review, minimization/anonymization, provenance to source run IDs, a new immutable version, regression evaluation, and a rollback path. Do not infer general learning from one successful run or from an agent's self-score.

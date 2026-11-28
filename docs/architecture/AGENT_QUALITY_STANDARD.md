@@ -79,3 +79,21 @@ Promotion is denied when any hard gate fails, a required threshold is absent, th
 ## Current implementation limit
 
 This file defines the standard only. The repository does not yet implement the evaluation runner, quality score store, promotion service, or production agent runtime. Tests described in the evaluation and security READMEs are specifications until executable checks are added and run.
+
+
+## Learning and promotion
+
+Run outcomes may produce a proposed lesson, never an automatic change to a shared skill or policy. Keep raw evidence append-only and the derived lesson scoped to its source organization/project. A promotion candidate records the originating run IDs, intended scope, evidence, reviewer, transformation/anonymization, and target immutable version. Evaluate the candidate against the frozen regression set before adoption. Cross-project promotion requires explicit owner review, privacy minimization/anonymization, a new version, and a rollback path. No universal confidence threshold is implied by this standard.
+
+## Source adaptation
+
+This AEOS standard selectively adapts reproducibility, baseline comparison, boundary-first security, project-scoped learning, and structured failure capture from the upstream references below. It does not import ECC as an AEOS framework, runtime, toolset, or project dependency. These upstream URLs point to a mutable main branch; for a future change that depends on a specific detail, record the inspected commit SHA in that change.
+
+- [Agent Eval](https://github.com/affaan-m/ecc/tree/main/skills/agent-eval)
+- [Agent Architecture Audit](https://github.com/affaan-m/ecc/tree/main/skills/agent-architecture-audit)
+- [Agent Security Hardening](https://github.com/affaan-m/ecc/tree/main/skills/agent-security-hardening)
+- [Continuous Learning v2](https://github.com/affaan-m/ecc/tree/main/skills/continuous-learning-v2)
+- [Agent Introspection Debugging](https://github.com/affaan-m/ecc/tree/main/skills/agent-introspection-debugging)
+- [Benchmark Optimization Loop](https://github.com/affaan-m/ecc/tree/main/skills/benchmark-optimization-loop)
+
+Reviewed 2026-11-27 (America/Lima).
