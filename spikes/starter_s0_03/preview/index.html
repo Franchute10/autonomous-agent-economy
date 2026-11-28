@@ -1,14 +1,88 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>AEOS Starter | Vista preliminar</title><style>
-:root{color-scheme:dark;--bg:#101722;--card:#172332;--line:#304154;--text:#edf4ff;--muted:#a6b6c8;--accent:#73e0bc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,sans-serif}header{border-bottom:1px solid var(--line);padding:20px 5vw;display:flex;align-items:center;justify-content:space-between;gap:16px}header strong{letter-spacing:.08em}main{max-width:1120px;margin:auto;padding:40px 24px}h1{font-size:clamp(32px,5vw,52px);line-height:1.1;margin:12px 0}p{color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:.15em;color:var(--accent);font-weight:700}.notice{border:1px solid var(--line);padding:16px;border-radius:12px;margin:24px 0;background:#1d2b39}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.dept{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}.dept h3{margin:8px 0}.dept p{margin:6px 0;font-size:14px}.tag{font-size:12px;color:var(--muted)}.priority{border-color:#73e0bc}.priority .tag{color:var(--accent)}footer{padding:24px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);text-align:center}a{color:var(--accent)}button{border:1px solid var(--line);color:var(--text);background:var(--card);border-radius:8px;padding:10px 14px;font:inherit;cursor:pointer}button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}[hidden]{display:none!important}.controls{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}</style></head>
-<body><header><strong>AEOS / STARTER</strong><span class="tag">STAGING · v0.1 PREVIEW</span></header><main><div class="eyebrow">TU FUERZA LABORAL DIGITAL</div><h1>Organiza. Delega. Supervisa.</h1><p>Espacio de trabajo empresarial para agentes de IA con autonomía supervisada.</p><section class="notice" aria-label="Estado del producto"><strong>Vista preliminar de interfaz</strong><p>El proyecto PostgreSQL está aprovisionado. Esta página es estática: todavía no ejecuta agentes, no autentica usuarios, no consulta datos empresariales ni permite enviar tareas. Comercial es el primer departamento que se implementará.</p></section><h2>Mi equipo IA</h2><div class="controls"><button type="button" data-filter="all" aria-pressed="true">Todos los departamentos</button><button type="button" data-filter="priority" aria-pressed="false">Prioridad del MVP</button></div><section class="grid" aria-label="Departamentos">
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Dirección</h3><p>Objetivos, seguimiento y reportes.</p></article>
-<article class="dept priority"><span class="tag">PRIORIDAD · EN DESARROLLO</span><h3>Comercial</h3><p>Prospección, evidencia, oportunidades y borradores para aprobación.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Marketing</h3><p>Investigación, contenido y campañas.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Atención al cliente</h3><p>Consultas, reclamos y postventa.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Administración</h3><p>Documentos, vencimientos y tareas.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Finanzas</h3><p>Flujo de caja, márgenes y alertas.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Operaciones y compras</h3><p>Pedidos, inventario y proveedores.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Recursos humanos</h3><p>Perfiles, incorporación y procesos.</p></article>
-<article class="dept"><span class="tag">PLANIFICADO</span><h3>Inteligencia de negocios</h3><p>Indicadores y análisis transversal.</p></article>
-</section></main><footer>AEOS Starter · Prototipo estático sin datos de clientes · <a href="https://github.com/Franchute10/autonomous-agent-economy/issues/49">Seguimiento del MVP</a></footer><script>document.querySelectorAll("[data-filter]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-filter]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));document.querySelectorAll(".dept").forEach(d=>d.hidden=button.dataset.filter==="priority"&&!d.classList.contains("priority"));}));</script></body></html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Vista preliminar de AEOS Starter">
+  <title>AEOS Starter | Espacio de trabajo</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./runtime-config.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="AEOS Starter inicio">AEOS <span>/ STARTER</span></a>
+    <span class="tag">PREVIEW · MVP EN CONSTRUCCIÓN</span>
+  </header>
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">TU ORGANIZACIÓN, CON AGENTES BAJO GOBIERNO</p>
+      <h1>Organiza. Delega. Supervisa.</h1>
+      <p class="lead">Un espacio de trabajo para coordinar agentes de IA con propósito, permisos, trazabilidad y aprobación humana.</p>
+    </section>
+    <aside class="notice">
+      <strong>Entorno de prueba</strong>
+      <span>Usa únicamente una cuenta de prueba y nombres ficticios. El registro crea un usuario en Supabase; las acciones aún no ejecutan agentes ni envían mensajes externos.</span>
+    </aside>
+    <section id="auth-panel" class="panel" aria-labelledby="auth-title">
+      <div class="panel-heading">
+        <div><p class="eyebrow">ACCESO SEGURO</p><h2 id="auth-title">Ingresa a AEOS</h2></div>
+        <div class="tabs" role="group" aria-label="Tipo de acceso">
+          <button class="tab" type="button" data-auth-mode="login" aria-pressed="true">Ingresar</button>
+          <button class="tab" type="button" data-auth-mode="signup" aria-pressed="false">Crear cuenta</button>
+        </div>
+      </div>
+      <form id="login-form" class="form" autocomplete="on">
+        <label for="login-email">Correo electrónico</label>
+        <input id="login-email" name="email" type="email" autocomplete="email" required maxlength="254">
+        <label for="login-password">Contraseña</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="1" maxlength="128">
+        <button class="primary" type="submit">Ingresar</button>
+      </form>
+      <form id="signup-form" class="form" autocomplete="on" hidden>
+        <label for="signup-email">Correo electrónico</label>
+        <input id="signup-email" name="email" type="email" autocomplete="email" required maxlength="254">
+        <label for="signup-password">Contraseña (mínimo 12 caracteres)</label>
+        <input id="signup-password" name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="128">
+        <button class="primary" type="submit">Crear cuenta de prueba</button>
+        <p class="hint">Si Supabase solicita confirmar el correo, recibirás un mensaje de verificación.</p>
+      </form>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+    <section id="workspace-panel" class="panel" aria-labelledby="workspace-title" hidden>
+      <div class="panel-heading">
+        <div><p class="eyebrow">ESPACIO DE TRABAJO</p><h2 id="workspace-title">Mis organizaciones</h2></div>
+        <button id="logout-button" class="secondary" type="button">Cerrar sesión</button>
+      </div>
+      <form id="organization-form" class="form">
+        <label for="organization-name">Nombre de la organización</label>
+        <div class="inline-form">
+          <input id="organization-name" name="name" type="text" required minlength="2" maxlength="120" autocomplete="organization" placeholder="Ej.: Empresa Demo">
+          <button class="primary" type="submit">Crear organización</button>
+        </div>
+        <p class="hint">La cuenta que la crea queda como propietaria. Usa un nombre ficticio para esta prueba.</p>
+      </form>
+      <div id="organization-list" class="organization-list" aria-live="polite"></div>
+      <p id="workspace-status" class="status" role="status" aria-live="polite"></p>
+    </section>
+    <section class="catalog" aria-labelledby="catalog-title">
+      <p class="eyebrow">ESTRUCTURA ORGANIZACIONAL</p>
+      <h2 id="catalog-title">Departamentos previstos</h2>
+      <p class="hint">Se habilitarán progresivamente. Comercial es el primer flujo del MVP.</p>
+      <div class="catalog-grid">
+        <article class="department"><span>PLANIFICADO</span><h3>Dirección</h3><p>Objetivos, seguimiento y reportes.</p></article>
+        <article class="department active"><span>PRIORIDAD DEL MVP</span><h3>Comercial</h3><p>Prospección, oportunidades, evidencia y borradores para aprobación.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Marketing</h3><p>Investigación, contenido y campañas.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Atención al cliente</h3><p>Consultas, reclamos y postventa.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Administración</h3><p>Documentos, vencimientos y tareas.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Finanzas</h3><p>Flujo de caja, márgenes y alertas.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Operaciones y compras</h3><p>Pedidos, inventario y proveedores.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Recursos humanos</h3><p>Perfiles, incorporación y procesos.</p></article>
+        <article class="department"><span>PLANIFICADO</span><h3>Inteligencia de negocios</h3><p>Indicadores y análisis transversal.</p></article>
+      </div>
+    </section>
+  </main>
+  <footer>AEOS Starter · Entorno de prueba · Sin ejecución de agentes ni acciones externas</footer>
+</body>
+</html>
