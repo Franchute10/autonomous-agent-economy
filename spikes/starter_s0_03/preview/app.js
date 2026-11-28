@@ -1,6 +1,6 @@
 "use strict";
 
-const API_BASE = window.AEOS_API_BASE || "https://aeos-starter-api.frank-2e.workers.dev";
+const API_BASE = window.AEOS_API_BASE || "https://78c0848d-aeos-starter-api.frank-2e.workers.dev";
 const ACCESS_TOKEN_KEY = "aeos_access_token";
 const statusElement = document.getElementById("status");
 const workspaceStatusElement = document.getElementById("workspace-status");
