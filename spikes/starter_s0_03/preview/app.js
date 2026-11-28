@@ -47,11 +47,11 @@ async function loadConfig() {
   let response;
   try {
     response = await fetch(API_BASE + "/api/v1/public-config", {
-    method: "GET",
-    credentials: "omit",
-    cache: "no-store",
-    headers: { Accept: "application/json" }
-  });
+      method: "GET",
+      credentials: "omit",
+      cache: "no-store",
+      headers: { Accept: "application/json" }
+    });
     const data = await readJson(response);
     if (!response.ok) {
       throw new Error("configuration_http_" + response.status);
@@ -67,7 +67,6 @@ async function loadConfig() {
     throw new Error("configuration_request_failed");
   }
 }
-
 async function authRequest(path, payload) {
   const response = await fetch(authConfig.supabase_url + path, {
     method: "POST",
