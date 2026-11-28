@@ -143,7 +143,6 @@ def test_missing_or_invalid_identity_fails_before_database():
             None,
             None,
             None,
-            None,
             URL,
             KEY,
             request_user,
