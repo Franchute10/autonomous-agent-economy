@@ -1,6 +1,28 @@
 # AEOS — Continuidad vigente
 Actualizado: 2026-11-27 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 
+## Actualización vigente — 2026-11-27 (America/Lima)
+
+Esta sección es el estado más reciente y prevalece sobre las secciones históricas más abajo que aún describen el Worker como staged o la URL de Pages como no verificada.
+
+### PRs y CI
+- PR #51: base `main` (`1ef00bacd00a14d7e79a4f558c4fd2987307c9ee`), head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`; CI de PR run [45554584495](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554584495) — PASS.
+- PR #52: base `product/aeos-starter-s0-03-20261125`, head `961dcb5da60164649124ab7d70f2f04a252529f8`; CI de PR run [46086207582](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46086207582) — PASS.
+- Ambos PR siguen abiertos y Draft, sin revisiones registradas. PR #52 sigue apilado sobre #51. Issue #53 permanece QUEUED/BLOCKED; no abrir su rama hasta resolver #51 y #52.
+
+### Evidencia HTTP actual
+- Pages estático `aeos-starter-preview`: GET público el 2026-11-27 devolvió HTTP 200. El HTML incluye `noindex,nofollow` y explica que no autentica ni ejecuta tareas.
+- Worker existente `aeos-starter-api`: versión 6 `4bd80ea2-7f08-4440-b8d0-62daeb2c6cdf` desplegada al 100% en deployment `de125f5c-7da1-43b1-bab9-6ad889412fa6`.
+- Smoke checks antes y después del despliegue: `/health` 200, `/api/v1/capabilities` 200, `/api/v1/me` sin token 401. No se enviaron tokens ni datos de clientes.
+- `/health` aún informa `authentication_live_verified: false`. El 401 solo comprueba rechazo de token ausente; no demuestra sesión Supabase válida, membership, autorización multi-tenant, ni conexión PostgreSQL.
+- Capabilities informa `side_effects: false` y `customer_data_enabled: false`; inferencia de modelos y ejecución de agentes siguen deshabilitadas. No se modificaron plan, DNS, Workers ni secretos; se mantuvo Workers Free y gasto incremental autorizado USD 0.
+
+### Próxima acción
+Revisión y resolución humana de PR #51; después revisar/resolver PR #52 ya contra la base actualizada. Cuando ambos queden resueltos, volver a consultar main, ramas, heads y CI; recién entonces ejecutar Issue #53 desde una rama limpia basada en main vigente. No afirmar que el producto SaaS, la autenticación real o un workflow Comercial end-to-end estén implementados.
+
+Activador de continuidad solicitado por el propietario: `continua con lo trabajado en el chat: Agentes Mype`.
+
+
 ## Prioridad y separación de producto
 
 - **AEOS Core:** kernel organizacional/económico para organizaciones de agentes: organización, roles, autoridad, gobernanza, economía, workflows, runtime, evidencia, auditoría y aprendizaje. La tesis es construir una organización gobernada, no un enjambre de prompts.
