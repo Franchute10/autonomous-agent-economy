@@ -44,9 +44,7 @@ def test_public_config_exposes_only_public_publishable_values() -> None:
 
 def test_public_config_rejects_invalid_url_and_secret_keys() -> None:
     assert (
-        public_config("GET", "http://testproject.supabase.co", "sb_publishable_test")[
-            0
-        ]
+        public_config("GET", "http://testproject.supabase.co", "sb_publishable_test")[0]
         == 503
     )
     assert public_config(
