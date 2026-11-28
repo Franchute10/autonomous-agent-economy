@@ -2,7 +2,7 @@
 
 Fuente normativa: [AEOS_STARTER_MVP_PLAN.md](AEOS_STARTER_MVP_PLAN.md). Issue: [#49](https://github.com/Franchute10/autonomous-agent-economy/issues/49). Plan PR: [#50](https://github.com/Franchute10/autonomous-agent-economy/pull/50). Spike técnico: [S0-03](S0-03_TECHNICAL_SPIKE.md).
 
-**Corte:** 2026-11-25 (America/Lima).  
+**Corte:** 2026-11-28 (America/Lima).  
 **Estado global:** IN_PROGRESS — dirección del producto confirmada; selección/provisión técnica pendiente.  
 **Fecha objetivo:** 2026-12-24, confirmada como objetivo sujeto a los gates del plan.  
 **Presupuesto autorizado:** USD 0 hasta aprobación expresa.
@@ -11,10 +11,10 @@ Fuente normativa: [AEOS_STARTER_MVP_PLAN.md](AEOS_STARTER_MVP_PLAN.md). Issue: [
 |---|---:|---|---|---|
 | S0-01 | 0 | Baseline GitHub, ramas y riesgos | DONE | AEOS main eaa8c525; LIVE de2d211b; motor main/ramas comparados; plan documenta divergencia |
 | S0-02 | 0 | Alcance Starter y exclusiones | DONE | Plan integrado en main mediante PR #50 / commit db041a62; decisiones de producto confirmadas en DECISION_LOG.md |
-| S0-03 | 0 | Confirmar departamento, despliegue, auth, DB y modelo | IN_PROGRESS | Supabase healthy; private RLS probe 7/7 PASS; Pages HTTP 200; Workers Free confirmed; Worker v6 smoke 200/200/401. Valid Auth, tenant authorization, DB from Worker and E2E remain unverified. |
-| S1-01 | 1 | Branch de implementación desde main e integración selectiva | TODO | No iniciar hasta cerrar S0-03 y revisar CI/PR |
-| S1-02 | 1 | Auth, usuario, organización y membership | TODO | Registro/login y creación de tenant |
-| S1-03 | 1 | Aislamiento multi-tenant PostgreSQL/RLS | TODO | Tests cross-tenant sobre PostgreSQL real |
+| S0-03 | 0 | Confirmar departamento, despliegue, auth, DB y modelo | IN_PROGRESS | Workers Free confirmed; Pages HTTP 200; Worker v6 smoke 200/200/401. Auth válido y conexión DB desde runtime siguen pendientes. Supabase `aeos-starter` Free: tablas de organización aplicadas; RLS y aislamiento sintético probados; Worker candidate aún no desplegado. |
+| S1-01 | 1 | Branch de implementación desde main e integración selectiva | IN_REVIEW | PR #55 desde main `78bb383e`; head `6c2d4db7` antes de este refresh, CI #486 PASS. Merge requiere autorización del propietario. |
+| S1-02 | 1 | Auth, usuario, organización y membership | IN_PROGRESS | PR #55 añade GET/POST de organizaciones con identidad Supabase verificada y migraciones; falta merge y prueba HTTP con sesión válida. |
+| S1-03 | 1 | Aislamiento multi-tenant PostgreSQL/RLS | IN_PROGRESS | Migración en `aeos-starter`; prueba sintética transaccional de dos tenants PASS, rollback y 0 filas; falta prueba desde Worker con JWT válido. |
 | S1-04 | 1 | Perfil empresarial y documentos | TODO | CRUD y artefactos aislados por tenant |
 | S1-05 | 1 | UI inicial desplegada | TODO | URL staging usable |
 | S2-01 | 2 | Agent Registry Starter | TODO | Definiciones/versiones/capacidades/límites |
@@ -32,6 +32,11 @@ Fuente normativa: [AEOS_STARTER_MVP_PLAN.md](AEOS_STARTER_MVP_PLAN.md). Issue: [
 | S4-02 | 4 | E2E PostgreSQL en staging | TODO | Recorrido completo probado |
 | S4-03 | 4 | Piloto cerrado en Perú | TODO | 2–3 usuarios/empresas; evaluación |
 | S4-04 | 4 | Release Starter v0.1 | TODO | URL, guía, changelog y soporte |
+
+
+## Actualización operativa — 2026-11-28
+
+PR #55 está listo para revisión, aún sin merge. CI #486 PASS en el head previo al refresh documental. La migración de organizaciones/membresías y su corrección están aplicadas solo al proyecto Supabase Free `aeos-starter`. Pruebas SQL con usuarios sintéticos comprobaron idempotencia, membership owner, aislamiento RLS entre dos tenants y bloqueo de insert directo; todo dentro de una transacción revertida. No se han probado sesión Supabase real, llamadas de DB desde Worker ni el flujo de UI. No se subió ni activó versión nueva del Worker; tráfico de producción y secretos permanecen sin cambios. Gasto incremental USD 0.
 
 ## Cadencia de control
 - Máximo dos tareas técnicas activas en paralelo.
