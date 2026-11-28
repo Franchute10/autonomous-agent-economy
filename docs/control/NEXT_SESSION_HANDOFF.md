@@ -1,3 +1,26 @@
+## Actualización operativa vigente — 2026-11-27 (America/Lima)
+
+Esta sección prevalece sobre los snapshots históricos que describen los PR #51/#52 como abiertos o el Worker como staged.
+
+### Main, PRs y CI
+- PR #51 merged: `08ad7dd6fe98123cad89a1acc5000b7310e2e9b5`.
+- PR #52 merged: `4a6979c5d1e15eba22df246b8d5c0c4a8d5deb53`, ahora head de `main). Push CI de main [46098462896](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46098462896) — PASS.
+- Issue #53 está en ejecución desde `docs/aeos-arch-001-agent-quality-security-20261128`, creada desde main SHA `4a6979c5d1e15eba22df246b8d5c0c4a8d5deb53`. Registrar y consultar el head exacto luego de cada commit. No abrir otra rama técnica en paralelo.
+
+### Estado del producto y límites
+- AEOS Core es el kernel organizacional/económico; AEOS Starter es el producto SaaS inicial para Perú, con autonomía supervisada y Comercial como único departamento con workflow completo previsto en v0.1; Agentes Mype es la capa de aplicación, no un runtime paralelo.
+- Workers Free está confirmado por el propietario; gasto incremental autorizado: USD 0. No contratar planes ni usar inferencia pagada.
+- Worker existente v6 al 100%; smoke: health 200, capabilities 200, /me sin token 401. Esto no verifica sesión Supabase válida, membership/permiso multi-tenant, ni conexión PostgreSQL desde el Worker. No declarar autenticación real ni workflow end-to-end listos.
+- No se enviaron credenciales ni datos de clientes. Modelo y ejecución de agentes siguen deshabilitados.
+
+### Trabajo en curso: Issue #53
+- Preparar y enlazar estándar de calidad, contrato de agente/skill, formato de evaluación determinista y matriz de seguridad, revisados frente a ADR-001–008 y al código.
+- Mantenerlos como especificaciones, no como funciones implementadas.
+- Tras cambios, consultar el SHA actual de la rama y CI; crear el PR de scope documental con evidencias y límites.
+- Issue #53 no puede marcarse DONE por documentos solamente si la aceptación exige controles ejecutables; reportar con precisión cualquier límite.
+
+Activador de continuidad: `continua con lo trabajado en el chat: Agentes Mype`.
+
 # AEOS — Continuidad vigente
 Actualizado: 2026-11-27 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 
