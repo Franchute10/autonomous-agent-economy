@@ -31,3 +31,15 @@ jobs:
       - name: Worker adapter tests
         working-directory: deploy/cloudflare/aeos-starter-api
         run: python -m pytest
+      - name: Set up uv for Python Worker packaging
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: deploy/cloudflare/aeos-starter-api/pyproject.toml
+      - name: Vendor Python Worker runtime SDK
+        working-directory: deploy/cloudflare/aeos-starter-api
+        run: |
+          uv sync --all-groups
+          uv run pywrangler sync
+          test -f python_modules/workers/__init__.py
+          test -f python_modules/_workers_sdk_patch_loader.pth
