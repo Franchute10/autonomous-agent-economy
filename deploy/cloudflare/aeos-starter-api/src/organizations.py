@@ -4,6 +4,7 @@ import json
 import re
 from collections.abc import Awaitable, Callable
 from urllib.parse import quote
+from uuid import UUID
 
 from auth import URL_PATTERN, bearer_token, verify_identity
 
@@ -45,6 +46,7 @@ def _organization_name(raw_body: str | None) -> str | None:
 async def organizations(
     method: str,
     raw_body: str | None,
+    idempotency_key: str | None,
     authorization: str | None,
     supabase_url: str | None,
     publishable_key: str | None,
@@ -78,10 +80,17 @@ async def organizations(
     user_id = identity["user_id"]
     if method == "POST":
         name = _organization_name(raw_body)
+        try:
+            creation_key = str(UUID(idempotency_key or ""))
+        except ValueError:
+            return _error(400, "valid_idempotency_key_required")
         if name is None:
             return _error(400, "invalid_organization_name")
         endpoint = supabase_url + "/rest/v1/rpc/create_organization"
-        payload: dict[str, object] | None = {"p_name": name}
+        payload: dict[str, object] | None = {
+            "p_name": name,
+            "p_creation_key": creation_key,
+        }
     else:
         select = quote(
             "organization_id,role,organization:organizations(id,name,created_at)",
