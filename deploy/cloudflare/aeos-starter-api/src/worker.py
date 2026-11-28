@@ -6,11 +6,17 @@ from urllib.parse import urlsplit
 
 from workers import Response, WorkerEntrypoint, fetch
 
-from app import route
+from app import public_config, route
 from auth import verify_identity
+from cors import cors_headers
 from organizations import organizations
 
 MAX_ORGANIZATION_BODY_BYTES = 4096
+CORS_PATHS = {
+    "/api/v1/public-config",
+    "/api/v1/me",
+    "/api/v1/organizations",
+}
 
 
 async def request_user(url, key, token):
@@ -32,11 +38,7 @@ async def request_database(url, method, key, token, payload):
         "Authorization": "Bearer " + token,
         "accept": "application/json",
     }
-    options = {
-        "method": method,
-        "headers": headers,
-        "redirect": "error",
-    }
+    options = {"method": method, "headers": headers, "redirect": "error"}
     if payload is not None:
         headers["content-type"] = "application/json"
         options["body"] = json.dumps(payload, separators=(",", ":"))
@@ -52,13 +54,25 @@ async def request_database(url, method, key, token, payload):
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
         path = urlsplit(request.url).path
-        authorization = request.headers.get("Authorization")
+        origin = request.headers.get("Origin")
+        allowed_cors = cors_headers(origin)
+
+        if request.method == "OPTIONS":
+            if path not in CORS_PATHS or not allowed_cors:
+                return self._response(403, {"error": "origin_not_allowed"})
+            return self._response(204, None, allowed_cors)
+
         supabase_url = getattr(self.env, "SUPABASE_URL", None)
         publishable_key = getattr(self.env, "SUPABASE_PUBLISHABLE_KEY", None)
+        response_cors = allowed_cors if path in CORS_PATHS else {}
 
-        if request.method == "GET" and path == "/api/v1/me":
+        if path == "/api/v1/public-config":
+            status, payload = public_config(
+                request.method, supabase_url, publishable_key
+            )
+        elif request.method == "GET" and path == "/api/v1/me":
             status, payload = await verify_identity(
-                authorization,
+                request.headers.get("Authorization"),
                 supabase_url,
                 publishable_key,
                 request_user,
@@ -68,27 +82,31 @@ class Default(WorkerEntrypoint):
             if request.method == "POST":
                 content_type = request.headers.get("Content-Type", "")
                 if not content_type.lower().startswith("application/json"):
-                    status, payload = 415, {"error": "json_required"}
-                    return self._response(status, payload)
+                    return self._response(
+                        415, {"error": "json_required"}, response_cors
+                    )
                 content_length = request.headers.get("Content-Length")
                 if content_length is not None:
                     try:
                         if int(content_length) > MAX_ORGANIZATION_BODY_BYTES:
-                            status, payload = 413, {"error": "request_too_large"}
-                            return self._response(status, payload)
+                            return self._response(
+                                413, {"error": "request_too_large"}, response_cors
+                            )
                     except ValueError:
-                        status, payload = 400, {"error": "invalid_content_length"}
-                        return self._response(status, payload)
+                        return self._response(
+                            400, {"error": "invalid_content_length"}, response_cors
+                        )
                 try:
                     raw_body = await request.text()
                 except Exception:
-                    status, payload = 400, {"error": "invalid_request"}
-                    return self._response(status, payload)
+                    return self._response(
+                        400, {"error": "invalid_request"}, response_cors
+                    )
             status, payload = await organizations(
                 request.method,
                 raw_body,
                 request.headers.get("Idempotency-Key"),
-                authorization,
+                request.headers.get("Authorization"),
                 supabase_url,
                 publishable_key,
                 request_user,
@@ -96,16 +114,19 @@ class Default(WorkerEntrypoint):
             )
         else:
             status, payload = route(request.method, path)
-        return self._response(status, payload)
+        return self._response(status, payload, response_cors)
 
     @staticmethod
-    def _response(status, payload):
-        return Response(
-            json.dumps(payload, separators=(",", ":"), ensure_ascii=False),
-            status=status,
-            headers={
-                "content-type": "application/json; charset=utf-8",
-                "cache-control": "no-store",
-                "x-content-type-options": "nosniff",
-            },
-        )
+    def _response(status, payload, extra_headers=None):
+        headers = {
+            "cache-control": "no-store",
+            "x-content-type-options": "nosniff",
+        }
+        if payload is None:
+            body = ""
+        else:
+            headers["content-type"] = "application/json; charset=utf-8"
+            body = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+        if extra_headers:
+            headers.update(extra_headers)
+        return Response(body, status=status, headers=headers)
