@@ -1,6 +1,6 @@
 import asyncio
 
-from app import route
+from app import public_config, route
 from auth import verify_identity
 
 
@@ -22,12 +22,40 @@ def test_capabilities_do_not_claim_unimplemented_features() -> None:
     assert status == 200
     assert body["side_effects"] is True
     assert body["customer_data_enabled"] is True
-    assert "supabase_identity_endpoint" in body["available"]
+    assert "supabase_public_auth_configuration" in body["available"]
     assert "organization_onboarding_api_candidate" in body["available"]
     assert "database_from_worker_verified" in body["not_yet_available"]
     assert "organization_membership_e2e" in body["not_yet_available"]
     assert "task_persistence" in body["not_yet_available"]
     assert "model_inference" in body["not_yet_available"]
+
+
+def test_public_config_exposes_only_public_publishable_values() -> None:
+    status, body = public_config(
+        "GET",
+        "https://testproject.supabase.co",
+        "sb_publishable_test",
+    )
+    assert status == 200
+    assert set(body) == {"service", "supabase_url", "supabase_publishable_key"}
+    assert body["supabase_publishable_key"] == "sb_publishable_test"
+    assert "service_role" not in body
+
+
+def test_public_config_rejects_invalid_url_and_secret_keys() -> None:
+    assert public_config("GET", "http://testproject.supabase.co", "sb_publishable_test")[0] == 503
+    assert public_config(
+        "GET", "https://testproject.supabase.co", "sb_secret_do_not_expose"
+    ) == (503, {"error": "configuration_unavailable"})
+    assert public_config(
+        "GET", "https://testproject.supabase.co", "sb_publishable_test"
+    )[0] == 200
+
+
+def test_public_config_rejects_non_get_methods() -> None:
+    assert public_config(
+        "POST", "https://testproject.supabase.co", "sb_publishable_test"
+    )[0] == 405
 
 
 def test_non_get_methods_are_rejected() -> None:
@@ -42,7 +70,6 @@ def test_unknown_paths_are_not_found() -> None:
     assert body["error"] == "not_found"
 
 
-# Supabase identity adapter: no network or real user data.
 def test_identity_gate() -> None:
     calls = []
 
