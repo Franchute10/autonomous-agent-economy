@@ -4,7 +4,9 @@ create table if not exists public.organizations (
     id uuid primary key default gen_random_uuid(),
     name text not null check (char_length(name) between 2 and 120),
     created_by uuid not null references auth.users(id) on delete restrict,
-    created_at timestamptz not null default now()
+    creation_key uuid not null,
+    created_at timestamptz not null default now(),
+    unique (created_by, creation_key)
 );
 
 create table if not exists public.organization_memberships (
@@ -47,7 +49,7 @@ create policy memberships_self_read
     to authenticated
     using (user_id = (select auth.uid()));
 
-create or replace function public.create_organization(p_name text)
+create or replace function public.create_organization(p_name text, p_creation_key uuid)
 returns table (organization_id uuid, name text, role text)
 language plpgsql
 security definer
@@ -68,17 +70,31 @@ begin
         raise exception 'invalid organization name' using errcode = '22023';
     end if;
 
-    insert into public.organizations (name, created_by)
-    values (v_name, v_user_id)
+    if p_creation_key is null then
+        raise exception 'idempotency key required' using errcode = '22023';
+    end if;
+
+    insert into public.organizations (name, created_by, creation_key)
+    values (v_name, v_user_id, p_creation_key)
+    on conflict (created_by, creation_key) do nothing
     returning * into v_organization;
 
+    if not found then
+        select *
+        into v_organization
+        from public.organizations
+        where created_by = v_user_id
+          and creation_key = p_creation_key;
+    end if;
+
     insert into public.organization_memberships (organization_id, user_id, role)
-    values (v_organization.id, v_user_id, 'owner');
+    values (v_organization.id, v_user_id, 'owner')
+    on conflict (organization_id, user_id) do nothing;
 
     return query
     select v_organization.id, v_organization.name, 'owner'::text;
 end;
 $function$;
 
-revoke all on function public.create_organization(text) from public, anon, authenticated;
-grant execute on function public.create_organization(text) to authenticated;
+revoke all on function public.create_organization(text, uuid) from public, anon, authenticated;
+grant execute on function public.create_organization(text, uuid) to authenticated;
