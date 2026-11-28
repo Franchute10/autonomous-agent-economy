@@ -50,8 +50,8 @@ def route(method: str, path: str) -> tuple[int, dict[str, object]]:
                 "human_approvals",
                 "model_inference",
             ],
-            "side_effects": False,
-            "customer_data_enabled": False,
+            "side_effects": True,
+            "customer_data_enabled": True,
         }
 
     return 404, {"error": "not_found", "service": SERVICE}
