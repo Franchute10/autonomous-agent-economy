@@ -1,5 +1,5 @@
 # AEOS — Continuidad vigente
-Actualizado: 2026-11-24 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
+Actualizado: 2026-11-25 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 
 ## PRIORIDAD ACTUAL — AEOS STARTER MVP
 
@@ -15,9 +15,9 @@ El propietario ha reorientado el trabajo al lanzamiento de un único producto Sa
 - [Issue principal #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
 - [PR de planificación #50](https://github.com/Franchute10/autonomous-agent-economy/pull/50), integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`.
 
-**Estado:** planificación baseline integrada en main; implementación del Starter aún no iniciada. El primer departamento operativo recomendado es Comercial, pendiente de confirmación. Fecha objetivo 24-12-2026, sujeta a gates y capacidad. Presupuesto incremental autorizado: USD 0 hasta aprobación expresa.
+**Estado:** planificación baseline integrada en main. Checkpoint confirmado: Comercial, todos los departamentos visibles, objetivo 24-12-2026. [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) conserva decisiones, spike, cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS; aún no integrado en main. No hay servicio desplegado. Presupuesto incremental autorizado: USD 0.
 
-**Siguiente acción única:** cerrar checkpoint STARTER-00 con el propietario (departamento inicial, alcance de los nueve departamentos visibles vs. uno funcional, presupuesto de hosting/modelo y disponibilidad técnica). Después ejecutar S0-03: spike de auth, hosting, PostgreSQL y modelo, sin tocar LIVE ni worktrees locales.
+**Siguiente acción:** verificar el plan Workers Free (Billing Read faltante), comprobar URL estática y desplegar API Python aislada cuando se confirme coste cero; después probar conexión PostgreSQL real desde runtime y Auth. RLS privado 7/7 PASS; Pages estático desplegado, no API. No ampliar alcance ni generar cargos.
 
 **Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
 
@@ -94,3 +94,12 @@ LUNA-003/004/005 siguen condicionadas a utilidad demostrada. LUNA-001 no necesit
 ## Continuidad obligatoria
 Cada bloque deja ID/estado, fecha, repo/rama/base/head, PR, pruebas y denominadores, evidencia real o sintética, límites, decisión y siguiente acción.
 Para un nuevo chat basta: “Continúa AEOS desde docs/control/NEXT_SESSION_HANDOFF.md en Franchute10/autonomous-agent-economy; verifica GitHub y ejecuta la siguiente tarjeta con presupuesto incremental USD 0”.
+
+
+## Actualización S0-03 — 2026-11-25
+2026-11-25: owner explicitly authorized isolated Supabase aeos-starter in São Paulo at USD 0/month, no upgrades or additional charges. Quote rechecked at USD 0; project created, ACTIVE_HEALTHY verified independently. Management SQL SELECT 1 returned connectivity=1, PostgreSQL 17.12, database postgres. Security advisor returned zero lints on empty project. No application schema, auth flow, Cloudflare connection, or RLS tested yet. Other projects untouched.
+
+
+## 2026-11-25 — RLS y primera interfaz estática
+
+2026-11-25: private PostgreSQL RLS spike migration applied only in dedicated aeos-starter project (source commit 77d155925f8e4121d637080a9af02fcb130a29a7, test 5800a7ad117856a14a44ab79c846353707918851). Test with SET LOCAL ROLE authenticated and synthetic JWT sub claims: 7/7 PASS (A own and cross-tenant, write privileges denied, B own and cross-tenant, unknown subject, anonymous grants). Transaction rolled back; 0 rows persisted; RLS enabled and forced; security advisor 0 lints. This is a private probe using owner identity, not production organization membership or Auth JWT verification. Cloudflare subscriptions GET denied HTTP 403 (missing billing:read); account entitlements did not establish Workers plan. Do not deploy metered Workers or invoke AI until free entitlement is verified. To deliver an early visual checkpoint, isolated Cloudflare Pages static-only project aeos-starter-preview created from the GitHub branch, build root spikes/starter_s0_03/preview, automatic production and preview deploys disabled. Manual deployment 264d0cc8-5c6d-4e6e-8e4f-bf98ccac6106 at SHA 2373804b0882963d0c456f590c316474a45d5893: all five Cloudflare stages succeeded. Deployment URL https://264d0cc8.aeos-starter-preview.pages.dev; independent HTTP check blocked by DNS in local execution and web tool could not access URL. Static asset requests free under both plans (https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/); no Pages Functions, paid services, billing upgrades, database credentials, model calls, or customer data. Preview is not a functioning SaaS or API. No other projects touched. Next: validate URL in browser, verify Workers free entitlement through dashboard or Billing Read, then isolated Python runtime deployment and DB connectivity; no metered operation before verified zero-cost path.
