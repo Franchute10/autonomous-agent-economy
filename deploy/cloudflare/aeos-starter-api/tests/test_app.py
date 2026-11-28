@@ -4,14 +4,15 @@ from app import route
 from auth import verify_identity
 
 
-def test_health_is_explicit_about_bootstrap_and_auth_verification() -> None:
+def test_health_reports_candidate_status_without_claiming_live_verification() -> None:
     status, body = route("GET", "/health")
     assert status == 200
     assert body["status"] == "ok"
     assert body["database_connected"] is False
     assert body["authentication_endpoint_implemented"] is True
     assert body["authentication_live_verified"] is False
-    assert body["organization_membership_enabled"] is False
+    assert body["organization_onboarding_api_implemented"] is True
+    assert body["organization_membership_live_verified"] is False
     assert body["model_inference_enabled"] is False
     assert body["agent_execution_enabled"] is False
 
@@ -19,10 +20,12 @@ def test_health_is_explicit_about_bootstrap_and_auth_verification() -> None:
 def test_capabilities_do_not_claim_unimplemented_features() -> None:
     status, body = route("GET", "/api/v1/capabilities")
     assert status == 200
-    assert body["side_effects"] is False
-    assert body["customer_data_enabled"] is False
+    assert body["side_effects"] is True
+    assert body["customer_data_enabled"] is True
     assert "supabase_identity_endpoint" in body["available"]
-    assert "organization_membership" in body["not_yet_available"]
+    assert "organization_onboarding_api_candidate" in body["available"]
+    assert "database_from_worker_verified" in body["not_yet_available"]
+    assert "organization_membership_e2e" in body["not_yet_available"]
     assert "task_persistence" in body["not_yet_available"]
     assert "model_inference" in body["not_yet_available"]
 
