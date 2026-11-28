@@ -4,6 +4,7 @@ from organizations import organizations
 
 USER_ID = "01aa0000-0000-4000-8000-000000000001"
 ORGANIZATION_ID = "01bb0000-0000-4000-8000-000000000002"
+IDEMPOTENCY_KEY = "01cc0000-0000-4000-8000-000000000003"
 URL = "https://testproject.supabase.co"
 KEY = "sb_publishable_test"
 TOKEN = "a.b.c"
@@ -23,6 +24,7 @@ def run(method, raw_body, request_database):
         organizations(
             method,
             raw_body,
+            IDEMPOTENCY_KEY,
             "Bearer " + TOKEN,
             URL,
             KEY,
@@ -66,7 +68,7 @@ def test_create_organization_uses_authenticated_identity_and_sanitizes_response(
     assert method == "POST"
     assert key == KEY
     assert token == TOKEN
-    assert payload == {"p_name": "Acme"}
+    assert payload == {"p_name": "Acme", "p_creation_key": IDEMPOTENCY_KEY}
 
 
 def test_list_organizations_scopes_query_to_verified_user():
@@ -110,6 +112,7 @@ def test_invalid_name_and_wrong_method_do_not_call_database():
         organizations(
             "DELETE",
             None,
+            IDEMPOTENCY_KEY,
             "Bearer " + TOKEN,
             URL,
             KEY,
@@ -137,6 +140,8 @@ def test_missing_or_invalid_identity_fails_before_database():
     result = asyncio.run(
         organizations(
             "GET",
+            None,
+            None,
             None,
             None,
             URL,
