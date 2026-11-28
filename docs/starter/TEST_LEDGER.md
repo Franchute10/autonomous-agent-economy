@@ -54,3 +54,19 @@ Cada nueva ejecución añade una fila con fecha, repo/rama/SHA, comando, entorno
 ## 2026-11-25 — RLS y primera interfaz estática
 
 2026-11-25: private PostgreSQL RLS spike migration applied only in dedicated aeos-starter project (source commit 77d155925f8e4121d637080a9af02fcb130a29a7, test 5800a7ad117856a14a44ab79c846353707918851). Test with SET LOCAL ROLE authenticated and synthetic JWT sub claims: 7/7 PASS (A own and cross-tenant, write privileges denied, B own and cross-tenant, unknown subject, anonymous grants). Transaction rolled back; 0 rows persisted; RLS enabled and forced; security advisor 0 lints. This is a private probe using owner identity, not production organization membership or Auth JWT verification. Cloudflare subscriptions GET denied HTTP 403 (missing billing:read); account entitlements did not establish Workers plan. Do not deploy metered Workers or invoke AI until free entitlement is verified. To deliver an early visual checkpoint, isolated Cloudflare Pages static-only project aeos-starter-preview created from the GitHub branch, build root spikes/starter_s0_03/preview, automatic production and preview deploys disabled. Manual deployment 264d0cc8-5c6d-4e6e-8e4f-bf98ccac6106 at SHA 2373804b0882963d0c456f590c316474a45d5893: all five Cloudflare stages succeeded. Deployment URL https://264d0cc8.aeos-starter-preview.pages.dev; independent HTTP check blocked by DNS in local execution and web tool could not access URL. Static asset requests free under both plans (https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/); no Pages Functions, paid services, billing upgrades, database credentials, model calls, or customer data. Preview is not a functioning SaaS or API. No other projects touched. Next: validate URL in browser, verify Workers free entitlement through dashboard or Billing Read, then isolated Python runtime deployment and DB connectivity; no metered operation before verified zero-cost path.
+
+
+## 2026-11-27 — smoke checks del Worker y estado de integración
+
+| Check | Resultado | Alcance / límite |
+|---|---|---|
+| Pages preview | PASS — HTTP 200 | Sitio estático con `noindex,nofollow`; no autentica ni procesa tareas. |
+| Worker v6 — preview | PASS | `/health` 200; `/api/v1/capabilities` 200; `/api/v1/me` sin token 401. |
+| Worker v6 — producción | PASS | Mismas tres respuestas esperadas; sin token ni datos de clientes. La versión 6 recibe 100% del tráfico. |
+| Auth live | NOT VERIFIED | No se comprobó sesión Supabase válida, membership, permisos ni aislamiento multi-tenant. |
+| PostgreSQL desde Worker / RLS E2E | NOT RUN | El probe privado 7/7 no sustituye la prueba desde runtime. |
+| Model inference / ejecución de agentes | NOT RUN | Deshabilitados para mantener el presupuesto incremental en USD 0. |
+| CI PR #51 | PASS | PR run 45554584495 para head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`. |
+| CI PR #52 | PASS | PR run 46089162095 para head `41f5cd539e66de80515871dd6b281599d98a74f8`; verificar de nuevo tras cambios de base/head. |
+
+La cuenta Workers Free y la ausencia de método de pago fueron confirmadas por el propietario en el dashboard. Estos GET de smoke se hicieron dentro de los recursos Free existentes; no se activó facturación ni se alteraron secretos.
