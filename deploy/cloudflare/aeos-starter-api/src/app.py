@@ -1,11 +1,11 @@
-"""Pure HTTP routing for the AEOS Starter API bootstrap."""
+"""Pure public HTTP routes for the AEOS Starter API."""
 
 SERVICE = "aeos-starter-api"
-RELEASE = "s0-04"
+RELEASE = "s0-03-org-onboarding-candidate"
 
 
 def route(method: str, path: str) -> tuple[int, dict[str, object]]:
-    """Return a deterministic response without external services or side effects."""
+    """Return deterministic public route responses without external services."""
     if method != "GET":
         return 405, {
             "error": "method_not_allowed",
@@ -18,11 +18,12 @@ def route(method: str, path: str) -> tuple[int, dict[str, object]]:
             "status": "ok",
             "service": SERVICE,
             "release": RELEASE,
-            "stage": "bootstrap",
+            "stage": "organization_onboarding_candidate",
             "database_connected": False,
             "authentication_endpoint_implemented": True,
             "authentication_live_verified": False,
-            "organization_membership_enabled": False,
+            "organization_onboarding_api_implemented": True,
+            "organization_membership_live_verified": False,
             "model_inference_enabled": False,
             "agent_execution_enabled": False,
         }
@@ -35,11 +36,13 @@ def route(method: str, path: str) -> tuple[int, dict[str, object]]:
                 "health",
                 "capability_catalog",
                 "supabase_identity_endpoint",
+                "organization_onboarding_api_candidate",
             ],
             "not_yet_available": [
-                "organization_onboarding",
-                "organization_membership",
-                "tenant_persistence",
+                "database_migration_applied",
+                "database_from_worker_verified",
+                "valid_supabase_session_live_verified",
+                "organization_membership_e2e",
                 "task_persistence",
                 "workflow_runtime",
                 "agent_invocations",
