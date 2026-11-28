@@ -1,3 +1,5 @@
+> **Nota operativa — 2026-11-27:** Este manual preserva intención, arquitectura e historia fechada; sus estados del 2026-11-20 no son el estado operativo actual. Para continuar, usar [NEXT_SESSION_HANDOFF.md](docs/control/NEXT_SESSION_HANDOFF.md), el [control Starter](docs/starter/README.md) y el estado vivo de GitHub. El comando de continuidad es: `continua con lo trabajado en el chat: Agentes Mype`.
+
 # AEOS — Manual rector del proyecto
 
 **Dirección vigente y siguiente acción (2026-11-20):** [Control de producto y continuidad](docs/control/PROJECT_CONTROL.md). Leer junto con la evidencia de validación; los estados fechados anteriores son históricos.

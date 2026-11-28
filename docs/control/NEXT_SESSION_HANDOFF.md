@@ -1,25 +1,146 @@
 # AEOS — Continuidad vigente
-Actualizado: 2026-11-25 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
+Actualizado: 2026-11-27 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 
-## PRIORIDAD ACTUAL — AEOS STARTER MVP
+## Actualización vigente — 2026-11-27 (America/Lima)
 
-El propietario ha reorientado el trabajo al lanzamiento de un único producto SaaS inicial para Perú: **AEOS Starter**, con autonomía supervisada. No construir tres planes comerciales ni billing recurrente en el MVP.
+Esta sección es el estado más reciente y prevalece sobre las secciones históricas más abajo que aún describen el Worker como staged o la URL de Pages como no verificada.
 
-**Fuente de verdad del nuevo producto:**
-- [Índice de control Starter](../starter/README.md)
-- [Plan de MVP y arquitectura](../starter/AEOS_STARTER_MVP_PLAN.md)
-- [Roadmap de 24 hitos](../starter/ROADMAP.md)
-- [Registro de decisiones](../starter/DECISION_LOG.md)
+### PRs y CI
+- PR #51: **merged** a `main` mediante merge commit `08ad7dd6fe98123cad89a1acc5000b7310e2e9b5`; CI anterior a la integración: run [46092750914](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46092750914) — PASS.
+- PR #52: abierto, Draft, sin revisiones; ahora apunta directamente a `main` en `08ad7dd6fe98123cad89a1acc5000b7310e2e9b5`. Head antes de esta actualización: `18d51c5bfc0470ff9a94d63042b1483f86b5bb5f`; CI run [46092875990](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46092875990) — PASS cuando aún estaba apilado sobre la rama de #51. Verificar CI tras el cambio de base y este commit.
+- Issue #53 sigue QUEUED/BLOCKED por PR #52. No abrir otra rama activa hasta resolverlo.
+
+### Evidencia HTTP actual
+- Pages estático `aeos-starter-preview`: GET público el 2026-11-27 devolvió HTTP 200. El HTML incluye `noindex,nofollow` y explica que no autentica ni ejecuta tareas.
+- Worker existente `aeos-starter-api`: versión 6 `4bd80ea2-7f08-4440-b8d0-62daeb2c6cdf` desplegada al 100% en deployment `de125f5c-7da1-43b1-bab9-6ad889412fa6`.
+- Smoke checks antes y después del despliegue: `/health` 200, `/api/v1/capabilities` 200, `/api/v1/me` sin token 401. No se enviaron tokens ni datos de clientes.
+- `/health` aún informa `authentication_live_verified: false`. El 401 solo comprueba rechazo de token ausente; no demuestra sesión Supabase válida, membership, autorización multi-tenant, ni conexión PostgreSQL.
+- Capabilities informa `side_effects: false` y `customer_data_enabled: false`; inferencia de modelos y ejecución de agentes siguen deshabilitadas. No se modificaron plan, DNS, Workers ni secretos; se mantuvo Workers Free y gasto incremental autorizado USD 0.
+
+### Próxima acción
+Revisión y resolución humana de PR #51; después revisar/resolver PR #52 ya contra la base actualizada. Cuando ambos queden resueltos, volver a consultar main, ramas, heads y CI; recién entonces ejecutar Issue #53 desde una rama limpia basada en main vigente. No afirmar que el producto SaaS, la autenticación real o un workflow Comercial end-to-end estén implementados.
+
+Activador de continuidad solicitado por el propietario: `continua con lo trabajado en el chat: Agentes Mype`.
+
+
+## Prioridad y separación de producto
+
+- **AEOS Core:** kernel organizacional/económico para organizaciones de agentes: organización, roles, autoridad, gobernanza, economía, workflows, runtime, evidencia, auditoría y aprendizaje. La tesis es construir una organización gobernada, no un enjambre de prompts.
+- **AEOS Starter:** primer producto SaaS funcional, mercado inicial Perú, autonomía supervisada. Comercial es el único departamento previsto con workflow completo end-to-end en v0.1; los demás se muestran como catálogo, sin simular que ya operan. No abrir Growth/Business ni billing recurrente en este MVP.
+- **Agentes Mype:** visión/capa de aplicación de AEOS para que una MYPE opere con capacidades de una empresa mayor. No sustituye AEOS Core ni se convierte en runtime o producto paralelo que compita con Starter.
+- **AEOS LIVE y Commercial Lead Engine:** líneas separadas; no mezclar sus pilotos, fuentes, empresas, métricas o código con Starter sin una tarea e interfaz aprobadas.
+
+## Fuente de verdad y control
+
+- [Índice Starter](../starter/README.md)
+- [Plan Starter](../starter/AEOS_STARTER_MVP_PLAN.md)
+- [Roadmap Starter](../starter/ROADMAP.md)
+- [Decision log](../starter/DECISION_LOG.md)
 - [Test ledger](../starter/TEST_LEDGER.md)
-- [Checklist de release](../starter/RELEASE_CHECKLIST.md)
+- [Project control](PROJECT_CONTROL.md)
 - [Issue principal #49](https://github.com/Franchute10/autonomous-agent-economy/issues/49)
-- [PR de planificación #50](https://github.com/Franchute10/autonomous-agent-economy/pull/50), integrado en main mediante commit `db041a62b5dd84543695e8f953d1b254c42c299e`.
+- [Issue AEOS-ARCH-001 #53 — integración selectiva ECC](https://github.com/Franchute10/autonomous-agent-economy/issues/53)
 
-**Estado:** planificación baseline integrada en main. Checkpoint confirmado: Comercial, todos los departamentos visibles, objetivo 24-12-2026. [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) conserva decisiones, spike, cotización Supabase USD 0/mes y probe ASGI local 4/4 PASS; aún no integrado en main. No hay servicio desplegado. Presupuesto incremental autorizado: USD 0.
+GitHub es la fuente de verdad. El chat ayuda a decidir y ejecutar, pero no sustituye issues, PR, commits, pruebas ni este handoff.
 
-**Siguiente acción:** verificar el plan Workers Free (Billing Read faltante), comprobar URL estática y desplegar API Python aislada cuando se confirme coste cero; después probar conexión PostgreSQL real desde runtime y Auth. RLS privado 7/7 PASS; Pages estático desplegado, no API. No ampliar alcance ni generar cargos.
+## Estado de GitHub verificado — 2026-11-27
 
-**Regla de prioridad:** AEOS Starter es ahora el trabajo de producto activo. La antigua línea AEOS LIVE / diagnóstico web / leads de EE. UU. queda preservada como experimento separado y PAUSADA respecto al Starter; no mezclar sus objetivos, empresas piloto, fuentes, métricas o pagos con el mercado peruano de Starter.
+Repositorio: `Franchute10/autonomous-agent-economy`; rama por defecto: `main`.
+
+| Elemento | Base | Referencia comprobada | Estado |
+|---|---|---|---|
+| main | — | `1ef00bacd00a14d7e79a4f558c4fd2987307c9ee` | Rama canónica al momento de la consulta |
+| [PR #51](https://github.com/Franchute10/autonomous-agent-economy/pull/51) | `main` | head registrado `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d` | Draft; S0-03; no integrado. Verificar checks vigentes |
+| [PR #52](https://github.com/Franchute10/autonomous-agent-economy/pull/52) | `product/aeos-starter-s0-03-20261125` | SHA dinámico: consultar el head vivo de GitHub; último candidato de código probado `513b83167f0271514088bc20e44e8f43d4fbbbaf` | Draft; S0-04; no integrado |
+| [Issue #53](https://github.com/Franchute10/autonomous-agent-economy/issues/53) | — | — | Abierta; QUEUED, bloqueada por #51/#52 |
+
+### Validación de PR #52
+
+El candidato de código `8f28d3836fde9354cd2eb79ae30286015f5d11e7` obtuvo:
+- GitHub Actions CI push: run [46081019608](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46081019608) — PASS.
+- GitHub Actions CI pull request: run [46081025651](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46081025651) — PASS.
+- Ruff lint: PASS.
+- Ruff format: PASS (204 archivos ya formateados).
+- Mypy: PASS.
+- Pytest: **595 passed, 7 skipped**.
+
+Fallos previos del mismo PR, ya corregidos en el candidato validado:
+- Run 46080525054: Ruff E402 por imports de tests fuera de cabecera.
+- Run 46080659280: Ruff format en auth.py, worker.py y test_app.py.
+
+El head documental `1011c59530050d1fea1a977c7fbe20d4957bb1d8` obtuvo push run [46082800734](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082800734) y PR run [46082802373](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46082802373), ambos PASS. Después se añadió este checkpoint de handoff a la misma rama, lo que genera un nuevo head y una nueva ejecución CI. **El SHA exacto del head posterior a este documento debe consultarse en GitHub; no se auto-referencia el SHA de un archivo dentro del commit que lo crea.** El candidato de código probado actualizado es `513b83167f0271514088bc20e44e8f43d4fbbbaf`.
+
+### CI y evidencia de infraestructura — 2026-11-27
+
+**CI verificada:**
+- PR #51, head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`: push run [45557284664](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45557284664) PASS; PR run [45554584495](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554584495) PASS; push run [45554576178](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554576178) PASS.
+- PR #52, code + CI workflow head `ee1f2ccfe235df7e61c31b926cae063ec67d449c`: push run [46083894693](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46083894693) PASS; PR run [46083898722](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46083898722) PASS. Root suite: **595 passed / 7 skipped**; Worker adapter suite: **8 passed on Python 3.13**. The Worker-specific tests now run explicitly from `deploy/cloudflare/aeos-starter-api`; root `pytest` alone did not collect them. This handoff checkpoint itself is a later commit; verify the live branch head and its CI on the next resume.
+- Código del PR #52 en `513b83167f0271514088bc20e44e8f43d4fbbbaf`: fail-closed auth distinguishes anonymous accounts (403) from malformed upstream user payloads (503); added tests for malformed headers/config, upstream 500, missing `is_anonymous`, invalid UUID and non-object payload. Ruff lint/format PASS, mypy PASS. En el head con CI ampliada `ee1f2ccfe235df7e61c31b926cae063ec67d449c`: root pytest **595 passed / 7 skipped** y Worker adapter pytest **8 passed** bajo Python 3.13.
+
+**Supabase — verificación actual de solo lectura:**
+- Organización Supabase: plan `free` (confirmado por Management API). Proyecto `aeos-starter`: ID `ltdarjzxdrwffilmsftm`, región São Paulo (`sa-east-1`), PostgreSQL 17.12, estado `ACTIVE_HEALTHY`.
+- Una migración: `20261125053223_starter_s0_03_private_rls_probe`.
+- Única tabla custom: `aeos_spike.tenant_probe`, en esquema privado. No hay tablas de negocio Starter.
+- Security advisor: 0 lints; performance advisor: 0 lints.
+- El probe RLS registrado fue **7/7 PASS** con identidades/datos sintéticos, writes denegados y rollback; no demuestra Auth real, membership ni autorización de tenants en la API.
+
+**Cloudflare — verificación actual de solo lectura:**
+- Pages `aeos-starter-preview`: deployment `264d0cc8-5c6d-4e6e-8e4f-bf98ccac6106`, SHA `2373804b0882963d0c456f590c316474a45d5893`, cinco etapas exitosas, `uses_functions=false`. URL: https://264d0cc8.aeos-starter-preview.pages.dev. No se pudo verificar su respuesta HTTP desde esta sesión.
+- Worker `aeos-starter-api`: subdominio workers.dev `frank-2e`; deployment activo `fba5c2a4-4ef0-4685-8e77-0a396e487074`; versión activa `ec0cab99-437b-47da-bb66-bca749b95776` (version 5), creada/desplegada el 2026-11-25.
+- **Hallazgo crítico:** el contenido descargado del Worker activo contiene el `app.py` bootstrap anterior. Su `/health` reporta `authentication_enabled: false`; `/api/v1/capabilities` no anuncia Auth; no contiene `worker.py`, `auth.py` ni la ruta `/api/v1/me` del código actual del PR #52. Por tanto, el código de PR #52 **no está desplegado**; la versión activa sigue siendo placeholder.
+- La URL configurada del Worker es https://aeos-starter-api.frank-2e.workers.dev, pero no se pudo comprobar HTTP desde esta sesión.
+- **El propietario confirmó con dos capturas del dashboard (2026-11-27) que la cuenta está en Workers Free:** la pestaña `Límites de gasto` muestra Workers y Durable Objects en `Nivel gratuito`; `Suscripciones` muestra `Workers Free — Activo`, ofrece `Actualizar a Workers Paid` por USD 5/mes más uso y no tiene método de pago registrado. No existe suscripción Paid ni gasto activo según el dashboard. La inferencia anterior basada en `usage_model: standard` fue incorrecta: ese campo de configuración/API no debe usarse por sí solo para inferir la suscripción de la cuenta. La evidencia del dashboard prevalece. Mantener el límite de gasto incremental USD 0 y no habilitar productos de pago.
+
+### Intento de empaquetado Worker — 2026-11-27
+
+- Se intentó crear una versión no desplegada vía Cloudflare Version Upload para el Worker existente, con `keep_bindings: ["secret_text"]` y sin leer ni sobrescribir secretos.
+- La primera carga fue rechazada con error 10021: falta el módulo `workers` del SDK externo. La segunda, sin el vendor SDK, fue rechazada también con error 10021. **No se creó versión ni deployment; el Worker activo y sus secretos permanecen intactos.**
+- La documentación y el repositorio oficial `cloudflare/workers-py` confirman que el SDK debe empaquetarse en `python_modules/` mediante `pywrangler sync`; la solución no es desactivar `python_workers` ni añadir el flag `disable_python_external_sdk`.
+- Se elevó el mínimo de dependencias del proyecto a `workers-py>=1.17.9,<2` y `workers-runtime-sdk>=1.9.7,<2`.
+- Se añadió a CI una etapa explícita que ejecuta `uv sync --all-groups`, `uv run pywrangler sync` y verifica `python_modules/workers/__init__.py` y `python_modules/_workers_sdk_patch_loader.pth`.
+- Commit de dependencias: `7f13b3a89a6afb64bf3045255f01227640a310f1`; commit del workflow CI: `af99ae18de851a407d0a1d3184920b2a37004f8c`. CI push `46085765986` y PR `46085768182` estaban en ejecución al guardar este checkpoint. No declarar PASS hasta verificar ambos resultados.
+
+### Worker versión 6 — SDK empaquetado y staged (2026-11-27)
+
+- Se subió correctamente una versión no desplegada al Worker existente `aeos-starter-api`, usando el SDK oficial de `cloudflare/workers-py` (runtime-sdk 1.9.7) bajo `python_modules/`.
+- Version ID: `4bd80ea2-7f08-4440-b8d0-62daeb2c6cdf`; número 6; `has_preview=true`; source `api`; handlers `fetch`.
+- Código: `worker.py`, `app.py`, `auth.py`; SDK empaquetado con módulos `workers` y loader `.pth`. Se conservó `compatibility_date=2026-11-25` y flag `python_workers`.
+- Se usó `keep_bindings: ["secret_text"]`. La respuesta de versión y la configuración actual confirman que siguen presentes las dos bindings `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY`; no se leyeron ni modificaron sus valores.
+- URL de versión: https://4bd80ea2-aeos-starter-api.frank-2e.workers.dev
+- La deployment activa sigue siendo `fba5c2a4-4ef0-4685-8e77-0a396e487074`, versión 5 `ec0cab99-437b-47da-bb66-bca749b95776`, al 100%. La versión 6 **no recibe tráfico de producción**.
+- La prueba HTTP automatizada desde esta sesión no es posible: el acceso web no resuelve el hostname `workers.dev`, y los sandboxes de ejecución bloquean requests salientes a ese hostname. No inferir funcionamiento a partir de `has_preview=true` ni de una carga exitosa. El propietario debe abrir los tres endpoints read-only indicados en el chat; después se podrá desplegar al 100% si las respuestas son correctas.
+
+### Límites de lo que está probado
+
+La CI es local/sintética. No prueba despliegue del código actual de PR #52, HTTP reachability, login real, aceptación de token, conexión PostgreSQL desde Worker, membership/onboarding, RLS desde el runtime, Model Gateway, workflows durables ni ejecución de agentes. La versión desplegada de Cloudflare es un placeholder antiguo y no debe confundirse con el código de la rama. No leer ni copiar valores de secretos. El plan Free permite ejecutar el Worker dentro de los límites documentados: 100.000 requests/día, 10 ms CPU/request, 128 MB memoria y 50 subrequests/request; diseñar y probar dentro de esos límites.
+
+## Siguiente secuencia técnica
+
+1. Resolver la dependencia PR #51 → PR #52 mediante revisión humana. Ambos siguen Draft; no hacer merge automáticamente.
+2. Verificar manualmente desde navegador la URL estática y el endpoint configurado del Worker. No enviar tokens ni datos sensibles en capturas.
+3. El dashboard del propietario ya confirmó Workers Free y ausencia de método de pago. Python Workers es compatible con el runtime de Workers; respetar el límite Free de 100.000 requests/día y 10 ms CPU/request. No habilitar Workers AI, Durable Objects pagos, Containers, Hyperdrive ni servicios metered.
+4. La versión 6 ya está cargada y staged. El propietario debe comprobar la URL de versión: `/health` 200, `/api/v1/capabilities` 200 y `/api/v1/me` sin token 401. No enviar token real. Si cualquiera falla, no desplegar; corregir código y volver a subir otra versión staged preservando `secret_text`.
+5. Solo tras smoke tests aprobados, crear deployment con versión 6 al 100% del tráfico. Después repetir smoke tests en la URL estable y registrar status, payload sanitizado, SHA, version ID y deployment ID. No declarar Auth real antes de probar con un usuario sintético controlado si el propietario lo autoriza.
+6. Probar conexión PostgreSQL desde el runtime y membership/RLS con dos tenants sintéticos; separar la prueba de identidad de la autorización organizacional.
+7. Mantener AEOS-ARCH-001 (#53) en QUEUED mientras #51/#52 no estén resueltos. Después crear rama limpia desde el main vigente e implementar estándares ECC de calidad, seguridad, skills y evaluaciones deterministas.
+8. Mantener gasto incremental USD 0. No upgrades, inferencia pagada ni servicios metered.
+
+## Continuidad del chat — activador exacto
+
+Cuando el propietario escriba:
+
+`continua con lo trabajado en el chat: Agentes Mype`
+
+retomar desde este handoff y desde el estado actual de GitHub. No reiniciar el proyecto, no pedir que vuelva a pegar conversaciones o decisiones ya registradas y no asumir que los SHAs de este documento siguen vigentes.
+
+Procedimiento obligatorio al retomar:
+1. Consultar GitHub: main, PR abiertos, issues activos, ramas, base/head SHA, checks/Actions y dependencias.
+2. Leer `AGENTS.md`, `docs/PROJECT_READINESS.md`, `PROJECT_HANDBOOK.md`, `docs/control/PROJECT_CONTROL.md`, este handoff, Starter README/plan/roadmap/test ledger, ADR index y el issue/PR de la siguiente tarea.
+3. Identificar la siguiente tarea no bloqueada y respetar el máximo de dos tareas técnicas activas.
+4. Preservar las decisiones ya confirmadas; preguntar solo si falta una decisión realmente nueva o una autorización necesaria.
+5. Ejecutar trabajo verificable, no limitarse a resumir ni a volver a planificar lo ya aprobado.
+6. Cerrar cada bloque actualizando GitHub: issue, PR, rama, SHA, comandos, entorno, resultados con denominadores, evidencia real/sintética, fallos, riesgos, decisiones, estado y siguiente acción única.
+7. Antes de cambiar de chat o terminar la sesión, actualizar este handoff con el nuevo estado verificado.
 
 ## Retomar
 1. Leer [el índice Starter](../starter/README.md) y [el roadmap](../starter/ROADMAP.md).
@@ -29,7 +150,7 @@ El propietario ha reorientado el trabajo al lanzamiento de un único producto Sa
 
 Este handoff gobierna la siguiente acción. Los apartados históricos posteriores preservan el piloto LIVE anterior y no sustituyen la prioridad Starter vigente.
 
-Actualizado: 2026-11-21 (America/Lima). Planificación y ejecución focal; continuar con el modelo disponible.
+Actualizado: 2026-11-27 (America/Lima). Planificación y ejecución focal; continuar con el modelo disponible.
 
 ## Retomar
 1. Leer este archivo y [el plan ejecutable](LUNA_EXECUTION_PLAN.md).

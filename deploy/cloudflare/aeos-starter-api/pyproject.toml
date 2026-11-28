@@ -1,0 +1,19 @@
+[project]
+name = "aeos-starter-api"
+version = "0.1.0"
+description = "Cloudflare Python Worker bootstrap for AEOS Starter."
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "workers-py>=1.17.9,<2",
+    "workers-runtime-sdk>=1.9.7,<2",
+    "pytest>=8,<9",
+]
+
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+testpaths = ["tests"]
+
+pythonpath = ["src"]

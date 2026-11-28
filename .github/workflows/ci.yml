@@ -22,3 +22,24 @@ jobs:
         run: mypy
       - name: Tests
         run: pytest
+      - name: Set up Python 3.13 for Worker adapter
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Worker test runner
+        run: python -m pip install "pytest>=8,<9"
+      - name: Worker adapter tests
+        working-directory: deploy/cloudflare/aeos-starter-api
+        run: python -m pytest
+      - name: Set up uv for Python Worker packaging
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: deploy/cloudflare/aeos-starter-api/pyproject.toml
+      - name: Vendor Python Worker runtime SDK
+        working-directory: deploy/cloudflare/aeos-starter-api
+        run: |
+          uv sync --all-groups
+          uv run pywrangler sync
+          test -f python_modules/workers/__init__.py
+          test -f python_modules/_workers_sdk_patch_loader.pth

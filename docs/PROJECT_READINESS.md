@@ -1,3 +1,5 @@
+> **Estado operativo vigente — 2026-11-27:** Este snapshot contiene estado histórico fechado el 2026-11-20. No usar sus ramas, PR, prioridades o bloqueos fechados como estado actual. Para AEOS Starter, consultar [el handoff vigente](control/NEXT_SESSION_HANDOFF.md), [el control Starter](starter/README.md) y GitHub (main, PR, CI y issues). La prioridad actual es AEOS Starter para Perú; Comercial es el único workflow departamental completo previsto para v0.1; presupuesto incremental autorizado: USD 0. La línea LIVE/Commercial Lead Engine está separada y no debe mezclarse con Starter.
+
 # AEOS Project Readiness and Control
 
 **Actualización de continuidad:** [Plan vigente](control/PROJECT_CONTROL.md) · [Pruebas y reconciliación](control/VALIDATION_2026-11-20.md). El alcance confirmado incluye productos y servicios; el siguiente paso de producto es validar el diagnóstico y la calidad de fuentes en varios rubros. La revisión de siete diferencias followup está cerrada; las 34 de main y la laptop siguen abiertas.
