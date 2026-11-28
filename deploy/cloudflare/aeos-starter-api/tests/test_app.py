@@ -43,19 +43,30 @@ def test_public_config_exposes_only_public_publishable_values() -> None:
 
 
 def test_public_config_rejects_invalid_url_and_secret_keys() -> None:
-    assert public_config("GET", "http://testproject.supabase.co", "sb_publishable_test")[0] == 503
+    assert (
+        public_config("GET", "http://testproject.supabase.co", "sb_publishable_test")[
+            0
+        ]
+        == 503
+    )
     assert public_config(
         "GET", "https://testproject.supabase.co", "sb_secret_do_not_expose"
     ) == (503, {"error": "configuration_unavailable"})
-    assert public_config(
-        "GET", "https://testproject.supabase.co", "sb_publishable_test"
-    )[0] == 200
+    assert (
+        public_config("GET", "https://testproject.supabase.co", "sb_publishable_test")[
+            0
+        ]
+        == 200
+    )
 
 
 def test_public_config_rejects_non_get_methods() -> None:
-    assert public_config(
-        "POST", "https://testproject.supabase.co", "sb_publishable_test"
-    )[0] == 405
+    assert (
+        public_config("POST", "https://testproject.supabase.co", "sb_publishable_test")[
+            0
+        ]
+        == 405
+    )
 
 
 def test_non_get_methods_are_rejected() -> None:
