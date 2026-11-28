@@ -7,7 +7,7 @@ Esta sección es el estado más reciente y prevalece sobre las secciones histór
 
 ### PRs y CI
 - PR #51: base `main` (`1ef00bacd00a14d7e79a4f558c4fd2987307c9ee`), head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`; CI de PR run [45554584495](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554584495) — PASS.
-- PR #52: base `product/aeos-starter-s0-03-20261125`, head `961dcb5da60164649124ab7d70f2f04a252529f8`; CI de PR run [46086207582](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46086207582) — PASS.
+- PR #52: base `product/aeos-starter-s0-03-20261125`; latest verified head before this handoff refresh was `c31c68f2945f1cbd914b55fe805fb8caa8b6f5e6`, CI de PR run [46088973359](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46088973359) — PASS. This file update creates a newer head; query GitHub for its SHA and CI before relying on it.
 - Ambos PR siguen abiertos y Draft, sin revisiones registradas. PR #52 sigue apilado sobre #51. Issue #53 permanece QUEUED/BLOCKED; no abrir su rama hasta resolver #51 y #52.
 
 ### Evidencia HTTP actual
