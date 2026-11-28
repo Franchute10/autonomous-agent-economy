@@ -6,8 +6,8 @@ Actualizado: 2026-11-27 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 Esta sección es el estado más reciente y prevalece sobre las secciones históricas más abajo que aún describen el Worker como staged o la URL de Pages como no verificada.
 
 ### PRs y CI
-- PR #51: base `main` (`1ef00bacd00a14d7e79a4f558c4fd2987307c9ee`), head `bb3b469a4c42ac075b7e72e53de2bb5f9e246d6d`; CI de PR run [45554584495](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/45554584495) — PASS.
-- PR #52: base `product/aeos-starter-s0-03-20261125`; latest verified head before this handoff refresh was `c31c68f2945f1cbd914b55fe805fb8caa8b6f5e6`, CI de PR run [46088973359](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46088973359) — PASS. This file update creates a newer head; query GitHub for its SHA and CI before relying on it.
+- PR #51: base `main` (`1ef00bacd00a14d7e79a4f558c4fd2987307c9ee`), head `a0b3d00d9b2fe0a38bcb6c4aa1ae43bcfcd84c57`; CI run [46092750914](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46092750914) — PASS.
+- PR #52: base `product/aeos-starter-s0-03-20261125`; head before this handoff refresh `41f5cd539e66de80515871dd6b281599d98a74f8`, CI de PR run [46089162095](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46089162095) — PASS. This handoff update creates a newer head; query GitHub for the resulting SHA and CI before relying on it.
 - Ambos PR siguen abiertos y Draft, sin revisiones registradas. PR #52 sigue apilado sobre #51. Issue #53 permanece QUEUED/BLOCKED; no abrir su rama hasta resolver #51 y #52.
 
 ### Evidencia HTTP actual
