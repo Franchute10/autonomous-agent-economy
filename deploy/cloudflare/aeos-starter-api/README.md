@@ -1,17 +1,24 @@
 # AEOS Starter API — Cloudflare Python Worker
 
-This is a separate runtime for AEOS Starter. It does not modify the existing `lumen` Worker or the `ferreteriaconstruyeperu.com` zone. Cloudflare Workers is the intended runtime; the Python Worker entrypoint is not a Vercel Python function.
+Cloudflare Workers is the intended runtime for AEOS Starter. The Python Worker entrypoint is not a Vercel Python function. This Worker is separate from the existing `lumen` Worker and `ferreteriaconstruyeperu.com` zone.
 
-## Current scope
+## Current candidate
 
-- Python Worker entrypoint using Cloudflare's `workers` runtime.
-- `GET /health` and `GET /api/v1/capabilities` report implemented and unverified states separately.
-- `GET /api/v1/me` validates a bearer token through Supabase Auth's `/auth/v1/user` endpoint and returns only the canonical user ID.
-- Candidate PR #55 adds `GET /api/v1/organizations` and `POST /api/v1/organizations`. The list query is scoped to the user ID verified by Supabase Auth. Creation uses an authenticated PostgREST RPC, an idempotency UUID, and server-derived `auth.uid()`; client-supplied user and organization IDs are ignored.
-- The candidate migration creates organizations and memberships with PostgreSQL RLS and an atomic owner-membership insert.
-- Supabase URL and publishable key are Worker bindings. No service-role/admin key is used.
+- Python Workers SDK 1.9.7 is included in the uploaded Worker bundle.
+- `GET /health` and `GET /api/v1/capabilities` distinguish implemented work from live-verified features.
+- `GET /api/v1/public-config` returns only the Supabase project URL and publishable client key; it never returns a service-role key.
+- `GET /api/v1/me` verifies a bearer token through Supabase Auth and returns the canonical user ID.
+- `GET /api/v1/organizations` lists only memberships returned for the authenticated user.
+- `POST /api/v1/organizations` creates a tenant using an authenticated PostgREST RPC, a UUID idempotency key, and server-derived `auth.uid()`. Client-supplied user or organization IDs are ignored.
+- CORS accepts HTTPS origins only from the dedicated `aeos-starter-preview.pages.dev` project and its deployment subdomains. Requests omit browser credentials.
+- The static preview provides signup, login, organization creation, and organization listing. Access tokens live in tab-scoped `sessionStorage`; no token is persisted in localStorage.
+- Preview signup writes a user to the dedicated free `aeos-starter` Supabase project. Test only with a synthetic account and a fictitious organization name. Do not use customer data.
 
-The organization API is not live-ready until the migration is applied to the dedicated `aeos-starter` project, real PostgreSQL RLS checks pass, and a staged Worker version passes runtime checks. At this checkpoint, no valid Supabase session or database request from the Worker has been verified. Do not send customer data or claim live authentication based on unit tests.
+## Deployment status
+
+Production remains on version 6. Version 8 is an uploaded candidate for preview testing only and has not received production traffic. Its Version URL uses the Worker's production bindings, including the dedicated `aeos-starter` Supabase project. No production secrets were changed.
+
+The public configuration and unauthenticated gates have been observed at the Version URL. A valid user session, database request from the Worker, signup email confirmation, and end-to-end organization creation still require live verification. Do not treat unit tests or a successful version upload as live authentication proof.
 
 ## Local checks
 
@@ -21,21 +28,16 @@ From this directory:
 uv run pytest
 ```
 
-## Deploy
+The repository CI runs lint, format, type checks, core tests, Worker adapter tests, and SDK packaging checks.
 
-Cloudflare documents Python Workers through `pywrangler`:
+## Cost and side-effect boundaries
 
-```bash
-uv run pywrangler deploy
-```
+Keep Cloudflare Workers and Supabase on their confirmed Free tiers. Do not upgrade plans, add paid bindings, or enable paid AI services. The Worker has no model inference, agent execution, external messaging, or customer-data workflow.
 
-Keep the Worker on the confirmed Workers Free plan and within its free limits. Do not add paid bindings or upgrade plans.
+## Next MVP gates
 
-## Next implementation gates
-
-1. Apply the reviewed migration to the dedicated Supabase project and run synthetic two-tenant RLS and idempotency checks in a rolled-back transaction.
-2. Stage a Worker version and verify missing/invalid/valid session behavior and organization reads/creation without using real customer data.
-3. Build the browser signup/login and organization onboarding experience.
-4. Add durable task/workflow persistence and the AEOS runtime using the canonical domain state machines.
-5. Add evidence capture, human approval, and audit history. No automatic external messages.
-6. Add a model adapter only within the confirmed free allocation and with per-run limits; stop if the free quota is exhausted.
+1. Verify a synthetic account signup/login and email confirmation on the dedicated preview.
+2. Verify organization list/create against PostgreSQL RLS using synthetic records.
+3. Build durable task and workflow persistence following the AEOS domain state machines.
+4. Add evidence capture, human approvals, audit history, and a Commercial workflow. Do not automatically send external messages.
+5. Add a model adapter only within confirmed free allocations with per-run limits.

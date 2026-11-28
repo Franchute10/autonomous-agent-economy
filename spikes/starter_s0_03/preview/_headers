@@ -1,0 +1,7 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://aeos-starter-api.frank-2e.workers.dev https://78c0848d-aeos-starter-api.frank-2e.workers.dev https://*.aeos-starter-api.frank-2e.workers.dev https://ltdarjzxdrwffilmsftm.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Cache-Control: no-store
