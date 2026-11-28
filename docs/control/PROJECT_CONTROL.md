@@ -23,6 +23,15 @@ AEOS LIVE / diagnóstico web / pilotos de oportunidades de EE. UU. quedan preser
 
 ---
 
+## Estado vigente — 2026-11-28 (America/Lima)
+
+- AEOS Starter Perú sigue como prioridad; workflow Comercial confirmado. Gasto incremental autorizado: USD 0; Cloudflare Workers Free.
+- PR #51 y #52 están fusionados; PR #54 también está fusionado. PR #55 implementa onboarding organizacional y está listo para revisión, no fusionado. Head actual esperado: `feat/starter-org-onboarding-s0-03`; verificar SHA y CI antes de nuevas acciones.
+- En el proyecto Supabase Free `aeos-starter` ya están aplicadas las tablas organizations/memberships con RLS y la RPC corregida. Prueba transaccional sintética de dos tenants PASS; rollback dejó 0 filas.
+- Auth válida, llamadas de base desde Worker, UI de signup/onboarding, perfil de negocio, runtime/modelo y workflow Comercial E2E permanecen pendientes. No declarar MVP ni S0-03 completo.
+- No se subió nueva versión del Worker ni se modificó el tráfico/secretos.
+- Siguiente gate: autorización de merge del PR #55; luego Worker candidate y comprobación Auth/PostgREST desde runtime, sin cambiar producción antes de validar.
+
 ## Archivo histórico: control del piloto LIVE (2026-11-21)
 
 Actualizado: 2026-11-21 (America/Lima).
