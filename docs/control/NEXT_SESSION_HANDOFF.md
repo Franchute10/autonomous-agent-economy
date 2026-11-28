@@ -6,9 +6,9 @@ Actualizado: 2026-11-27 (America/Lima). **Prioridad vigente: AEOS Starter MVP**.
 Esta sección es el estado más reciente y prevalece sobre las secciones históricas más abajo que aún describen el Worker como staged o la URL de Pages como no verificada.
 
 ### PRs y CI
-- PR #51: base `main` (`1ef00bacd00a14d7e79a4f558c4fd2987307c9ee`), head `a0b3d00d9b2fe0a38bcb6c4aa1ae43bcfcd84c57`; CI run [46092750914](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46092750914) — PASS.
-- PR #52: base `product/aeos-starter-s0-03-20261125`; head before this handoff refresh `41f5cd539e66de80515871dd6b281599d98a74f8`, CI de PR run [46089162095](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46089162095) — PASS. This handoff update creates a newer head; query GitHub for the resulting SHA and CI before relying on it.
-- Ambos PR siguen abiertos y Draft, sin revisiones registradas. PR #52 sigue apilado sobre #51. Issue #53 permanece QUEUED/BLOCKED; no abrir su rama hasta resolver #51 y #52.
+- PR #51: **merged** a `main` mediante merge commit `08ad7dd6fe98123cad89a1acc5000b7310e2e9b5`; CI anterior a la integración: run [46092750914](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46092750914) — PASS.
+- PR #52: abierto, Draft, sin revisiones; ahora apunta directamente a `main` en `08ad7dd6fe98123cad89a1acc5000b7310e2e9b5`. Head antes de esta actualización: `18d51c5bfc0470ff9a94d63042b1483f86b5bb5f`; CI run [46092875990](https://github.com/Franchute10/autonomous-agent-economy/actions/runs/46092875990) — PASS cuando aún estaba apilado sobre la rama de #51. Verificar CI tras el cambio de base y este commit.
+- Issue #53 sigue QUEUED/BLOCKED por PR #52. No abrir otra rama activa hasta resolverlo.
 
 ### Evidencia HTTP actual
 - Pages estático `aeos-starter-preview`: GET público el 2026-11-27 devolvió HTTP 200. El HTML incluye `noindex,nofollow` y explica que no autentica ni ejecuta tareas.
